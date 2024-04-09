@@ -26,12 +26,16 @@ int main() {
     WaitForSingleObject(hand, 100000);
 
     const char* str = "Hello, world";
-    client.sock_send(13, str);
+    client.sock_send(strlen(str) + 1, str);
 
     char* buf = server.sock_receive(server.get_client_sock(0));
     printf("got \"%s\" from client\n", buf);
 
-    server.sock_send(server.get_client_sock(0), 13, buf);
+    // const char* str2 = "Goodbye, world";
+    // server.sock_send(server.get_client_sock(0), strlen(str2), str2);
+
+    // char* buf2 = client.sock_receive();
+    // printf("got \"%s\" from server\n", buf2);
 
     client.close_conn();
     server.sock_shutdown();
