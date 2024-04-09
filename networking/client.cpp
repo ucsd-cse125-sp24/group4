@@ -61,7 +61,7 @@ bool Client::sock_send(int length, const char* data) {
     return true;
 }
 
-char* Client::sock_receive(SOCKET server_conn) {
+char* Client::sock_receive() {
     int iResult = recv(this->conn_sock, this->recvbuf, this->buflen, 0);
     if ( iResult > 0 ) {
         printf("Bytes received: %d\n", iResult);
