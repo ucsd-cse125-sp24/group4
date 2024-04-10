@@ -22,4 +22,4 @@ jobs:
     - name: Test
       # Run tests (assuming tests are included in the build process or as separate executables)
       working-directory: ./build
-      run: ./NetworkTest.exe
+      run: ctest -C Debug
