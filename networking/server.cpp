@@ -47,12 +47,18 @@ Server::Server() {
         return;
     }
     freeaddrinfo(result);
+
+    this->num_connections = 0;
 }
 
 SOCKET Server::get_client_sock(int i) {
     if (i >= int(MAX_CLIENTS))
         return INVALID_SOCKET;
     return this->connections[i];
+}
+
+int Server::get_num_clients() {
+    return this->num_connections;
 }
 
 void Server::sock_listen() {
@@ -66,6 +72,7 @@ void Server::sock_listen() {
     SOCKET client_conn = INVALID_SOCKET;
     while (client_conn == INVALID_SOCKET) {
         client_conn = accept(this->listen_sock, NULL, NULL);
+        this->num_connections++;
         // add some timeout
         // also edit to support multiple clients
     }
@@ -102,6 +109,7 @@ void Server::close_client(SOCKET client_conn) {
     // shut down connection to client, then close corresponding socket
     shutdown(client_conn, SD_SEND);
     closesocket(client_conn);
+    this->num_connections--;
 }
 
 void Server::sock_shutdown() {

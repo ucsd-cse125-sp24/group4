@@ -16,3 +16,5 @@ The following files in this directory are necessary for proper networking:
 
 
 Additionally, `network_sandbox.cpp` is a sandboxing/testing file for testing client/server communications. This file can be compiled from the project's base directory via `make NetworkTest` and run via `./networking/network_test`. Further explanation of this testfile should be kept documented within that file.
+
+Unit tests available in `tests/network_test.cpp`. These can be run using ctest -C Debug from the `build` directory after building using CMake.
