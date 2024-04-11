@@ -25,7 +25,6 @@ class Client {
 
         /*
         Receive data from the server
-        @param server_conn: Client-side socket for connection to server
         @return pointer to data received
         */
         char* sock_receive();
