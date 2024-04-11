@@ -1,6 +1,7 @@
 #include "server.h"
 #include "client.h"
 #include <iostream>
+#include <windows.h>
 
 // CreateThread doesn't like calling an object's member function;
 // call non-member function which calls the obj's member function instead
@@ -30,9 +31,6 @@ int main() {
 
     // instantiation automatically connects to localhost on default port (which is our default server port/addr)
     Client client = Client();
-
-    // joins server thread to main, not super necessary tbh
-    WaitForSingleObject(hand, 100000);
 
     // send a hardcoded "Hello, world" msg to server
     const char* str = "Hello, world";

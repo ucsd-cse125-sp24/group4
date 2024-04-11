@@ -10,6 +10,7 @@ Module to run the game server
 */
 class Server {
     private:
+        bool is_running;
         SOCKET listen_sock;
         char sendbuf[DEFAULT_BUFLEN];
         char recvbuf[DEFAULT_BUFLEN];
