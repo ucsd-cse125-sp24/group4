@@ -1,0 +1,25 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Configure CMake
+      run: |
+        mkdir build
+        cd build
+        cmake -G "MinGW Makefiles" ..
+
+    - name: Build
+      working-directory: ./build
+      run: cmake --build .
+
+    - name: Test
+      # Run tests (assuming tests are included in the build process or as separate executables)
+      working-directory: ./build
+      run: ctest -C Debug
