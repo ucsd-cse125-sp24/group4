@@ -15,6 +15,7 @@ class Server {
         char recvbuf[DEFAULT_BUFLEN];
         int buflen = DEFAULT_BUFLEN;
         SOCKET connections[MAX_CLIENTS];
+        int num_connections;
 
     public:
         Server();
@@ -23,6 +24,11 @@ class Server {
         Get the socket for the ith client connected to this server
         */
         SOCKET get_client_sock(int i);
+
+        /*
+        Get the number of clients this server is hosting
+        */
+        int get_num_clients();
         
         /*
         Instruct server to listen for new connections
