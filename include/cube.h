@@ -23,4 +23,8 @@ public:
 
 	void draw(const glm::mat4& viewProjMtx, Shader* shader);
 	void move(glm::vec3 direction);
+
+	// Getters and setters
+	glm::mat4 get_world() { return model; }
+	void set_color(glm::vec3 color) { this->color = color; }
 };

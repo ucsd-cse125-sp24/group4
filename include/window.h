@@ -2,6 +2,7 @@
 #include "core.h"
 #include "cube.h"
 #include "shader.h"
+#include "camera.h"
 
 /*
  * Window.h

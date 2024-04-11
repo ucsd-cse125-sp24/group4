@@ -3,6 +3,8 @@
 /*
  * Graphics.h
  * Includes for the basic graphics client
+ * Change OpenGL settings here
+ * I don't think any other functions will end up here
  */
 
 #include "shader.h"
