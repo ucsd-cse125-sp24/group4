@@ -34,8 +34,7 @@ int main() {
     // joins server thread to main, not super necessary tbh
     WaitForSingleObject(hand, 100000);
 
-    // send a hardcoded "Hello, world" msg to server
-    const char* str = "Hello, world";
+    const char* str = "Hello, world!";
     client.sock_send(strlen(str) + 1, str);
 
     // server receives whatever its first client connection (our only client rn) has sent
@@ -47,11 +46,11 @@ int main() {
     buf = client.sock_receive();
     printf("client got \"%s\" from server\n", buf);
   
-    // const char* str2 = "Goodbye, world";
-    // server.sock_send(server.get_client_sock(0), strlen(str2), str2);
+    const char* str2 = "Goodbye, world!";
+    server.sock_send(server.get_client_sock(0), strlen(str2) + 1, str2);
 
-    // char* buf2 = client.sock_receive();
-    // printf("got \"%s\" from server\n", buf2);
+    char* buf2 = client.sock_receive();
+    printf("got \"%s\" from server\n\n", buf2);
 
     // client closes its own connection, server handles closing its conns + shutting down server
     client.close_conn();

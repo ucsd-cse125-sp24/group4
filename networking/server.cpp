@@ -80,20 +80,20 @@ void Server::sock_listen() {
 }
 
 bool Server::sock_send(SOCKET client_conn, int length, const char* data) {
-    int iSendResult = send(client_conn, recvbuf, length, 0 );
+    int iSendResult = send(client_conn, data, length, 0 );
     if (iSendResult == SOCKET_ERROR) {
         printf("send failed with error: %d\n", WSAGetLastError());
         this->sock_shutdown();
         return false;
     }
-    printf("Bytes sent: %d\n", iSendResult);
+    printf("Bytes sent from server: %d\n", iSendResult);
     return true;
 }
 
 char* Server::sock_receive(SOCKET client_conn) {
     int iResult = recv(client_conn, this->recvbuf, this->buflen, 0);
     if (iResult > 0) {
-        printf("Bytes received: %d\n", iResult);
+        printf("Bytes received from client: %d\n", iResult);
         return this->recvbuf;
     }
     else if (iResult == 0)
