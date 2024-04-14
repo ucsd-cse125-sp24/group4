@@ -28,15 +28,15 @@ int test_connect(int num_clients) {
     // set up server and listen for clients
     Server server = Server();
     unsigned long threadID = 0U;
-    HANDLE hand = CreateThread(nullptr, 0U, &call_listen, &server, 0, &threadID);
+    HANDLE listen_hand = CreateThread(nullptr, 0U, &call_listen, &server, 0, &threadID);
 
     // connect specified number of clients
     std::vector<Client> client_list;
     for (int i = 0; i < num_clients; i++) {
-        // connect client to server; if failure, return 1
+        // connect client to server
         client_list.push_back(Client());
+        printf("connected %d\n", i);
     }
-    WaitForSingleObject(hand, 100000);
 
     // confirm correct number of connections
     if (server.get_num_clients() != num_clients)
@@ -51,7 +51,7 @@ int test_connect(int num_clients) {
     return 0;
 }
 
-int test_data_transport() {
+int test_data_transport(int num_clients) {
     /*
     Test that data can be communicated between server and client
 
@@ -62,8 +62,12 @@ int test_data_transport() {
     Server server = Server();
     unsigned long threadID = 0U;
     HANDLE hand = CreateThread(nullptr, 0U, &call_listen, &server, 0, &threadID);
-    Client client = Client();
-    WaitForSingleObject(hand, 100000);
+    std::vector<Client> client_list;
+    for (int i = 0; i < num_clients; i++) {
+        // connect client to server
+        client_list.push_back(Client());
+        printf("connected %d\n", i);
+    }
 
     // set up buffers for data, each of length MAX_DATA_LENGTH
     char client_buf[MAX_DATA_LENGTH];
@@ -79,37 +83,44 @@ int test_data_transport() {
             client_buf[j] = rand() % 127 + 1; // get char in range [1, 127], no early terminator 0
         client_buf[j] = 0;
 
-        // send data from client to server
-        client.sock_send(trial_data_len + 1, client_buf);
+        // send data from each client to server
+        j = 0;
+        for (Client client : client_list) {
+            client.sock_send(trial_data_len + 1, client_buf);
 
-        // server receives data
-        strcpy_s(server_buf, trial_data_len + 1, server.sock_receive(server.get_client_sock(0)));
-        if (strcmp(server_buf, client_buf))
-            return 1;
-        // server echoes data back to client
-        server.sock_send(server.get_client_sock(0), trial_data_len + 1, server_buf);
+            // server receives data
+            strcpy_s(server_buf, trial_data_len + 1, server.sock_receive(server.get_client_sock(j)));
+            if (strcmp(server_buf, client_buf))
+                return 1;
+            // server echoes data back to client
+            server.sock_send(server.get_client_sock(j), trial_data_len + 1, server_buf);
 
-        // client receives data
-        strcpy_s(client_buf, trial_data_len + 1, client.sock_receive());
-        // verify data equals what was randomly generated; if not, return 1
-        if (strcmp(server_buf, client_buf))
-            return 1;
-   }
-   return 0;
+            // client receives data
+            strcpy_s(client_buf, trial_data_len + 1, client.sock_receive());
+            // verify data equals what was randomly generated; if not, return 1
+            if (strcmp(server_buf, client_buf))
+                return 1;
+            j = (j + 1) % num_clients;
+        }
+    }
+    for (Client client : client_list)
+        client.close_conn();
+    server.sock_shutdown();
+    return 0;
 }
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
-        printf("specify which test:\n./test \"connect\" or \n./test \"data_transport\"");
+        printf("specify which test:\n./test \"connect\" or \n./test \"data_transport\"\n");
         return 1;
     }
 
     std::string arg = argv[1];
 
     if (arg == "connect")
-        return test_connect(1); // this currently hardcodes the test to only try 1 client; expand to 4 once that's supported
+        return test_connect(4); // this currently hardcodes the test to only try 1 client; expand to 4 once that's supported
     else if (arg == "data_transport")
-        return test_data_transport();
+        return test_data_transport(4);
     printf("specify which test:\n./test \"connect\" or \n./test \"data_transport\"");
     return 1;
 }

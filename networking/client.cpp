@@ -2,9 +2,11 @@
 Code adapted from https://learn.microsoft.com/en-us/windows/win32/winsock/complete-client-code
 */
 #include "client.h"
+#include <windows.h>
 
 Client::Client() {
     struct addrinfo* result = NULL, *ptr = NULL, hints;
+    this->conn_sock = INVALID_SOCKET;
 
     ZeroMemory( &hints, sizeof(hints) );
     hints.ai_family = AF_UNSPEC;
@@ -47,6 +49,7 @@ Client::Client() {
     }
 
     this->conn_sock = conn;
+    Sleep(100*CONNECT_TIMEOUT);
 }
 
 bool Client::sock_send(int length, const char* data) {

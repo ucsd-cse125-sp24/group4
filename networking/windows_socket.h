@@ -20,3 +20,4 @@ Specifically, "Getting started with Winsock" and "Initializing Winsock"
 
 #define DEFAULT_PORT "27015"
 #define DEFAULT_BUFLEN 512
+#define CONNECT_TIMEOUT 1

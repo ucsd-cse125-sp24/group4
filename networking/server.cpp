@@ -3,6 +3,7 @@ Code adapted from https://learn.microsoft.com/en-us/windows/win32/winsock/comple
 */
 #include "server.h"
 #include <vector>
+#include <windows.h>
 
 Server::Server() {
     struct addrinfo *result = NULL, hints;
@@ -48,7 +49,12 @@ Server::Server() {
     }
     freeaddrinfo(result);
 
+    for (int i = 0; i < int(MAX_CLIENTS); i++) { // TODO: I had problems making this a vector, but a vector would be preferable here
+        this->connections[i] = INVALID_SOCKET;
+    }
+
     this->num_connections = 0;
+    this->is_running = false;
 }
 
 SOCKET Server::get_client_sock(int i) {
@@ -62,6 +68,7 @@ int Server::get_num_clients() {
 }
 
 void Server::sock_listen() {
+    this->is_running = true;
     int iResult = listen(this->listen_sock, SOMAXCONN);
     if (iResult == SOCKET_ERROR) {
         printf("listen failed with error: %d\n", WSAGetLastError());
@@ -70,13 +77,29 @@ void Server::sock_listen() {
     }
 
     SOCKET client_conn = INVALID_SOCKET;
-    while (client_conn == INVALID_SOCKET) {
-        client_conn = accept(this->listen_sock, NULL, NULL);
-        this->num_connections++;
-        // add some timeout
-        // also edit to support multiple clients
+    fd_set readFdSet;
+    FD_ZERO(&readFdSet);
+    FD_SET(this->listen_sock, &readFdSet);
+    timeval timeout;
+    timeout.tv_sec = CONNECT_TIMEOUT;
+    timeout.tv_usec = 0;
+
+    while (this->is_running) {
+        if (this->get_num_clients() >= MAX_CLIENTS) {
+            printf("Maximum clients reached, cannot connect more\n");
+            return;
+        }
+        if (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0) {
+            if (!this->is_running) { // must recheck due to possible race w/ timeout
+                printf("Server is no longer running! Cannot connect to client.\n");
+                return;
+            }
+            client_conn = accept(this->listen_sock, NULL, NULL);
+            printf("connected %d\n", this->get_num_clients());
+            this->connections[this->get_num_clients()] = client_conn;
+            this->num_connections++;
+        }
     }
-    this->connections[0] = client_conn;
 }
 
 bool Server::sock_send(SOCKET client_conn, int length, const char* data) {
@@ -91,13 +114,14 @@ bool Server::sock_send(SOCKET client_conn, int length, const char* data) {
 }
 
 char* Server::sock_receive(SOCKET client_conn) {
+    // TODO: add check that there's something ready to receive from this client
     int iResult = recv(client_conn, this->recvbuf, this->buflen, 0);
     if (iResult > 0) {
         printf("Bytes received from client: %d\n", iResult);
         return this->recvbuf;
     }
     else if (iResult == 0)
-        printf("Connection closing...\n");
+        printf("Nothing to receive.");
     else  {
         printf("recv failed with error: %d\n", WSAGetLastError());
         this->sock_shutdown();
@@ -113,10 +137,13 @@ void Server::close_client(SOCKET client_conn) {
 }
 
 void Server::sock_shutdown() {
+    this->is_running = false;
     // shut down any client connections, then close the server's listening socket
     for (int i = 0; i < int(MAX_CLIENTS); i++) {
-        if (this->connections[i])
+        if (this->connections[i] != INVALID_SOCKET) {
             this->close_client(this->connections[i]);
+            this->connections[i] = INVALID_SOCKET;
+        }
     }
     closesocket(this->listen_sock);
     WSACleanup();
