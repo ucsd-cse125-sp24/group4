@@ -6,8 +6,20 @@ ServerCore::~ServerCore() {
     shutdown();
 }
 
+// Non-member function to allow threading for server listening
+DWORD __stdcall call_listen(void* server){
+    auto object = reinterpret_cast<Server*>(server);
+    if (object){
+        object->sock_listen();
+    }
+    return 0U;
+} 
+
 void ServerCore::initialize() {
     // Initialize network components, game state, graphics, etc.
+    unsigned long threadID = 0U;
+    HANDLE hand = CreateThread(nullptr, 0U, &call_listen, &server, 0, &threadID);
+    printf("initializing\n");
     running = true;
 }
 
@@ -21,7 +33,10 @@ void ServerCore::run() {
 }
 
 void ServerCore::shutdown() {
-    // Cleanup code
+    for (auto& client : clients_data) {
+        server.close_client(client.sock);
+    }
+    server.sock_shutdown();
     running = false;
 }
 
@@ -29,17 +44,13 @@ bool ServerCore::isRunning() const {
     return running;
 }
 
-int ServerCore::get_num_clients() {
-    return 4;
-}
-
 void ServerCore::receive_data() {
-    Server server = Server();
-    for (int i = 0; i < this->get_num_clients(); i){
+    for (auto& client : clients_data) {
         // add timer to break if needed? so server won't be stuck on waiting for one client
-        char* buf = server.sock_receive(server.get_client_sock(i));
+        char* buf = server.sock_receive(client.sock);
         if (buf){
-            this->data.push_back(std::string(buf));
+            client.messages.push_back(std::string(buf));
+            printf("server got \"%s\" from client\n", buf);
         }
     }
 }
@@ -49,13 +60,18 @@ void ServerCore::process_input(){}
 void ServerCore::update_game_state(){}
 
 void ServerCore::send_updates(){
+    const char* teststr = "Goodbye, world!";
     
-    Server server = Server();
-    for (int i = 0; i < this->get_num_clients(); i){
+    for (auto& client : clients_data) {
         // add timer to break if needed? so server won't be stuck on waiting for one client
-        char* buf = server.sock_receive(server.get_client_sock(i));
-        if (buf){
-            this->data.push_back(std::string(buf));
-        }
+        server.sock_send(client.sock, strlen(teststr) + 1, teststr);
     }
+}
+
+void ServerCore::acceptNewClients() {
+    SOCKET clientSock = server.get_client_sock(0);
+    ClientData client;
+    client.sock = clientSock;
+    clients_data.push_back(client);
+    printf("added new client data\n");
 }
