@@ -55,6 +55,7 @@ Server::Server() {
 
     this->num_connections = 0;
     this->is_running = false;
+    this->listener_thread = NULL;
 }
 
 SOCKET Server::get_client_sock(int i) {
@@ -138,6 +139,10 @@ void Server::close_client(SOCKET client_conn) {
 
 void Server::sock_shutdown() {
     this->is_running = false;
+    // waits for thread to shutdown and closes the handle
+    WaitForSingleObject(this->listener_thread, INFINITE);
+    CloseHandle(this->listener_thread);
+    
     // shut down any client connections, then close the server's listening socket
     for (int i = 0; i < int(MAX_CLIENTS); i++) {
         if (this->connections[i] != INVALID_SOCKET) {
