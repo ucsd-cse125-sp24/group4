@@ -19,6 +19,11 @@ class Server {
 
     public:
         Server();
+        
+        /* 
+        Thread that belongs to the server. Exclusively to run sock_listen forever.
+        */
+        HANDLE listener_thread;
 
         /*
         Get the socket for the ith client connected to this server
