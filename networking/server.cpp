@@ -2,6 +2,7 @@
 Code adapted from https://learn.microsoft.com/en-us/windows/win32/winsock/complete-server-code
 */
 #include "server.h"
+#include <algorithm>
 #include <vector>
 #include <windows.h>
 
@@ -49,22 +50,17 @@ Server::Server() {
     }
     freeaddrinfo(result);
 
-    for (int i = 0; i < int(MAX_CLIENTS); i++) { // TODO: I had problems making this a vector, but a vector would be preferable here
-        this->connections[i] = INVALID_SOCKET;
-    }
-
-    this->num_connections = 0;
     this->is_running = false;
 }
 
 SOCKET Server::get_client_sock(int i) {
-    if (i >= int(MAX_CLIENTS))
+    if (i > this->get_num_clients())
         return INVALID_SOCKET;
     return this->connections[i];
 }
 
 int Server::get_num_clients() {
-    return this->num_connections;
+    return this->connections.size();
 }
 
 void Server::sock_listen() {
@@ -96,8 +92,7 @@ void Server::sock_listen() {
             }
             client_conn = accept(this->listen_sock, NULL, NULL);
             printf("connected %d\n", this->get_num_clients());
-            this->connections[this->get_num_clients()] = client_conn;
-            this->num_connections++;
+            this->connections.push_back(client_conn);
         }
     }
 }
@@ -133,17 +128,16 @@ void Server::close_client(SOCKET client_conn) {
     // shut down connection to client, then close corresponding socket
     shutdown(client_conn, SD_SEND);
     closesocket(client_conn);
-    this->num_connections--;
+    this->connections.erase(std::remove(this->connections.begin(),
+                                        this->connections.end(),
+                                        client_conn), this->connections.end());
 }
 
 void Server::sock_shutdown() {
     this->is_running = false;
     // shut down any client connections, then close the server's listening socket
-    for (int i = 0; i < int(MAX_CLIENTS); i++) {
-        if (this->connections[i] != INVALID_SOCKET) {
-            this->close_client(this->connections[i]);
-            this->connections[i] = INVALID_SOCKET;
-        }
+    for (SOCKET client : this->connections) {
+        this->close_client(client);
     }
     closesocket(this->listen_sock);
     WSACleanup();
