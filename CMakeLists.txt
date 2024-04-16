@@ -27,6 +27,10 @@ target_link_libraries(game PRIVATE server client ws2_32)
 add_executable(NetworkUnitTests tests/network_test.cpp "${PROJECT_SOURCE_DIR}/networking/client.cpp" "${PROJECT_SOURCE_DIR}/networking/server.cpp")
 target_link_libraries(NetworkUnitTests PRIVATE ws2_32 mswsock advapi32)
 
+add_executable(game_client "${PROJECT_SOURCE_DIR}/game/game_logic_client.cpp" "${PROJECT_SOURCE_DIR}/game/server_core.cpp")
+target_include_directories(game_client PRIVATE "${PROJECT_SOURCE_DIR}/include")
+target_link_libraries(game_client PRIVATE server client ws2_32)
+
 enable_testing()
 
 add_test(NAME NetworkConnectTest COMMAND NetworkUnitTests "connect")
