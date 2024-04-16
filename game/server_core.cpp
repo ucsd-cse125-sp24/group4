@@ -9,6 +9,7 @@ ServerCore::~ServerCore() {
 void ServerCore::initialize() {
     // Initialize network components, game state, graphics, etc.
     unsigned long threadID = 0U;
+
     printf("initializing\n");
 
     while (server.get_num_clients() < 1)
