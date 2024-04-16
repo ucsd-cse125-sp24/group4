@@ -1,4 +1,4 @@
-#include "server_core.h"
+#include "../include/server_core.h"
 
 ServerCore::ServerCore() : running(false) {}
 
