@@ -18,7 +18,7 @@ DWORD __stdcall call_listen(void* server){
 void ServerCore::initialize() {
     // Initialize network components, game state, graphics, etc.
     unsigned long threadID = 0U;
-    HANDLE hand = CreateThread(nullptr, 0U, &call_listen, &server, 0, &threadID);
+    server.listener_thread = CreateThread(nullptr, 0U, &call_listen, &server, 0, &threadID);
     printf("initializing\n");
 
     while (server.get_num_clients() < 1) // change 1 to however many we want; remove while loop once some player-controlled start functionality is added
