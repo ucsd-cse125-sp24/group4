@@ -27,7 +27,7 @@ int main() {
     unsigned long threadID = 0U;
     // need a thread bc calling a server's listen function will enter a while loop until a connection is made;
     // we will never reach the line instantiating the client if the main thread just gets stuck listening
-    HANDLE hand = CreateThread(nullptr, 0U, &call_listen, &server, 0, &threadID);
+    server.listener_thread = CreateThread(nullptr, 0U, &call_listen, &server, 0, &threadID);
 
     // instantiation automatically connects to localhost on default port (which is our default server port/addr)
     Client client = Client();
