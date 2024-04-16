@@ -1,6 +1,7 @@
 #include "server.h"
 #include "client.h"
 #include <iostream>
+#include <windows.h>
 
 // CreateThread doesn't like calling an object's member function;
 // call non-member function which calls the obj's member function instead
@@ -26,15 +27,13 @@ int main() {
     unsigned long threadID = 0U;
     // need a thread bc calling a server's listen function will enter a while loop until a connection is made;
     // we will never reach the line instantiating the client if the main thread just gets stuck listening
-    HANDLE hand = CreateThread(nullptr, 0U, &call_listen, &server, 0, &threadID);
+    server.listener_thread = CreateThread(nullptr, 0U, &call_listen, &server, 0, &threadID);
 
     // instantiation automatically connects to localhost on default port (which is our default server port/addr)
     Client client = Client();
 
-    // joins server thread to main, not super necessary tbh
-    WaitForSingleObject(hand, 100000);
-
-    const char* str = "Hello, world!";
+    // send a hardcoded "Hello, world" msg to server
+    const char* str = "Hello, world";
     client.sock_send(strlen(str) + 1, str);
 
     // server receives whatever its first client connection (our only client rn) has sent
