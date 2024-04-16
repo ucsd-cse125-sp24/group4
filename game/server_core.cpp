@@ -23,8 +23,11 @@ void ServerCore::run() {
         {
             server.sock_listen();
             //maybe display some waiting for players screen?
+            if (server.get_num_clients() == 1){
+                this->accept_new_clients();
+            }
         }
-
+        printf("server connection %i\n", server.get_num_clients());
         receive_data();
         process_input();
         update_game_state();
