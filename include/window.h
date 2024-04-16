@@ -3,6 +3,8 @@
 #include "cube.h"
 #include "shader.h"
 #include "camera.h"
+#include "input.h"
+#include "enums.h"
 
 /*
  * Window.h
@@ -15,7 +17,8 @@ public:
 	static int height;
 	static const char* window_title;
 
-	// Shader program
+	// Helper objects
+	static Input* input;
 	static Shader* shader_program;
 
 	// Objects to draw - TODO replace with Scene object later

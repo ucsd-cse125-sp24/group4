@@ -4,6 +4,7 @@ int Window::width;
 int Window::height;
 const char* Window::window_title = "Graphics Client";
 Shader* Window::shader_program = nullptr;
+Input* Window::input = nullptr;
 
 // TODO: Replace with Scene later
 Cube* Window::cube = nullptr;
@@ -57,6 +58,8 @@ GLFWwindow* Window::create_window(int width, int height) {
 	// Shader program - maybe move somewhere else?
 	// Initialize shader
 	shader_program = new Shader("shaders/shader.vert", "shaders/shader.frag");
+	// Initialize input
+	input = new Input();
 
 	// TODO: Set up camera here
 	// Origin by default - should snap to player once scene is set up
@@ -94,6 +97,7 @@ void Window::clean_up() {
 	delete cube;
 	delete cube2;
 	delete cam;
+	delete input;
 
 	// Delete the shader program
 	delete shader_program;
@@ -120,6 +124,7 @@ void Window::display_callback(GLFWwindow* window) {
 
 	cube->draw(cam->get_view_project_mtx(), shader_program);
 	cube2->draw(cam->get_view_project_mtx(), shader_program);
+	cam->update(cube->get_world());
 
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
@@ -132,44 +137,38 @@ void Window::display_callback(GLFWwindow* window) {
 void Window::idle_callback() {
 	// Perform any updates as necessary
 	// This is called every frame
+
+	// Move the cube depending on events
+	std::vector<int> events = input->get_action();
+	float SCALE = 0.005; // TODO, define somewhere else (once moved to server)
+	for (int i = 0; i < events.size(); i++) {
+		switch (events[i]) {
+		case MOVE_FORWARD:
+			cube->move(glm::vec3(0, 0, -1 * SCALE));
+			break;
+		case MOVE_BACKWARD:
+			cube->move(glm::vec3(0, 0, 1 * SCALE));
+			break;
+		case MOVE_LEFT:
+			cube->move(glm::vec3(-1 * SCALE, 0, 0));
+			break;
+		case MOVE_RIGHT:
+			cube->move(glm::vec3(1 * SCALE, 0, 0));
+			break;
+		}
+	}	
+
 }
 
 void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	// This is FOR TYPING
-	// TODO:
+
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+		glfwSetWindowShouldClose(window, GLFW_TRUE);
+	}
 	// Use PRESS AND RELEASE to set the state of keys
 	// Then have another function use the key state to update game state
 	// https://www.reddit.com/r/opengl/comments/i8lv8u/how_can_i_optimize_my_key_handling_and_make_it/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
-	if (action == GLFW_PRESS || action == GLFW_REPEAT) {
-		switch (key) {
-		case GLFW_KEY_ESCAPE:
-			glfwSetWindowShouldClose(window, GL_TRUE);
-			break;
-		case GLFW_KEY_W:
-			// Forward
-			// TODO: Abstract into EVENTS for the server
-			cube->move(glm::vec3(0, 0, -1));
-			cam->update(cube->get_world());
-			break;
-		case GLFW_KEY_S:
-			// Back
-			cube->move(glm::vec3(0, 0, 1));
-			cam->update(cube->get_world());
-			break;
-		case GLFW_KEY_A:
-			// Left
-			cube->move(glm::vec3(-1, 0, 0));
-			cam->update(cube->get_world());
-			break;
-		case GLFW_KEY_D:
-			// Right
-			cube->move(glm::vec3(1, 0, 0));
-			cam->update(cube->get_world());
-			break;
-
-		// TODO: Reset camera? once we have one
-
-
-		}
+	if (action == GLFW_PRESS || action == GLFW_RELEASE) {
+		input->update(key, action);
 	}
 }
