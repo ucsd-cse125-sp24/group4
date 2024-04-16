@@ -96,3 +96,7 @@ void Client::close_conn() {
     }
     WSACleanup();
 }
+
+bool Client::is_connected() const {
+    return this->conn_sock != INVALID_SOCKET;
+}

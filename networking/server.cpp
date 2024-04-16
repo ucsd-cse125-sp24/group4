@@ -121,8 +121,12 @@ char* Server::sock_receive(SOCKET client_conn) {
         printf("Bytes received from client: %d\n", iResult);
         return this->recvbuf;
     }
-    else if (iResult == 0)
-        printf("Nothing to receive.");
+    else if (iResult == 0) {
+        // printf("Nothing to receive.");
+        printf("Connection closed by client.\n");
+        this->close_client(client_conn); // Close the client socket
+        return NULL; // return some data flag to tell servercore some client had disconnected, then clear data
+    }
     else  {
         if (WSAGetLastError() == 10053) { // If client shutdown, remove client from connections.
             auto i = std::begin(this->connections);

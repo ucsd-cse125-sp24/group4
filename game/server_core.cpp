@@ -8,7 +8,6 @@ ServerCore::~ServerCore() {
 
 void ServerCore::initialize() {
     // Initialize network components, game state, graphics, etc.
-    unsigned long threadID = 0U;
     printf("initializing\n");
 
     while (server.get_num_clients() < 1)
@@ -23,7 +22,7 @@ void ServerCore::run() {
         {
             server.sock_listen();
             //maybe display some waiting for players screen?
-            if (server.get_num_clients() == 1){
+            if (server.get_num_clients() == 1){ // for each new connected client, initialize ClientData
                 this->accept_new_clients();
             }
         }
@@ -39,6 +38,7 @@ void ServerCore::shutdown() {
     for (ClientData client : clients_data) {
         server.close_client(client.sock);
     }
+    clients_data.clear(); // Clear the client data vector
     server.sock_shutdown();
     running = false;
 }
