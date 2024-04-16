@@ -6,28 +6,25 @@ ServerCore::~ServerCore() {
     shutdown();
 }
 
-// Non-member function to allow threading for server listening
-DWORD __stdcall call_listen(void* server){
-    auto object = reinterpret_cast<Server*>(server);
-    if (object){
-        object->sock_listen();
-    }
-    return 0U;
-} 
-
 void ServerCore::initialize() {
     // Initialize network components, game state, graphics, etc.
     unsigned long threadID = 0U;
-    HANDLE hand = CreateThread(nullptr, 0U, &call_listen, &server, 0, &threadID);
     printf("initializing\n");
 
-    while (server.get_num_clients() < 1) // change 1 to however many we want; remove while loop once some player-controlled start functionality is added
-        ;
+    while (server.get_num_clients() < 1)
+        server.sock_listen();
+
     running = true;
 }
 
 void ServerCore::run() {
     while (isRunning()) {
+        while (server.get_num_clients() < 1)
+        {
+            server.sock_listen();
+            //maybe display some waiting for players screen?
+        }
+
         receive_data();
         process_input();
         update_game_state();
@@ -73,9 +70,12 @@ void ServerCore::update_game_state(){}
 void ServerCore::send_updates(){
     const char* teststr = "Goodbye, world!";
     
-    for (auto& client : clients_data) {
-        // add timer to break if needed? so server won't be stuck on waiting for one client
-        server.sock_send(client.sock, strlen(teststr) + 1, teststr);
+    auto i = std::begin(clients_data);
+    while (i != std::end(clients_data)) {
+        if (!server.sock_send((*i).sock, strlen(teststr) + 1, teststr))
+            i = clients_data.erase(i);
+        else
+            i++;
     }
 }
 

@@ -50,6 +50,13 @@ Server::Server() {
     }
     freeaddrinfo(result);
 
+    iResult = listen(this->listen_sock, SOMAXCONN);
+    if (iResult == SOCKET_ERROR) {
+        printf("listen failed with error: %d\n", WSAGetLastError());
+        this->sock_shutdown();
+        return;
+    }
+
     this->is_running = false;
 }
 
@@ -65,13 +72,6 @@ int Server::get_num_clients() {
 
 void Server::sock_listen() {
     this->is_running = true;
-    int iResult = listen(this->listen_sock, SOMAXCONN);
-    if (iResult == SOCKET_ERROR) {
-        printf("listen failed with error: %d\n", WSAGetLastError());
-        this->sock_shutdown();
-        return;
-    }
-
     SOCKET client_conn = INVALID_SOCKET;
     fd_set readFdSet;
     FD_ZERO(&readFdSet);
@@ -80,28 +80,26 @@ void Server::sock_listen() {
     timeout.tv_sec = CONNECT_TIMEOUT;
     timeout.tv_usec = 0;
 
-    while (this->is_running) {
-        if (this->get_num_clients() >= MAX_CLIENTS) {
-            printf("Maximum clients reached, cannot connect more\n");
+    if (this->get_num_clients() >= MAX_CLIENTS) {
+        printf("Maximum clients reached, cannot connect more\n");
+        return;
+    }
+    if (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0) {
+        if (!this->is_running) { // must recheck due to possible race w/ timeout
+            printf("Server is no longer running! Cannot connect to client.\n");
             return;
         }
-        if (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0) {
-            if (!this->is_running) { // must recheck due to possible race w/ timeout
-                printf("Server is no longer running! Cannot connect to client.\n");
-                return;
-            }
-            client_conn = accept(this->listen_sock, NULL, NULL);
-            printf("connected %d\n", this->get_num_clients());
-            this->connections.push_back(client_conn);
-        }
+        client_conn = accept(this->listen_sock, NULL, NULL);
+        printf("connected %d\n", this->get_num_clients());
+        this->connections.push_back(client_conn);
     }
 }
 
 bool Server::sock_send(SOCKET client_conn, int length, const char* data) {
     int iSendResult = send(client_conn, data, length, 0 );
     if (iSendResult == SOCKET_ERROR) {
-        printf("send failed with error: %d\n", WSAGetLastError());
-        this->sock_shutdown();
+        // printf("send failed with error: %d\n", WSAGetLastError());
+        // this->sock_shutdown();
         return false;
     }
     printf("Bytes sent from server: %d\n", iSendResult);
@@ -117,8 +115,18 @@ char* Server::sock_receive(SOCKET client_conn) {
     else if (iResult == 0)
         printf("Nothing to receive.");
     else  {
-        printf("recv failed with error: %d\n", WSAGetLastError());
-        this->sock_shutdown();
+        if (WSAGetLastError() == 10053) { // If client shutdown, remove client from connections.
+            auto i = std::begin(this->connections);
+            while (i != std::end(this->connections)) {
+                if (*i == client_conn)
+                    i = this->connections.erase(i);
+                else
+                    i++;
+            }
+        }
+        else {
+            printf("recv failed with error: %d\n", WSAGetLastError());
+        }    
     }
     return NULL;
 }
