@@ -109,7 +109,6 @@ bool Server::sock_send(SOCKET client_conn, int length, const char* data) {
 }
 
 char* Server::sock_receive(SOCKET client_conn) {
-    // TODO: add check that there's something ready to receive from this client
     int iResult = recv(client_conn, this->recvbuf, this->buflen, 0);
     if (iResult > 0) {
         printf("Bytes received from client: %d\n", iResult);

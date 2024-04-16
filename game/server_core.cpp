@@ -20,6 +20,9 @@ void ServerCore::initialize() {
     unsigned long threadID = 0U;
     HANDLE hand = CreateThread(nullptr, 0U, &call_listen, &server, 0, &threadID);
     printf("initializing\n");
+
+    while (server.get_num_clients() < 1) // change 1 to however many we want; remove while loop once some player-controlled start functionality is added
+        ;
     running = true;
 }
 
@@ -33,7 +36,7 @@ void ServerCore::run() {
 }
 
 void ServerCore::shutdown() {
-    for (auto& client : clients_data) {
+    for (ClientData client : clients_data) {
         server.close_client(client.sock);
     }
     server.sock_shutdown();
@@ -45,12 +48,20 @@ bool ServerCore::isRunning() const {
 }
 
 void ServerCore::receive_data() {
-    for (auto& client : clients_data) {
-        // add timer to break if needed? so server won't be stuck on waiting for one client
-        char* buf = server.sock_receive(client.sock);
-        if (buf){
-            client.messages.push_back(std::string(buf));
-            printf("server got \"%s\" from client\n", buf);
+    fd_set readFdSet;
+    FD_ZERO(&readFdSet);
+    timeval timeout;
+    timeout.tv_sec = CONNECT_TIMEOUT;
+    timeout.tv_usec = 0;
+
+    for (ClientData client : clients_data) {
+        FD_SET(client.sock, &readFdSet);
+        if (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0) {
+            char* buf = server.sock_receive(client.sock);
+            if (buf){
+                client.messages.push_back(std::string(buf));
+                printf("server got \"%s\" from client\n", buf);
+            }
         }
     }
 }
@@ -68,7 +79,7 @@ void ServerCore::send_updates(){
     }
 }
 
-void ServerCore::acceptNewClients() {
+void ServerCore::accept_new_clients() {
     SOCKET clientSock = server.get_client_sock(0);
     ClientData client;
     client.sock = clientSock;

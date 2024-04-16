@@ -6,6 +6,7 @@
 #include <Winsock2.h>
 
 #include "networking/server.h"
+#include "networking/client.h"
 #include "networking/windows_socket.h"
 
 struct ClientData {
@@ -28,11 +29,16 @@ class ServerCore {
         void process_input();           // Process inputs
         void update_game_state();       // Update the game state
         void send_updates();            // Send updates to clients
+        void accept_new_clients();
 
         bool running;                   // Server running state
 
         // std::vector<ClientData> data;   // all client data passed in. later add other data like changes in npc or environment?
         std::vector<std::string> data;  // string for now
+    
+    private:
+        Server server;
+        std::vector<ClientData> clients_data;
 };
 
 #endif
