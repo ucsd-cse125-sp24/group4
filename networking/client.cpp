@@ -8,6 +8,14 @@ Client::Client() {
     struct addrinfo* result = NULL, *ptr = NULL, hints;
     this->conn_sock = INVALID_SOCKET;
 
+    WSADATA wsaData;
+
+    int wresult = WSAStartup(MAKEWORD(2,2), &wsaData);
+    if (wresult != 0) {
+        printf("WSAStartup failed: %d\n", wresult);
+        return;
+    }
+
     ZeroMemory( &hints, sizeof(hints) );
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
@@ -17,6 +25,7 @@ Client::Client() {
     int iResult = getaddrinfo("127.0.0.1", DEFAULT_PORT, &hints, &result);
     if ( iResult != 0 ) {
         printf("getaddrinfo failed with error: %d\n", iResult);
+        WSACleanup();
         return;
     }
 
@@ -29,6 +38,7 @@ Client::Client() {
             ptr->ai_protocol);
         if (conn == INVALID_SOCKET) {
             printf("socket failed with error: %d\n", WSAGetLastError());
+            WSACleanup();
             return;
         }
 
@@ -45,6 +55,7 @@ Client::Client() {
 
     if (conn == INVALID_SOCKET) {
         printf("Unable to connect to server!\n");
+        WSACleanup();
         return;
     }
 
@@ -82,4 +93,5 @@ void Client::close_conn() {
         printf("shutdown failed with error: %d\n", WSAGetLastError());
         closesocket(this->conn_sock);
     }
+    WSACleanup();
 }
