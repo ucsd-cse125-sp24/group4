@@ -100,6 +100,15 @@ bool Server::sock_send(SOCKET client_conn, int length, const char* data) {
     if (iSendResult == SOCKET_ERROR) {
         // printf("send failed with error: %d\n", WSAGetLastError());
         // this->sock_shutdown();
+        
+        // remove client connection from connections
+        auto i = std::begin(this->connections);
+        while (i != std::end(this->connections)) {
+            if (*i == client_conn)
+                i = this->connections.erase(i);
+            else
+                i++;
+        }
         return false;
     }
     printf("Bytes sent from server: %d\n", iSendResult);
