@@ -23,7 +23,6 @@ class ServerCore {
         void run();                     // Run the server's main loop
 
         bool isRunning() const;         // Check if the server is running
-        int get_num_clients();          // Number of Clients (default to 4)
 
         void receive_data();            // Receive data from clients
         void process_input();           // Process inputs

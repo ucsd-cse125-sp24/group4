@@ -1,27 +1,29 @@
 cmake_minimum_required(VERSION 3.10)
-
 project("CSE125 Project")
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_library(client OBJECT networking/client.cpp)
-add_library(server OBJECT networking/server.cpp)
+file(GLOB GRAPHICS_SOURCES "${PROJECT_SOURCE_DIR}/src/*")
 
-add_executable(NetworkTest networking/network_sandbox.cpp)
-target_link_libraries(NetworkTest server client ws2_32 mswsock advapi32)
+add_library(client OBJECT "${PROJECT_SOURCE_DIR}/networking/client.cpp")
+add_library(server OBJECT "${PROJECT_SOURCE_DIR}/networking/server.cpp")
 
-# testbench
-add_executable(NetworkUnitTests tests/network_test.cpp networking/client.cpp networking/server.cpp)
-target_link_libraries(NetworkUnitTests ws2_32 mswsock advapi32)
+link_directories("${PROJECT_SOURCE_DIR}/lib")
+
+add_executable(GraphicsTest ${GRAPHICS_SOURCES})
+target_include_directories(GraphicsTest PRIVATE "${PROJECT_SOURCE_DIR}/include")
+target_link_libraries(GraphicsTest PRIVATE glfw3)
+
+file(COPY ${PROJECT_SOURCE_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+add_executable(NetworkTest "${PROJECT_SOURCE_DIR}/networking/network_sandbox.cpp")
+target_link_libraries(NetworkTest PRIVATE server client ws2_32 mswsock advapi32)
+
+add_executable(NetworkUnitTests tests/network_test.cpp "${PROJECT_SOURCE_DIR}/networking/client.cpp" "${PROJECT_SOURCE_DIR}/networking/server.cpp")
+target_link_libraries(NetworkUnitTests PRIVATE ws2_32 mswsock advapi32)
 
 enable_testing()
 
-add_test(
-    NAME NetworkConnectTest
-    COMMAND $<TARGET_FILE:NetworkUnitTests> "connect"
-)
-add_test(
-    NAME NetworkDataTransportTest
-    COMMAND $<TARGET_FILE:NetworkUnitTests> "data_transport"
-)
+add_test(NAME NetworkConnectTest COMMAND NetworkUnitTests "connect")
+add_test(NAME NetworkDataTransportTest COMMAND NetworkUnitTests "data_transport")
