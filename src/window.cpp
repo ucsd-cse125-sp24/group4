@@ -140,7 +140,8 @@ void Window::idle_callback() {
 
 	// Move the cube depending on events
 	std::vector<int> events = input->get_action();
-	float SCALE = 0.005; // TODO, define somewhere else (once moved to server)
+	float SCALE = 0.01; // TODO, define somewhere else (once moved to server)
+	// Right now this depends on frame rate. Maybe add deltaTime? Maybe handle this server-side?
 	for (int i = 0; i < events.size(); i++) {
 		switch (events[i]) {
 		case MOVE_FORWARD:
