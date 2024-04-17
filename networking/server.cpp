@@ -91,17 +91,10 @@ void Server::sock_listen() {
 bool Server::sock_send(SOCKET client_conn, int length, const char* data) {
     int iSendResult = send(client_conn, data, length, 0 );
     if (iSendResult == SOCKET_ERROR) {
-        // printf("send failed with error: %d\n", WSAGetLastError());
-        // this->sock_shutdown();
-        
         // remove client connection from connections
-        auto i = std::begin(this->connections);
-        while (i != std::end(this->connections)) {
-            if (*i == client_conn)
-                i = this->connections.erase(i);
-            else
-                i++;
-        }
+        this->connections.erase(std::remove(this->connections.begin(),
+                                        this->connections.end(),
+                                        client_conn), this->connections.end());
         return false;
     }
     printf("Bytes sent from server: %d\n", iSendResult);
@@ -115,7 +108,6 @@ char* Server::sock_receive(SOCKET client_conn) {
         return this->recvbuf;
     }
     else if (iResult == 0) {
-        // printf("Nothing to receive.");
         printf("Connection closed by client.\n");
         this->close_client(client_conn); // Close the client socket
         return NULL; // return some data flag to tell servercore some client had disconnected, then clear data

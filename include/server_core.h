@@ -9,6 +9,8 @@
 #include "client.h"
 #include "windows_socket.h"
 
+#define NUM_CLIENTS 1
+
 struct ClientData {
     SOCKET sock;                        // not sure about this
     std::vector<std::string> messages;  // string for now

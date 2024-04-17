@@ -5,9 +5,9 @@
 #include <string>
 #include <Winsock2.h>
 
-#include "../networking/server.h"
-#include "../networking/client.h"
-#include "../networking/windows_socket.h"
+#include "../include/server.h"
+#include "../include/client.h"
+#include "../include/windows_socket.h"
 
 struct ServerData {
     std::vector<std::string> messages;  // Received updates from server

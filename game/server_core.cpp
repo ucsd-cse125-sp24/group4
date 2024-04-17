@@ -10,19 +10,21 @@ void ServerCore::initialize() {
     // Initialize network components, game state, graphics, etc.
     printf("initializing\n");
 
-    while (server.get_num_clients() < 1)
+    while (server.get_num_clients() < NUM_CLIENTS)
         server.sock_listen();
 
     running = true;
 }
 
 void ServerCore::run() {
+    int prev = 0;
     while (isRunning()) {
-        while (server.get_num_clients() < 1)
+        while (server.get_num_clients() < NUM_CLIENTS)
         {
+            prev = server.get_num_clients();
             server.sock_listen();
             //maybe display some waiting for players screen?
-            if (server.get_num_clients() == 1){ // for each new connected client, initialize ClientData
+            if (server.get_num_clients() > prev){ // for each new connected client, initialize ClientData
                 this->accept_new_clients();
             }
         }
