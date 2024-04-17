@@ -15,11 +15,15 @@ class Server {
         char sendbuf[DEFAULT_BUFLEN];
         char recvbuf[DEFAULT_BUFLEN];
         int buflen = DEFAULT_BUFLEN;
-        SOCKET connections[MAX_CLIENTS];
-        int num_connections;
+        std::vector<SOCKET> connections;
 
     public:
         Server();
+        
+        /* 
+        Thread that belongs to the server. Exclusively to run sock_listen forever.
+        */
+        HANDLE listener_thread;
 
         /*
         Get the socket for the ith client connected to this server
