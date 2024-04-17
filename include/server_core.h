@@ -5,9 +5,9 @@
 #include <string>
 #include <Winsock2.h>
 
-#include "../networking/server.h"
-#include "../networking/client.h"
-#include "../networking/windows_socket.h"
+#include "server.h"
+#include "client.h"
+#include "windows_socket.h"
 
 struct ClientData {
     SOCKET sock;                        // not sure about this

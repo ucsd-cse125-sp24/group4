@@ -75,7 +75,7 @@ void ServerCore::send_updates(){
     
     auto i = std::begin(clients_data);
     while (i != std::end(clients_data)) {
-        if (!server.sock_send((*i).sock, strlen(teststr) + 1, teststr))
+        if (!server.sock_send((*i).sock, int(strlen(teststr)) + 1, teststr))
             i = clients_data.erase(i);
         else
             i++;

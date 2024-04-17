@@ -1,5 +1,5 @@
-#include "../networking/server.h"
-#include "../networking/client.h"
+#include "../include/server.h"
+#include "../include/client.h"
 #include "../include/server_core.h"
 #include <windows.h>
 #include <iostream>
@@ -18,7 +18,7 @@ int main() {
             break; // Exit the loop if the user types 'q'
         }
 
-        client.sock_send(input.length() + 1, input.c_str()); // Send the input to the server
+        client.sock_send(int(input.length()) + 1, input.c_str()); // Send the input to the server
     }
 
     client.close_conn(); // Close the connection

@@ -1,5 +1,5 @@
-#include "../networking/server.h"
-#include "../networking/client.h"
+#include "../include/server.h"
+#include "../include/client.h"
 #include "../include/server_core.h"
 #include <windows.h>
 #include <iostream>

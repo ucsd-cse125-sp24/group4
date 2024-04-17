@@ -1,7 +1,7 @@
 /*
 Code adapted from https://learn.microsoft.com/en-us/windows/win32/winsock/complete-client-code
 */
-#include "client.h"
+#include "../include/client.h"
 #include <windows.h>
 
 Client::Client() {

@@ -1,7 +1,7 @@
 /*
 Code adapted from https://learn.microsoft.com/en-us/windows/win32/winsock/complete-server-code
 */
-#include "server.h"
+#include "../include/server.h"
 #include <algorithm>
 #include <vector>
 #include <windows.h>
@@ -56,9 +56,6 @@ Server::Server() {
         this->sock_shutdown();
         return;
     }
-
-    this->is_running = false;
-    this->listener_thread = NULL;
 }
 
 SOCKET Server::get_client_sock(int i) {
@@ -68,11 +65,10 @@ SOCKET Server::get_client_sock(int i) {
 }
 
 int Server::get_num_clients() {
-    return this->connections.size();
+    return int(this->connections.size());
 }
 
 void Server::sock_listen() {
-    this->is_running = true;
     SOCKET client_conn = INVALID_SOCKET;
     fd_set readFdSet;
     FD_ZERO(&readFdSet);
@@ -86,10 +82,6 @@ void Server::sock_listen() {
         return;
     }
     if (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0) {
-        if (!this->is_running) { // must recheck due to possible race w/ timeout
-            printf("Server is no longer running! Cannot connect to client.\n");
-            return;
-        }
         client_conn = accept(this->listen_sock, NULL, NULL);
         printf("connected %d\n", this->get_num_clients());
         this->connections.push_back(client_conn);
@@ -155,11 +147,6 @@ void Server::close_client(SOCKET client_conn) {
 }
 
 void Server::sock_shutdown() {
-    this->is_running = false;
-    // waits for thread to shutdown and closes the handle
-    WaitForSingleObject(this->listener_thread, INFINITE);
-    CloseHandle(this->listener_thread);
-    
     // shut down any client connections, then close the server's listening socket
     for (SOCKET client : this->connections) {
         this->close_client(client);
