@@ -14,7 +14,7 @@ class Server {
         char sendbuf[DEFAULT_BUFLEN];
         char recvbuf[DEFAULT_BUFLEN];
         int buflen = DEFAULT_BUFLEN;
-        SOCKET connections[MAX_CLIENTS];
+        std::vector<SOCKET> connections;
         int num_connections;
 
     public:

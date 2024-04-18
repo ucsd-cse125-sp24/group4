@@ -1,7 +1,7 @@
 /*
 Code adapted from https://learn.microsoft.com/en-us/windows/win32/winsock/complete-server-code
 */
-#include "server.h"
+#include "../include/server.h"
 #include <algorithm>
 #include <vector>
 #include <windows.h>
@@ -50,8 +50,12 @@ Server::Server() {
     }
     freeaddrinfo(result);
 
-    this->is_running = false;
-    this->listener_thread = NULL;
+    iResult = listen(this->listen_sock, SOMAXCONN);
+    if (iResult == SOCKET_ERROR) {
+        printf("listen failed with error: %d\n", WSAGetLastError());
+        this->sock_shutdown();
+        return;
+    }
 }
 
 SOCKET Server::get_client_sock(int i) {
@@ -61,18 +65,10 @@ SOCKET Server::get_client_sock(int i) {
 }
 
 int Server::get_num_clients() {
-    return this->connections.size();
+    return int(this->connections.size());
 }
 
 void Server::sock_listen() {
-    this->is_running = true;
-    int iResult = listen(this->listen_sock, SOMAXCONN);
-    if (iResult == SOCKET_ERROR) {
-        printf("listen failed with error: %d\n", WSAGetLastError());
-        this->sock_shutdown();
-        return;
-    }
-
     SOCKET client_conn = INVALID_SOCKET;
     fd_set readFdSet;
     FD_ZERO(&readFdSet);
@@ -81,28 +77,24 @@ void Server::sock_listen() {
     timeout.tv_sec = CONNECT_TIMEOUT;
     timeout.tv_usec = 0;
 
-    while (this->is_running) {
-        if (this->get_num_clients() >= MAX_CLIENTS) {
-            printf("Maximum clients reached, cannot connect more\n");
-            return;
-        }
-        if (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0) {
-            if (!this->is_running) { // must recheck due to possible race w/ timeout
-                printf("Server is no longer running! Cannot connect to client.\n");
-                return;
-            }
-            client_conn = accept(this->listen_sock, NULL, NULL);
-            printf("connected %d\n", this->get_num_clients());
-            this->connections.push_back(client_conn);
-        }
+    if (this->get_num_clients() >= MAX_CLIENTS) {
+        printf("Maximum clients reached, cannot connect more\n");
+        return;
+    }
+    if (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0) {
+        client_conn = accept(this->listen_sock, NULL, NULL);
+        printf("connected %d\n", this->get_num_clients());
+        this->connections.push_back(client_conn);
     }
 }
 
 bool Server::sock_send(SOCKET client_conn, int length, const char* data) {
     int iSendResult = send(client_conn, data, length, 0 );
     if (iSendResult == SOCKET_ERROR) {
-        printf("send failed with error: %d\n", WSAGetLastError());
-        this->sock_shutdown();
+        // remove client connection from connections
+        this->connections.erase(std::remove(this->connections.begin(),
+                                        this->connections.end(),
+                                        client_conn), this->connections.end());
         return false;
     }
     printf("Bytes sent from server: %d\n", iSendResult);
@@ -115,11 +107,24 @@ char* Server::sock_receive(SOCKET client_conn) {
         printf("Bytes received from client: %d\n", iResult);
         return this->recvbuf;
     }
-    else if (iResult == 0)
-        printf("Nothing to receive.");
+    else if (iResult == 0) {
+        printf("Connection closed by client.\n");
+        this->close_client(client_conn); // Close the client socket
+        return NULL; // return some data flag to tell servercore some client had disconnected, then clear data
+    }
     else  {
-        printf("recv failed with error: %d\n", WSAGetLastError());
-        this->sock_shutdown();
+        if (WSAGetLastError() == 10053) { // If client shutdown, remove client from connections.
+            auto i = std::begin(this->connections);
+            while (i != std::end(this->connections)) {
+                if (*i == client_conn)
+                    i = this->connections.erase(i);
+                else
+                    i++;
+            }
+        }
+        else {
+            printf("recv failed with error: %d\n", WSAGetLastError());
+        }    
     }
     return NULL;
 }
@@ -134,11 +139,6 @@ void Server::close_client(SOCKET client_conn) {
 }
 
 void Server::sock_shutdown() {
-    this->is_running = false;
-    // waits for thread to shutdown and closes the handle
-    WaitForSingleObject(this->listener_thread, INFINITE);
-    CloseHandle(this->listener_thread);
-    
     // shut down any client connections, then close the server's listening socket
     for (SOCKET client : this->connections) {
         this->close_client(client);

@@ -17,13 +17,16 @@ target_link_libraries(GraphicsTest PRIVATE glfw3)
 
 file(COPY ${PROJECT_SOURCE_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-add_executable(NetworkTest "${PROJECT_SOURCE_DIR}/networking/network_sandbox.cpp")
-target_link_libraries(NetworkTest PRIVATE server client ws2_32 mswsock advapi32)
+add_executable(server_core "${PROJECT_SOURCE_DIR}/game/game_logic_pg.cpp" "${PROJECT_SOURCE_DIR}/game/server_core.cpp")
+target_include_directories(server_core PRIVATE "${PROJECT_SOURCE_DIR}/include")
+target_link_libraries(server_core PRIVATE server client ws2_32)
 
-add_executable(game "${PROJECT_SOURCE_DIR}/game/game_logic_pg.cpp" "${PROJECT_SOURCE_DIR}/game/server_core.cpp")
-target_include_directories(game PRIVATE "${PROJECT_SOURCE_DIR}/include")
-target_link_libraries(game PRIVATE server client ws2_32)
+add_executable(client_core "${PROJECT_SOURCE_DIR}/game/game_logic_client.cpp" "${PROJECT_SOURCE_DIR}/game/server_core.cpp")
+target_include_directories(client_core PRIVATE "${PROJECT_SOURCE_DIR}/include")
+target_link_libraries(client_core PRIVATE server client ws2_32)
 
+
+# ----- Testing executables and tests below -----
 add_executable(NetworkUnitTests tests/network_test.cpp "${PROJECT_SOURCE_DIR}/networking/client.cpp" "${PROJECT_SOURCE_DIR}/networking/server.cpp")
 target_link_libraries(NetworkUnitTests PRIVATE ws2_32 mswsock advapi32)
 
