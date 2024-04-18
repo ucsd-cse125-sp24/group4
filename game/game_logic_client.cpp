@@ -17,18 +17,18 @@ int main() {
     std::string input;
     while (!glfwWindowShouldClose(window)) {
         // std::cout << "Enter message to send (q to quit): ";
-        // vv this blocks the rendering loop so I commented it out
+        // TODO: replace this getline for text with a pollevents to get keyboard input
         //std::getline(std::cin, input);
+        input = "temp";
 
+        // TODO: send keyboard input enum to server
+        client.sock_send(int(input.length()) + 1, input.c_str()); // Send the input to the server
 
         // Graphics callbacks
         // Render
         Window::display_callback(window);
-        // Updates
+        // Updates (handle server side but display each player's updated screen client-side?)
         Window::idle_callback();
-
-
-        client.sock_send(int(input.length()) + 1, input.c_str()); // Send the input to the server
     }
 
     Window::clean_up();

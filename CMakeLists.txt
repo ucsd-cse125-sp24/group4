@@ -11,7 +11,8 @@ add_library(server OBJECT "${PROJECT_SOURCE_DIR}/networking/server.cpp")
 
 link_directories("${PROJECT_SOURCE_DIR}/lib")
 
-add_executable(GraphicsTest ${GRAPHICS_SOURCES})
+# graphics client contains main for graphics; don't duplicate for other executables
+add_executable(GraphicsTest ${GRAPHICS_SOURCES} "${PROJECT_SOURCE_DIR}/graphics_client.cpp")
 target_include_directories(GraphicsTest PRIVATE "${PROJECT_SOURCE_DIR}/include")
 target_link_libraries(GraphicsTest PRIVATE glfw3)
 
