@@ -15,6 +15,8 @@ class Client {
     public:
         Client();
 
+        bool is_connected() const;
+
         /*
         Send data from this client to the server
         @param length: number of bytes to send
