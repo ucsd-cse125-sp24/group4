@@ -15,24 +15,24 @@ int main() {
     GLFWwindow* window = Graphics::set_up_window();
 
     std::string input;
-    while (true) {
-        std::cout << "Enter message to send (q to quit): ";
+    while (!glfwWindowShouldClose(window)) {
+        // std::cout << "Enter message to send (q to quit): ";
+        // vv this blocks the rendering loop so I commented it out
         //std::getline(std::cin, input);
+
 
         // Graphics callbacks
         // Render
         Window::display_callback(window);
         // Updates
         Window::idle_callback();
-        
-        while (!glfwWindowShouldClose) {
-            Window::clean_up();
-            glfwTerminate();
-            break; // Exit the loop if the user types 'q'
-        }
+
 
         client.sock_send(int(input.length()) + 1, input.c_str()); // Send the input to the server
     }
+
+    Window::clean_up();
+    glfwTerminate();
 
     client.close_conn(); // Close the connection
     printf("Client shutting down\n");
