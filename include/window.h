@@ -39,4 +39,6 @@ public:
 	static void idle_callback();
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
+	// Helper to let client poll for events
+	static std::vector<int> get_input_actions();
 };

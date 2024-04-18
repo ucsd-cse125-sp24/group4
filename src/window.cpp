@@ -139,13 +139,13 @@ void Window::idle_callback() {
 	// This is called every frame
 
 	// Move the cube depending on events
-	std::vector<int> events = input->get_action();
+	std::vector<int> events = input->get_action(); // to be replaced by get_input_action
 	float SCALE = 0.01; // TODO, define somewhere else (once moved to server)
 	// Right now this depends on frame rate. Maybe add deltaTime? Maybe handle this server-side?
-	for (int i = 0; i < events.size(); i++) {
+	for (int i = 0; i < events.size(); i++) { // TODO: calculating movement is server resp
 		switch (events[i]) {
 		case MOVE_FORWARD:
-			cube->move(glm::vec3(0, 0, -1 * SCALE));
+			cube->move(glm::vec3(0, 0, -1 * SCALE)); // TODO: actual movement is client resp
 			break;
 		case MOVE_BACKWARD:
 			cube->move(glm::vec3(0, 0, 1 * SCALE));
@@ -159,6 +159,10 @@ void Window::idle_callback() {
 		}
 	}	
 
+}
+
+std::vector<int> Window::get_input_actions() {
+	return input->get_action();
 }
 
 void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
