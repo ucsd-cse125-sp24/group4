@@ -1,0 +1,52 @@
+@startuml
+[*] -> Lobby
+Lobby : Server starts and players connect
+
+state CoreLoop {
+  [*] -> GetInput
+  GetInput : Clients collect data on users' current actions
+  state input_fork <<fork>>
+  GetInput --> input_fork <<fork>>
+  input_fork --> Process : User input is sent from client to server
+  input_fork --> GetInput : Clients continue to listen for user input
+  Process : Server determines world state given immediately-prior state
+  Process : and clients' most recent inputs
+  Process --> UpdateWorld : Server sends info on new world state to clients
+  UpdateWorld : Clients update UI to reflect world state
+}
+
+Lobby -> CoreLoop : players initiate game
+CoreLoop --> Ending : players lose, or they win by "taking off"
+
+Ending : What is lose condition? Can some players win and others lose?
+Ending : How do players decide to take off?
+Ending : What happens after either ending? Some ending screen?
+
+state Objects {
+json Karma {
+  "Loc" : "where action can be performed",
+  "RequiredAction" : "what player must do to complete action",
+  "Reward" : "how much karma or how many points are given on completion"
+}
+--
+json Student {
+  "Loc" : "where student is located",
+  "Orientation" : "direction student is facing (enum, probably)",
+  "ViewRadius" : "from how far away a player may be caught by this student"
+}
+--
+json Player {
+  "Loc" : "where player is located",
+  "Score" : "how many points the player currently has",
+  "Karma" : "how much karma student currently has (if it's a different currency)"
+}
+--
+json World {
+  "Level" : "which level players are currently on",
+  "FloorPlan" : "assets related to the physical game world",
+  "Students" : "list of Student objs in world",
+  "PlayerLocs" : "list of Player locations",
+  "KarmaActions" : "list of Karma objs in world"
+}
+}
+@enduml
