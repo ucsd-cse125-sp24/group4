@@ -2,6 +2,7 @@
 #include "core.h"
 #include "enums.h"
 #include <unordered_map>
+#include <vector>
 
 /*
  * Handles keyboard input
