@@ -84,7 +84,7 @@ char* Client::sock_receive() {
     } else if ( iResult == 0 )
         printf("Connection closed\n");
     else
-        printf("recv failed with error: %d\n", WSAGetLastError());
+        printf("client recv failed with error: %d\n", WSAGetLastError());
     return NULL;
 }
 

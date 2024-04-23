@@ -113,7 +113,7 @@ char* Server::sock_receive(SOCKET client_conn) {
         return NULL; // return some data flag to tell servercore some client had disconnected, then clear data
     }
     else  {
-        if (WSAGetLastError() == 10053) { // If client shutdown, remove client from connections.
+        if (WSAGetLastError() == 10053 || WSAGetLastError() == 10054) { // If client shutdown, remove client from connections.
             auto i = std::begin(this->connections);
             while (i != std::end(this->connections)) {
                 if (*i == client_conn)
@@ -123,7 +123,7 @@ char* Server::sock_receive(SOCKET client_conn) {
             }
         }
         else {
-            printf("recv failed with error: %d\n", WSAGetLastError());
+            printf("server recv failed with error: %d\n", WSAGetLastError());
         }    
     }
     return NULL;
