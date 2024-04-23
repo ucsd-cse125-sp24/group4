@@ -1,4 +1,7 @@
+#include <chrono>
 #include "../include/server_core.h"
+
+#define TICK_MICROSECS 40000 // this gives 25 fps (fps = 1M / TICK_US)
 
 ServerCore::ServerCore() : running(false) {}
 
@@ -28,10 +31,19 @@ void ServerCore::initialize() {
 
 void ServerCore::run() {
     while (isRunning()) {
+        auto start = std::chrono::high_resolution_clock::now();
+
         receive_data();
         process_input();
         update_game_state();
         send_updates();
+        
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration_us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+        while (duration_us.count() < TICK_MICROSECS) {
+            stop = std::chrono::high_resolution_clock::now();
+            duration_us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+        }
     }
 }
 
