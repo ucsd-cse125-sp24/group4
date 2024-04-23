@@ -7,7 +7,6 @@ ClientCore::~ClientCore() {
     shutdown();
 }
 
-
 void ClientCore::initialize() {
     // Initialize graphics, connect client
     printf("initializing client\n");
