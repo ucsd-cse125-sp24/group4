@@ -20,7 +20,7 @@ int main()
 
 		Window::display_callback(window);
 
-		// TODO: Updates (idle callback)
+		Window::idle_callback();
 
 	}
 
