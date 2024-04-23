@@ -20,7 +20,6 @@ int main() {
     //Client client = Client(); // Client connects to localhost by default
     // TODO: connect another client in another process, then initialize will unblock
     Server server = serverCore.server;
-    serverCore.accept_new_clients();
 
 
     //const char* str = "Hello, world!";

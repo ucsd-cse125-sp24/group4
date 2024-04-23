@@ -20,20 +20,19 @@ void ServerCore::initialize() {
 }
 
 void ServerCore::run() {
-    int prev = 0;
     while (isRunning()) {
         auto start = std::chrono::high_resolution_clock::now();
 
         while (server.get_num_clients() < NUM_CLIENTS)
         {
-            prev = server.get_num_clients();
             server.sock_listen();
             //maybe display some waiting for players screen?
-            if (server.get_num_clients() > prev){ // for each new connected client, initialize ClientData
-                this->accept_new_clients();
+            for (int i = int(this->clients_data.size()); i < server.get_num_clients(); i++) {
+                // for each new connected client, initialize ClientData
+                this->accept_new_clients(i);
             }
         }
-        //printf("server connection %i\n", server.get_num_clients());
+        //printf("server connected to %i clients\n", server.get_num_clients());
         receive_data();
         process_input();
         update_game_state();
@@ -96,8 +95,8 @@ void ServerCore::send_updates(){
     }
 }
 
-void ServerCore::accept_new_clients() {
-    SOCKET clientSock = server.get_client_sock(0);
+void ServerCore::accept_new_clients(int i) {
+    SOCKET clientSock = server.get_client_sock(i);
     ClientData client;
     client.sock = clientSock;
     clients_data.push_back(client);

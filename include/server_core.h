@@ -30,7 +30,7 @@ class ServerCore {
         void process_input();           // Process inputs
         void update_game_state();       // Update the game state
         void send_updates();            // Send updates to clients
-        void accept_new_clients();
+        void accept_new_clients(int i);
 
         bool running;                   // Server running state
         Server server;
