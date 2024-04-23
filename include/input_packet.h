@@ -14,6 +14,6 @@ struct InputPacket {
         } mouse;
     };
 
-    void serialize(const InputPacket& input, char*& outData);
-    void deserialize(const char* inData, InputPacket& input);
+    static void serialize(const InputPacket& input, char*& outData);
+    static void deserialize(const char* inData, InputPacket& input);
 };

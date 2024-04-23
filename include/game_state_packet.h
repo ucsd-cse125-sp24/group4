@@ -5,6 +5,6 @@
 struct GameStatePacket {
     GameState state; 
 
-    void serialize(const GameStatePacket& packet, char*& outData);
-    void deserialize(const char* inData, GameStatePacket& packet);
+    static void serialize(const GameStatePacket& packet, char*& outData);
+    static void deserialize(const char* inData, GameStatePacket& packet);
 };
