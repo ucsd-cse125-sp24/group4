@@ -6,10 +6,10 @@
 #include <string>
 #include <Winsock2.h>
 
-#include "../include/server.h"
-#include "../include/client.h"
-#include "../include/windows_socket.h"
-#include "../include/packet.h"
+#include "server.h"
+#include "client.h"
+#include "windows_socket.h"
+#include "packet.h"
 
 struct ServerData {
     std::deque<Packet::ServerPacket*> spacket_buffer;  // Received updates from server
@@ -36,6 +36,5 @@ public:
     Packet packet;
     ServerData server_updates;
 };
-
 
 #endif

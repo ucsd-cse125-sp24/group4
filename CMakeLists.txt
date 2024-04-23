@@ -21,11 +21,11 @@ file(COPY ${PROJECT_SOURCE_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_executable(server_core "${PROJECT_SOURCE_DIR}/game/game_logic_pg.cpp" "${PROJECT_SOURCE_DIR}/game/server_core.cpp")
 target_include_directories(server_core PRIVATE "${PROJECT_SOURCE_DIR}/include")
-target_link_libraries(server_core PRIVATE server client ws2_32)
+target_link_libraries(server_core PRIVATE server client packet ws2_32)
 
 add_executable(client_core "${PROJECT_SOURCE_DIR}/game/game_logic_client.cpp" "${PROJECT_SOURCE_DIR}/game/server_core.cpp" ${GRAPHICS_SOURCES})
 target_include_directories(client_core PRIVATE "${PROJECT_SOURCE_DIR}/include")
-target_link_libraries(client_core PRIVATE server client ws2_32 glfw3)
+target_link_libraries(client_core PRIVATE server client packet ws2_32 glfw3)
 
 
 # ----- Testing executables and tests below -----

@@ -8,7 +8,7 @@
 #include "server.h"
 #include "client.h"
 #include "windows_socket.h"
-#include "../include/packet.h"
+#include "packet.h"
 
 #define NUM_CLIENTS 1
 
