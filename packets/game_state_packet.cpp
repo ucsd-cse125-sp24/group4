@@ -1,6 +1,7 @@
 #include "../include/game_state_packet.h"
 #include <cstring>
 
+// Ensure outData is large enough to store all the data that is intended to be serialized.
 void GameStatePacket::serialize(const GameStatePacket& packet, char*& outData) {
     // Serialize number of players
     size_t numPlayers = sizeof(packet.state.players) / sizeof(PlayerState);
