@@ -1,7 +1,7 @@
 /*
 Code adapted from https://learn.microsoft.com/en-us/windows/win32/winsock/complete-client-code
 */
-#include "client.h"
+#include "../include/client.h"
 #include <windows.h>
 
 Client::Client() {
@@ -17,7 +17,7 @@ Client::Client() {
     }
 
     ZeroMemory( &hints, sizeof(hints) );
-    hints.ai_family = AF_UNSPEC;
+    hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
 
@@ -49,6 +49,7 @@ Client::Client() {
             conn = INVALID_SOCKET;
             continue;
         }
+        printf("successfully connected.\n");
         break;
     }
     freeaddrinfo(result);
@@ -94,4 +95,8 @@ void Client::close_conn() {
         closesocket(this->conn_sock);
     }
     WSACleanup();
+}
+
+bool Client::is_connected() const {
+    return this->conn_sock != INVALID_SOCKET;
 }

@@ -5,9 +5,11 @@
 #include <string>
 #include <Winsock2.h>
 
-#include "../networking/server.h"
-#include "../networking/client.h"
-#include "../networking/windows_socket.h"
+#include "server.h"
+#include "client.h"
+#include "windows_socket.h"
+
+#define NUM_CLIENTS 1
 
 struct ClientData {
     SOCKET sock;                        // not sure about this
@@ -32,7 +34,7 @@ class ServerCore {
 
         bool running;                   // Server running state
         Server server;
-         std::vector<ClientData> clients_data;
+        std::vector<ClientData> clients_data;
 
         // std::vector<ClientData> data;   // all client data passed in. later add other data like changes in npc or environment?
         std::vector<std::string> data;  // string for now

@@ -1,23 +1,24 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
-#include "../networking/client.h"
-#include "../networking/server.h"
+#include "../include/client.h"
+#include "../include/server.h"
 
 #define NUM_TRIALS 128
 #define MAX_DATA_LENGTH 512
+#define NUM_CLIENTS 4
 
 // CreateThread doesn't like calling an object's member function;
 // call non-member function which calls the obj's member function instead
 DWORD __stdcall call_listen(void* server){
    auto object = reinterpret_cast<Server*>(server);
-   if (object){
+   while (object->get_num_clients() < NUM_CLIENTS){
      object->sock_listen();
    } 
    return 0U;
 } 
 
-int test_connect(int num_clients) {
+int test_connect() {
     /*
     Test that clients can be hosted on a server
 
@@ -32,14 +33,15 @@ int test_connect(int num_clients) {
 
     // connect specified number of clients
     std::vector<Client> client_list;
-    for (int i = 0; i < num_clients; i++) {
+    for (int i = 0; i < NUM_CLIENTS; i++) {
         // connect client to server
         client_list.push_back(Client());
         printf("connected %d\n", i);
     }
+    WaitForSingleObject(listen_hand, 1000);
 
     // confirm correct number of connections
-    if (server.get_num_clients() != num_clients)
+    if (server.get_num_clients() != NUM_CLIENTS)
         return 1;
 
     // clean up
@@ -51,7 +53,7 @@ int test_connect(int num_clients) {
     return 0;
 }
 
-int test_data_transport(int num_clients) {
+int test_data_transport() {
     /*
     Test that data can be communicated between server and client
 
@@ -63,11 +65,12 @@ int test_data_transport(int num_clients) {
     unsigned long threadID = 0U;
     HANDLE hand = CreateThread(nullptr, 0U, &call_listen, &server, 0, &threadID);
     std::vector<Client> client_list;
-    for (int i = 0; i < num_clients; i++) {
+    for (int i = 0; i < NUM_CLIENTS; i++) {
         // connect client to server
         client_list.push_back(Client());
         printf("connected %d\n", i);
     }
+    WaitForSingleObject(hand, 1000);
 
     // set up buffers for data, each of length MAX_DATA_LENGTH
     char client_buf[MAX_DATA_LENGTH];
@@ -100,7 +103,7 @@ int test_data_transport(int num_clients) {
             // verify data equals what was randomly generated; if not, return 1
             if (strcmp(server_buf, client_buf))
                 return 1;
-            j = (j + 1) % num_clients;
+            j = (j + 1) % NUM_CLIENTS;
         }
     }
     for (Client client : client_list)
@@ -118,9 +121,9 @@ int main(int argc, char* argv[]) {
     std::string arg = argv[1];
 
     if (arg == "connect")
-        return test_connect(4); // this currently hardcodes the test to only try 1 client; expand to 4 once that's supported
+        return test_connect();
     else if (arg == "data_transport")
-        return test_data_transport(4);
+        return test_data_transport();
     printf("specify which test:\n./test \"connect\" or \n./test \"data_transport\"");
     return 1;
 }
