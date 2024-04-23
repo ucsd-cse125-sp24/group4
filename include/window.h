@@ -3,6 +3,8 @@
 #include "cube.h"
 #include "shader.h"
 #include "camera.h"
+#include "input.h"
+#include "enums.h"
 
 /*
  * Window.h
@@ -15,7 +17,8 @@ public:
 	static int height;
 	static const char* window_title;
 
-	// Shader program
+	// Helper objects
+	static Input* input;
 	static Shader* shader_program;
 
 	// Objects to draw - TODO replace with Scene object later
@@ -36,4 +39,6 @@ public:
 	static void idle_callback();
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
+	// Helper to let client poll for events
+	static std::vector<int> get_input_actions();
 };

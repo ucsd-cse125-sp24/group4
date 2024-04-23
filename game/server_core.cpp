@@ -60,7 +60,7 @@ void ServerCore::receive_data() {
         FD_SET(client.sock, &readFdSet);
         if (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0) {
             char* buf = server.sock_receive(client.sock);
-            if (buf){
+            if (buf && buf[0]){
                 client.messages.push_back(std::string(buf));
                 printf("server got \"%s\" from client\n", buf);
             }

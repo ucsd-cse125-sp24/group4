@@ -11,7 +11,8 @@ add_library(server OBJECT "${PROJECT_SOURCE_DIR}/networking/server.cpp")
 
 link_directories("${PROJECT_SOURCE_DIR}/lib")
 
-add_executable(GraphicsTest ${GRAPHICS_SOURCES})
+# graphics client contains main for graphics; don't duplicate for other executables
+add_executable(GraphicsTest ${GRAPHICS_SOURCES} "${PROJECT_SOURCE_DIR}/graphics_client.cpp")
 target_include_directories(GraphicsTest PRIVATE "${PROJECT_SOURCE_DIR}/include")
 target_link_libraries(GraphicsTest PRIVATE glfw3)
 
@@ -21,9 +22,9 @@ add_executable(server_core "${PROJECT_SOURCE_DIR}/game/game_logic_pg.cpp" "${PRO
 target_include_directories(server_core PRIVATE "${PROJECT_SOURCE_DIR}/include")
 target_link_libraries(server_core PRIVATE server client ws2_32)
 
-add_executable(client_core "${PROJECT_SOURCE_DIR}/game/game_logic_client.cpp" "${PROJECT_SOURCE_DIR}/game/server_core.cpp")
+add_executable(client_core "${PROJECT_SOURCE_DIR}/game/game_logic_client.cpp" "${PROJECT_SOURCE_DIR}/game/server_core.cpp" ${GRAPHICS_SOURCES})
 target_include_directories(client_core PRIVATE "${PROJECT_SOURCE_DIR}/include")
-target_link_libraries(client_core PRIVATE server client ws2_32)
+target_link_libraries(client_core PRIVATE server client ws2_32 glfw3)
 
 
 # ----- Testing executables and tests below -----
@@ -34,3 +35,10 @@ enable_testing()
 
 add_test(NAME NetworkConnectTest COMMAND NetworkUnitTests "connect")
 add_test(NAME NetworkDataTransportTest COMMAND NetworkUnitTests "data_transport")
+
+# ---- Packets test ----
+add_executable(GameStatePacketTest tests/game_state_packet_test.cpp "${PROJECT_SOURCE_DIR}/packets/game_state_packet.cpp")
+add_executable(InputPacketTest tests/input_packet_test.cpp "${PROJECT_SOURCE_DIR}/packets/input_packet.cpp")
+
+add_test(NAME GameStatePacketTest COMMAND GameStatePacketTest)
+add_test(NAME InputPacketTest COMMAND InputPacketTest)
