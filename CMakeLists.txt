@@ -8,7 +8,7 @@ file(GLOB GRAPHICS_SOURCES "${PROJECT_SOURCE_DIR}/src/*")
 
 add_library(client OBJECT "${PROJECT_SOURCE_DIR}/networking/client.cpp")
 add_library(server OBJECT "${PROJECT_SOURCE_DIR}/networking/server.cpp")
-add_library(packet OBJECT "${PROJECT_SOURCE_DIR}/networking/packet.cpp")
+add_library(packet OBJECT "${PROJECT_SOURCE_DIR}/game/packet.cpp")
 
 link_directories("${PROJECT_SOURCE_DIR}/lib")
 
