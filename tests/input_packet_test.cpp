@@ -68,7 +68,7 @@ int main()
         inputKeyboard.keyboard.pressed = false;
 
         char serializedData[sizeof(InputPacket)];
-        char *outData = serializedData;
+        char *outData = serializedData; // outData used for writing to the buffer
         inputKeyboard.serialize(inputKeyboard, outData);
 
         InputPacket deserializedInputKeyboard;
