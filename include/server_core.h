@@ -20,7 +20,7 @@ class ServerCore {
     public:
         ServerCore();                   // Constructor
         ~ServerCore();                  // Destructor
-        void initialize();              // Initialize server resources
+        void listen();              // Initialize server resources
         void shutdown();                // Clean up resources
         void run();                     // Run the server's main loop
 

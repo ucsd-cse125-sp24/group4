@@ -9,28 +9,25 @@ ServerCore::~ServerCore() {
     shutdown();
 }
 
-void ServerCore::initialize() {
+void ServerCore::listen() {
     // Initialize network components, game state, graphics, etc.
-    printf("initializing\n");
-
-    while (server.get_num_clients() < NUM_CLIENTS)
-        server.sock_listen();
-
+    server.sock_listen();
+    //maybe display some waiting for players screen?
+    for (int i = int(this->clients_data.size()); i < server.get_num_clients(); i++) {
+        // for each new connected client, initialize ClientData
+        this->accept_new_clients(i);
+    }
     running = true;
 }
 
 void ServerCore::run() {
+    running = true;
     while (isRunning()) {
         auto start = std::chrono::high_resolution_clock::now();
 
         while (server.get_num_clients() < NUM_CLIENTS)
         {
-            server.sock_listen();
-            //maybe display some waiting for players screen?
-            for (int i = int(this->clients_data.size()); i < server.get_num_clients(); i++) {
-                // for each new connected client, initialize ClientData
-                this->accept_new_clients(i);
-            }
+            this->listen();
         }
         //printf("server connected to %i clients\n", server.get_num_clients());
         receive_data();
