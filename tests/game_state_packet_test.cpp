@@ -91,6 +91,7 @@ int main() {
         std::cout << "Test passed: Serialized and deserialized data match." << std::endl;
     } else {
         std::cout << "Test failed: Serialized and deserialized data do not match." << std::endl;
+        return 1;
     }
 
     delete[] bufferStart;
