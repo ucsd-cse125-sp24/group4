@@ -33,7 +33,6 @@ public:
 
     bool connected;                // Connection state
     Client client;                 // client.conn_sock = socket,
-    Packet packet;
     ServerData server_updates;
 };
 

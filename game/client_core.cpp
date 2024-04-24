@@ -38,7 +38,7 @@ void ClientCore::receive_updates() {
         char one_packet[sizeof(Packet::ServerPacket)];
         memcpy(one_packet, received_data + i, sizeof(Packet::ServerPacket));
         Packet::ServerPacket* s_pkt = new Packet::ServerPacket;
-        packet.deserialize_server_packet(s_pkt, one_packet);
+        Packet::deserialize_server_packet(s_pkt, one_packet);
         server_updates.spacket_buffer.push_back(s_pkt);
     }
 }

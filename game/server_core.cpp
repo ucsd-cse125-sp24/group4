@@ -86,7 +86,7 @@ void ServerCore::send_updates(){
     char send_buffer[sizeof(Packet::ServerPacket)];
     auto i = std::begin(clients_data);
     while (i != std::end(clients_data)) {
-        packet.serialize_server_packet(&pkt, send_buffer);
+        Packet::serialize_server_packet(&pkt, send_buffer);
         bool send_success = server.sock_send((*i).sock, sizeof(send_buffer), (char*)send_buffer);
 
         if (!send_success)
