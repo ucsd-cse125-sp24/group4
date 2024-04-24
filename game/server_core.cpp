@@ -73,9 +73,7 @@ void ServerCore::process_input(){}
 void ServerCore::update_game_state(){}
 
 void ServerCore::send_updates(){
-    // const char* teststr = "Goodbye, world!";
-
-    Packet::ServerPacket pkt;
+    ServerPacket pkt;
     pkt.id = curr_id;
     curr_id += 1;
     pkt.coor.push_back(0); //x
@@ -83,10 +81,10 @@ void ServerCore::send_updates(){
     pkt.coor.push_back(0); //z
     pkt.message = "Hi client!";
 
-    char send_buffer[sizeof(Packet::ServerPacket)];
+    char send_buffer[sizeof(ServerPacket)];
     auto i = std::begin(clients_data);
     while (i != std::end(clients_data)) {
-        Packet::serialize_server_packet(&pkt, send_buffer);
+        serialize_server_packet(&pkt, send_buffer);
         bool send_success = server.sock_send((*i).sock, sizeof(send_buffer), (char*)send_buffer);
 
         if (!send_success)

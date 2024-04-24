@@ -12,7 +12,7 @@
 #include "packet.h"
 
 struct ServerData {
-    std::deque<Packet::ServerPacket*> spacket_buffer;  // Received updates from server
+    std::deque<ServerPacket*> spacket_buffer;  // Received updates from server
 };
 
 class ClientCore {
