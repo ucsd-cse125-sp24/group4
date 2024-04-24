@@ -8,6 +8,7 @@
 #include "server.h"
 #include "client.h"
 #include "windows_socket.h"
+#include "packet.h"
 
 #define NUM_CLIENTS 1
 
@@ -17,6 +18,9 @@ struct ClientData {
 };
 
 class ServerCore {
+    private:
+        int curr_id = 0;
+
     public:
         ServerCore();                   // Constructor
         ~ServerCore();                  // Destructor

@@ -26,9 +26,9 @@ void ServerCore::run() {
             //maybe display some waiting for players screen?
             if (server.get_num_clients() > prev){ // for each new connected client, initialize ClientData
                 this->accept_new_clients();
+                printf("server connection %i\n", server.get_num_clients());
             }
         }
-        printf("server connection %i\n", server.get_num_clients());
         receive_data();
         process_input();
         update_game_state();
@@ -73,11 +73,21 @@ void ServerCore::process_input(){}
 void ServerCore::update_game_state(){}
 
 void ServerCore::send_updates(){
-    const char* teststr = "Goodbye, world!";
-    
+    ServerPacket pkt;
+    pkt.id = curr_id;
+    curr_id += 1;
+    pkt.coor.push_back(0); //x
+    pkt.coor.push_back(0); //y
+    pkt.coor.push_back(0); //z
+    pkt.message = "Hi client!";
+
+    char send_buffer[sizeof(ServerPacket)];
     auto i = std::begin(clients_data);
     while (i != std::end(clients_data)) {
-        if (!server.sock_send((*i).sock, int(strlen(teststr)) + 1, teststr))
+        serialize_server_packet(&pkt, send_buffer);
+        bool send_success = server.sock_send((*i).sock, sizeof(send_buffer), (char*)send_buffer);
+
+        if (!send_success)
             i = clients_data.erase(i);
         else
             i++;

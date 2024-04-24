@@ -22,7 +22,7 @@ add_executable(server_core "${PROJECT_SOURCE_DIR}/game/game_logic_pg.cpp" "${PRO
 target_include_directories(server_core PRIVATE "${PROJECT_SOURCE_DIR}/include")
 target_link_libraries(server_core PRIVATE server client ws2_32)
 
-add_executable(client_core "${PROJECT_SOURCE_DIR}/game/game_logic_client.cpp" "${PROJECT_SOURCE_DIR}/game/server_core.cpp" ${GRAPHICS_SOURCES})
+add_executable(client_core "${PROJECT_SOURCE_DIR}/game/game_logic_client.cpp" "${PROJECT_SOURCE_DIR}/game/client_core.cpp" ${GRAPHICS_SOURCES})
 target_include_directories(client_core PRIVATE "${PROJECT_SOURCE_DIR}/include")
 target_link_libraries(client_core PRIVATE server client ws2_32 glfw3)
 
