@@ -49,7 +49,10 @@ void ClientCore::process_server_data() {
     while (server_updates.spacket_buffer.size() > 0) {
         ServerPacket* s_pkt = server_updates.spacket_buffer.front();
         server_updates.spacket_buffer.pop_front();
-        printf("Packet #%d: %s: My location is (%d, %d, %d).\n", s_pkt->id, s_pkt->message.c_str(), s_pkt->coor[0], s_pkt->coor[1], s_pkt->coor[2]);
+        gameState = s_pkt->state;
+        
+        printf("Packet #%d: %s\n", s_pkt->id, s_pkt->message.c_str());
+        //printf("Num players: %d\n", gameState.players.size());
         
         delete s_pkt;
     }

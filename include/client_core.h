@@ -10,6 +10,7 @@
 #include "client.h"
 #include "windows_socket.h"
 #include "packet.h"
+#include "game_state.h"
 
 struct ServerData {
     std::deque<ServerPacket*> spacket_buffer;  // Received updates from server
@@ -34,6 +35,7 @@ public:
     bool connected;                // Connection state
     Client client;                 // client.conn_sock = socket,
     ServerData server_updates;
+    GameState gameState;
 };
 
 #endif
