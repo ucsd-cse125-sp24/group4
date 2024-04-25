@@ -42,7 +42,7 @@ void ClientCore::send_input()
     packet.events.push_back(1);
     packet.cam_angle = 2.0f;
 
-    size_t bufferSize =packet.calculateSize();
+    size_t bufferSize = packet.calculateSize();
     char *buffer = new char[bufferSize];
 
     InputPacket::serialize(packet, buffer);
