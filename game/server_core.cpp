@@ -2,11 +2,13 @@
 
 ServerCore::ServerCore() : running(false) {}
 
-ServerCore::~ServerCore() {
+ServerCore::~ServerCore()
+{
     shutdown();
 }
 
-void ServerCore::initialize() {
+void ServerCore::initialize()
+{
     // Initialize network components, game state, graphics, etc.
     printf("initializing\n");
 
@@ -16,19 +18,22 @@ void ServerCore::initialize() {
     running = true;
 }
 
-void ServerCore::run() {
+void ServerCore::run()
+{
     int prev = 0;
-    while (isRunning()) {
+    while (isRunning())
+    {
         while (server.get_num_clients() < NUM_CLIENTS)
         {
             prev = server.get_num_clients();
             server.sock_listen();
-            //maybe display some waiting for players screen?
-            if (server.get_num_clients() > prev){ // for each new connected client, initialize ClientData
+            // maybe display some waiting for players screen?
+            if (server.get_num_clients() > prev)
+            { // for each new connected client, initialize ClientData
                 this->accept_new_clients();
+                printf("server connection %i\n", server.get_num_clients());
             }
         }
-        printf("server connection %i\n", server.get_num_clients());
         receive_data();
         process_input();
         update_game_state();
@@ -36,8 +41,10 @@ void ServerCore::run() {
     }
 }
 
-void ServerCore::shutdown() {
-    for (ClientData client : clients_data) {
+void ServerCore::shutdown()
+{
+    for (ClientData client : clients_data)
+    {
         server.close_client(client.sock);
     }
     clients_data.clear(); // Clear the client data vector
@@ -45,49 +52,94 @@ void ServerCore::shutdown() {
     running = false;
 }
 
-bool ServerCore::isRunning() const {
+bool ServerCore::isRunning() const
+{
     return running;
 }
 
-void ServerCore::receive_data() {
+void ServerCore::receive_data()
+{
     fd_set readFdSet;
     FD_ZERO(&readFdSet);
     timeval timeout;
     timeout.tv_sec = CONNECT_TIMEOUT;
     timeout.tv_usec = 0;
 
-    for (ClientData client : clients_data) {
+    for (ClientData client : clients_data)
+    {
         FD_SET(client.sock, &readFdSet);
-        if (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0) {
-            char* buf = server.sock_receive(client.sock);
-            if (buf && buf[0]){
-                client.messages.push_back(std::string(buf));
-                printf("server got \"%s\" from client\n", buf);
+        if (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0)
+        {
+            char *buf = server.sock_receive(client.sock);
+            if (buf)
+            {
+                InputPacket packet;
+                InputPacket::deserialize(buf, packet);
+
+                // Print for testing
+                printf("\nEvents: ");
+                for (const auto &event : packet.events)
+                    printf("%d ", event);
+                printf("\n");
+                printf("Camera angle: %f\n\n", packet.cam_angle);
             }
         }
     }
 }
 
-void ServerCore::process_input(){}
+void ServerCore::process_input() {}
 
-void ServerCore::update_game_state(){}
+void ServerCore::update_game_state() {
+    while (serverState.students.size() < 5) {
+        StudentState s_state;
+        s_state.x = serverState.students.size();
+        s_state.y = serverState.students.size();
+        s_state.z = serverState.students.size();
+        s_state.orientation = serverState.students.size();
 
-void ServerCore::send_updates(){
-    const char* teststr = "Goodbye, world!";
-    
-    auto i = std::begin(clients_data);
-    while (i != std::end(clients_data)) {
-        if (!server.sock_send((*i).sock, int(strlen(teststr)) + 1, teststr))
-            i = clients_data.erase(i);
-        else
-            i++;
+        serverState.students.push_back(s_state);
     }
+    serverState.level = 5;
 }
 
-void ServerCore::accept_new_clients() {
+void ServerCore::send_updates()
+{
+    GameStatePacket packet;
+    packet.state = serverState;
+
+    size_t bufferSize = packet.calculateSize();
+
+    char *buffer = new char[bufferSize];
+    GameStatePacket::serialize(packet, buffer);
+
+    for (auto i = 0; i < clients_data.size(); i++) {
+        bool send_success = server.sock_send(clients_data[i].sock, bufferSize, buffer);
+        // if client shutdown, tear down this client/player
+        if (!send_success) {                                                                           
+            clients_data.erase(clients_data.begin() + i);
+            serverState.players.erase(serverState.players.begin() + i);
+            i--;
+        }
+    }
+
+    delete[] buffer;
+}
+
+void ServerCore::accept_new_clients()
+{
     SOCKET clientSock = server.get_client_sock(0);
     ClientData client;
     client.sock = clientSock;
     clients_data.push_back(client);
+
+    PlayerState p_state;
+    p_state.x = 0.0f;
+    p_state.y = 0.0f;
+    p_state.z = 0.0f;
+    p_state.orientation = 0.0f;
+    p_state.score = 0;
+
+    serverState.players.push_back(p_state);
+
     printf("added new client data\n");
 }
