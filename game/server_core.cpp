@@ -70,24 +70,16 @@ void ServerCore::receive_data() {
 
 void ServerCore::process_input(){}
 
-void ServerCore::update_game_state() {
-    // while (gameState.students.size() < 5) {
-    //     StudentState newStudent;
-    //     newStudent.x = 4.0f;
-    //     newStudent.y = 5.0f;
-    //     newStudent.z = 6.0f;
-    //     newStudent.orientation = 7.0f;
-
-    //     gameState.students.push_back(newStudent);
-    // }
-}
+void ServerCore::update_game_state(){}
 
 void ServerCore::send_updates(){
     ServerPacket pkt;
     pkt.id = curr_id;
     curr_id += 1;
+    pkt.coor.push_back(0); //x
+    pkt.coor.push_back(0); //y
+    pkt.coor.push_back(0); //z
     pkt.message = "Hi client!";
-    pkt.state = gameState;
 
     char send_buffer[sizeof(ServerPacket)];
     auto i = std::begin(clients_data);
@@ -95,9 +87,8 @@ void ServerCore::send_updates(){
         serialize_server_packet(&pkt, send_buffer);
         bool send_success = server.sock_send((*i).sock, sizeof(send_buffer), (char*)send_buffer);
 
-        if (!send_success) {
+        if (!send_success)
             i = clients_data.erase(i);
-        }
         else
             i++;
     }
@@ -108,14 +99,5 @@ void ServerCore::accept_new_clients() {
     ClientData client;
     client.sock = clientSock;
     clients_data.push_back(client);
-    
-    PlayerState newPlayer;
-    newPlayer.x = 0.0f;
-    newPlayer.y = 1.0f;
-    newPlayer.z = 2.0f;
-    newPlayer.orientation = 3.0f;
-    newPlayer.score = 0;
-    //gameState.players.push_back(newPlayer);
-
     printf("added new client data\n");
 }

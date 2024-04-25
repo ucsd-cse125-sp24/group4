@@ -9,7 +9,6 @@
 #include "client.h"
 #include "windows_socket.h"
 #include "packet.h"
-#include "game_state.h"
 
 #define NUM_CLIENTS 1
 
@@ -40,7 +39,7 @@ class ServerCore {
         bool running;                   // Server running state
         Server server;
         std::vector<ClientData> clients_data;
-        GameState gameState;
+
         // std::vector<ClientData> data;   // all client data passed in. later add other data like changes in npc or environment?
         std::vector<std::string> data;  // string for now
 };
