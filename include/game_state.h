@@ -1,6 +1,10 @@
 #pragma once
 #include <vector>
 
+// Graphics core
+#include "core.h"
+#include "enums.h"
+
 struct PlayerState {
     float x, y, z;
     float orientation;
@@ -20,6 +24,6 @@ struct GameState {
     int level;
     // Functions for manipulating the game state
     void updateScores();
-    void movePlayer(int playerId, float x, float y, float z);
+    void movePlayer(int playerId, int event, float orientation);
     // Other relevant game state functions
 };

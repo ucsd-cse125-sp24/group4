@@ -12,6 +12,10 @@ void ClientCore::initialize()
 {
     // Initialize graphics, connect client
     printf("initializing client\n");
+
+    // Initialize graphics
+    window = Graphics::set_up_window();
+
     while (client.is_connected() == false)
         ;
     connected = true;
@@ -37,10 +41,16 @@ void ClientCore::run()
 
 void ClientCore::send_input()
 {
-    InputPacket packet;
+    InputPacket packet;/*
     packet.events.push_back(0);
-    packet.events.push_back(1);
-    packet.cam_angle = 2.0f;
+    packet.events.push_back(1);*/
+    packet.cam_angle = 0.0f;
+    // TODO: Get events and push it into packet
+    std::vector<int> tmp = Window::get_input_actions();
+    for (int event : tmp)
+        packet.events.push_back(event);
+
+    // TODO: Get cam_angle and push it to packet - Camera controls need to be implemented first
 
     size_t bufferSize = packet.calculateSize();
     char *buffer = new char[bufferSize];
@@ -84,4 +94,8 @@ void ClientCore::renderGameState()
                   << ", orientation: " << student.orientation << std::endl;
     }
     printf("\n\n");
+
+    // Render
+    Window::display_callback(window);
+    Window::idle_callback();
 }

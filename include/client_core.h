@@ -13,6 +13,10 @@
 #include "game_state_packet.h"
 #include "game_state.h"
 
+// Include graphics
+#include "core.h"
+#include "graphics.h"
+
 class ClientCore
 {
 public:
@@ -32,6 +36,7 @@ public:
     bool connected; // Connection state
     Client client;  // client.conn_sock = socket,
     GameState clientState;
+    GLFWwindow* window; // Game window
 };
 
 #endif

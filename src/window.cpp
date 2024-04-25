@@ -135,29 +135,32 @@ void Window::display_callback(GLFWwindow* window) {
 }
 
 void Window::idle_callback() {
+
+	// Will eventually be deprecated I think... server handles all updates
+
 	// Perform any updates as necessary
 	// This is called every frame
 
 	// Move the cube depending on events
 	std::vector<int> events = input->get_action(); // to be replaced by get_input_action
 	float SCALE = 0.01; // TODO, define somewhere else (once moved to server)
-	// Right now this depends on frame rate. Maybe add deltaTime? Maybe handle this server-side?
-	for (int i = 0; i < events.size(); i++) { // TODO: calculating movement is server resp
-		switch (events[i]) {
-		case MOVE_FORWARD:
-			cube->move(glm::vec3(0, 0, -1 * SCALE)); // TODO: actual movement is client resp
-			break;
-		case MOVE_BACKWARD:
-			cube->move(glm::vec3(0, 0, 1 * SCALE));
-			break;
-		case MOVE_LEFT:
-			cube->move(glm::vec3(-1 * SCALE, 0, 0));
-			break;
-		case MOVE_RIGHT:
-			cube->move(glm::vec3(1 * SCALE, 0, 0));
-			break;
-		}
-	}	
+	 //Right now this depends on frame rate. Maybe add deltaTime? Maybe handle this server-side?
+	//for (int i = 0; i < events.size(); i++) { 
+	//	switch (events[i]) {
+	//	case MOVE_FORWARD:
+	//		cube->move(glm::vec3(0, 0, -1 * SCALE));
+	//		break;
+	//	case MOVE_BACKWARD:
+	//		cube->move(glm::vec3(0, 0, 1 * SCALE));
+	//		break;
+	//	case MOVE_LEFT:
+	//		cube->move(glm::vec3(-1 * SCALE, 0, 0));
+	//		break;
+	//	case MOVE_RIGHT:
+	//		cube->move(glm::vec3(1 * SCALE, 0, 0));
+	//		break;
+	//	}
+	//}	
 
 }
 
