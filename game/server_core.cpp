@@ -91,7 +91,13 @@ void ServerCore::process_input() {}
 
 void ServerCore::update_game_state() {
     while (serverState.students.size() < 5) {
-        serverState.students.push_back({1.0f, 2.0f, 3.0f, 0.0f});
+        StudentState s_state;
+        s_state.x = serverState.students.size();
+        s_state.y = serverState.students.size();
+        s_state.z = serverState.students.size();
+        s_state.orientation = serverState.students.size();
+
+        serverState.students.push_back(s_state);
     }
     serverState.level = 5;
 }
@@ -106,15 +112,16 @@ void ServerCore::send_updates()
     char *buffer = new char[bufferSize];
     GameStatePacket::serialize(packet, buffer);
 
-    auto i = std::begin(clients_data);
-    while (i != std::end(clients_data))
-    {
-        bool send_success = server.sock_send((*i).sock, bufferSize, buffer);
-        if (!send_success)
-            i = clients_data.erase(i);
-        else
-            i++;
+    for (auto i = 0; i < clients_data.size(); i++) {
+        bool send_success = server.sock_send(clients_data[i].sock, bufferSize, buffer);
+        // if client shutdown, tear down this client/player
+        if (!send_success) {                                                                           
+            clients_data.erase(clients_data.begin() + i);
+            serverState.players.erase(serverState.players.begin() + i);
+            i--;
+        }
     }
+
     delete[] buffer;
 }
 
@@ -125,7 +132,14 @@ void ServerCore::accept_new_clients()
     client.sock = clientSock;
     clients_data.push_back(client);
 
-    serverState.players.push_back({0.0f, 0.0f, 0.0f, 0.0f, 0});
+    PlayerState p_state;
+    p_state.x = 0.0f;
+    p_state.y = 0.0f;
+    p_state.z = 0.0f;
+    p_state.orientation = 0.0f;
+    p_state.score = 0;
+
+    serverState.players.push_back(p_state);
 
     printf("added new client data\n");
 }
