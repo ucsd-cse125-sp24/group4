@@ -1,6 +1,7 @@
 #include "../include/input_packet.h"
 #include <cstring>
 
+// Ensure outData is large enough to store all the data that is intended to be serialized.
 void InputPacket::serialize(const InputPacket& input, char*& outData) {
     char* temp = outData;
 
