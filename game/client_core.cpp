@@ -38,17 +38,18 @@ void ClientCore::run()
 void ClientCore::send_input()
 {
     InputPacket packet;
-
-    // Example packet
-    packet.type = InputPacket::KEYBOARD;
-    packet.keyboard.keyCode = 65;
-    packet.keyboard.pressed = false;
+    packet.events.push_back(0);
+    packet.events.push_back(1);
+    packet.cam_angle = 2.0f;
 
     size_t bufferSize = sizeof(InputPacket);
     char *buffer = new char[bufferSize];
 
     InputPacket::serialize(packet, buffer);
-    client.sock_send(bufferSize, buffer);
+    if (!client.sock_send(bufferSize, buffer)) {
+        delete[] buffer;
+        shutdown();
+    }
 
     delete[] buffer;
 }

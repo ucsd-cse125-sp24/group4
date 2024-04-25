@@ -4,47 +4,35 @@
 // Ensure outData is large enough to store all the data that is intended to be serialized.
 void InputPacket::serialize(const InputPacket& input, char*& outData) {
     char* temp = outData;
+    
+    // Serialize size of events
+    size_t numEvents = input.events.size();
+    memcpy(temp, &numEvents, sizeof(numEvents));
+    temp += sizeof(numEvents);
 
-    // Serialize input type
-    memcpy(temp, &input.type, sizeof(input.type));
-    temp += sizeof(input.type);
+    // Serialize events
+    memcpy(temp, input.events.data(), sizeof(int) * numEvents);
+    temp += sizeof(int) * numEvents;
 
-    // Serialize data based on input type
-    switch (input.type) {
-        case KEYBOARD:
-            memcpy(temp, &input.keyboard, sizeof(input.keyboard));
-            temp += sizeof(input.keyboard);
-            break;
-        case MOUSE:
-            memcpy(temp, &input.mouse, sizeof(input.mouse));
-            temp += sizeof(input.mouse);
-            break;
-        case KEYBOARD_AND_MOUSE:
-            memcpy(temp, &input.keyboard, sizeof(input.keyboard));
-            temp += sizeof(input.keyboard);
-            memcpy(temp, &input.mouse, sizeof(input.mouse));
-            temp += sizeof(input.mouse);
-            break;
-    }
+    // Serialize cam_angle
+    memcpy(temp, &input.cam_angle, sizeof(input.cam_angle));
+    temp += sizeof(input.cam_angle);
 }
 
 void InputPacket::deserialize(const char* inData, InputPacket& input) {
-    // Deserialize input type
-    memcpy(&input.type, inData, sizeof(input.type));
-    inData += sizeof(input.type);
+    const char* temp = inData;
 
-    // Deserialize data based on input type
-    switch (input.type) {
-        case KEYBOARD:
-            memcpy(&input.keyboard, inData, sizeof(input.keyboard));
-            break;
-        case MOUSE:
-            memcpy(&input.mouse, inData, sizeof(input.mouse));
-            break;
-        case KEYBOARD_AND_MOUSE:
-            memcpy(&input.keyboard, inData, sizeof(input.keyboard));
-            inData += sizeof(input.keyboard);
-            memcpy(&input.mouse, inData, sizeof(input.mouse));
-            break;
-    }
+    // Deserialize size of events
+    size_t numEvents;
+    memcpy(&numEvents, temp, sizeof(numEvents));
+    temp += sizeof(numEvents);
+
+    // Deserialize events
+    input.events.clear();
+    input.events.resize(numEvents);
+    memcpy(input.events.data(), temp, sizeof(int) * numEvents);
+    temp += sizeof(int) * numEvents;
+
+    // Deserialize cam_angle
+    memcpy(&input.cam_angle, temp, sizeof(input.cam_angle));
 }

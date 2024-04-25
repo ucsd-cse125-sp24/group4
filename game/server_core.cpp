@@ -77,11 +77,11 @@ void ServerCore::receive_data()
                 InputPacket::deserialize(buf, packet);
 
                 // Print for testing
-                if (packet.type == InputPacket::KEYBOARD)
-                {
-                    std::cout << "Received keyboard input: KeyCode = " << packet.keyboard.keyCode
-                              << ", Pressed = " << (packet.keyboard.pressed ? "True" : "False") << std::endl;
-                }
+                printf("\nEvents: ");
+                for (const auto &event : packet.events)
+                    printf("%d ", event);
+                printf("\n");
+                printf("Camera angle: %f\n\n", packet.cam_angle);
             }
         }
     }
