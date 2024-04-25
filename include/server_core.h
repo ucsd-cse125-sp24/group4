@@ -3,12 +3,15 @@
 
 #include <vector>
 #include <string>
+#include <iostream>
 #include <Winsock2.h>
 
 #include "server.h"
 #include "client.h"
 #include "windows_socket.h"
 #include "packet.h"
+#include "input_packet.h"
+#include "game_state_packet.h"
 
 #define NUM_CLIENTS 1
 
