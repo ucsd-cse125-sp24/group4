@@ -9,14 +9,9 @@
 #include "server.h"
 #include "client.h"
 #include "windows_socket.h"
-#include "packet.h"
 #include "input_packet.h"
 #include "game_state_packet.h"
-
-struct ServerData
-{
-    std::deque<ServerPacket *> spacket_buffer; // Received updates from server
-};
+#include "game_state.h"
 
 class ClientCore
 {
@@ -32,11 +27,11 @@ public:
     void receive_updates();                // Receive updates from server
     void process_server_data();            // Process the received data
     void update_local_game_state();        // Update local game state based on server updates
-    void renderGameState(GameState state); // Render the game state to the user
+    void renderGameState(); // Render the game state to the user
 
     bool connected; // Connection state
     Client client;  // client.conn_sock = socket,
-    ServerData server_updates;
+    GameState clientState;
 };
 
 #endif

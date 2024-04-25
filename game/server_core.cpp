@@ -89,23 +89,17 @@ void ServerCore::receive_data()
 
 void ServerCore::process_input() {}
 
-void ServerCore::update_game_state() {}
+void ServerCore::update_game_state() {
+    while (serverState.students.size() < 5) {
+        serverState.students.push_back({1.0f, 2.0f, 3.0f, 0.0f});
+    }
+    serverState.level = 5;
+}
 
 void ServerCore::send_updates()
 {
     GameStatePacket packet;
-    // Example packet
-    // Initialize player states
-    packet.state.players.push_back({10.0f, 20.0f, 30.0f, 0.1f, 100}); // Player 1
-    packet.state.players.push_back({15.0f, 25.0f, 35.0f, 0.2f, 150}); // Player 2
-    packet.state.players.push_back({20.0f, 30.0f, 40.0f, 0.3f, 200}); // Player 3
-    packet.state.players.push_back({25.0f, 35.0f, 45.0f, 0.4f, 250}); // Player 4
-
-    // Initialize students states
-    packet.state.students.push_back({1.0f, 2.0f, 3.0f, 0.0f}); // Student 1
-    packet.state.students.push_back({4.0f, 5.0f, 6.0f, 1.0f}); // Student 2
-
-    packet.state.level = 5;
+    packet.state = serverState;
 
     size_t bufferSize = packet.calculateSize();
 
@@ -130,5 +124,8 @@ void ServerCore::accept_new_clients()
     ClientData client;
     client.sock = clientSock;
     clients_data.push_back(client);
+
+    serverState.players.push_back({0.0f, 0.0f, 0.0f, 0.0f, 0});
+
     printf("added new client data\n");
 }

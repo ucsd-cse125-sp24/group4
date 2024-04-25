@@ -31,6 +31,7 @@ void ClientCore::run()
         send_input();
         receive_updates();
         process_server_data();
+        renderGameState();
     }
 }
 
@@ -59,38 +60,27 @@ void ClientCore::receive_updates()
 
     GameStatePacket packet;
     GameStatePacket::deserialize(received_data, packet);
-
-    renderGameState(packet.state);
+    clientState = packet.state;
 }
 
-void ClientCore::process_server_data()
-{
-    // Process received updates
-    // Update the game state based on received data
+void ClientCore::process_server_data() {}
 
-    // while (server_updates.spacket_buffer.size() > 0) {
-    //     ServerPacket* s_pkt = server_updates.spacket_buffer.front();
-    //     server_updates.spacket_buffer.pop_front();
-    //     printf("Packet #%d: %s: My location is (%d, %d, %d).\n", s_pkt->id, s_pkt->message.c_str(), s_pkt->coor[0], s_pkt->coor[1], s_pkt->coor[2]);
-
-    //     delete s_pkt;
-    // }
-}
-
-void ClientCore::renderGameState(GameState state)
+void ClientCore::renderGameState()
 {
     // Print
-    std::cout << "Level: " << state.level << std::endl;
+    printf("\n\n");
+    std::cout << "Level: " << clientState.level << std::endl;
     std::cout << "Players:" << std::endl;
-    for (const auto &player : state.players)
+    for (const auto &player : clientState.players)
     {
         std::cout << "  x: " << player.x << ", y: " << player.y << ", z: " << player.z
                   << ", orientation: " << player.orientation << ", score: " << player.score << std::endl;
     }
     std::cout << "Students:" << std::endl;
-    for (const auto &student : state.students)
+    for (const auto &student : clientState.students)
     {
         std::cout << "  x: " << student.x << ", y: " << student.y << ", z: " << student.z
                   << ", orientation: " << student.orientation << std::endl;
     }
+    printf("\n\n");
 }
