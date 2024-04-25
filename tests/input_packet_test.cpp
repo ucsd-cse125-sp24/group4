@@ -24,7 +24,7 @@ int main()
     input.events.push_back(2);
     input.cam_angle = 36.0f;
     
-    size_t bufferSize = sizeof(InputPacket);
+    size_t bufferSize = input.calculateSize();
     char *buffer = new char[bufferSize];
     InputPacket::serialize(input, buffer); 
 

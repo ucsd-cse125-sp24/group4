@@ -1,6 +1,10 @@
 #include "../include/input_packet.h"
 #include <cstring>
 
+size_t InputPacket::calculateSize() const {
+    return sizeof(size_t) + sizeof(int) * events.size() + sizeof(float);
+}
+
 // Ensure outData is large enough to store all the data that is intended to be serialized.
 void InputPacket::serialize(const InputPacket& input, char*& outData) {
     char* temp = outData;
