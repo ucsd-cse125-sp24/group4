@@ -95,24 +95,19 @@ void ServerCore::send_updates()
 {
     GameStatePacket packet;
     // Example packet
-    for (int i = 0; i < 4; i++)
-    {
-        packet.state.players[i].x = i * 1.0f;
-        packet.state.players[i].y = i * 2.0f;
-        packet.state.players[i].z = i * 3.0f;
-        packet.state.players[i].orientation = i * 10.0f;
-        packet.state.players[i].score = i * 100;
-    }
+    // Initialize player states
+    packet.state.players.push_back({10.0f, 20.0f, 30.0f, 0.1f, 100}); // Player 1
+    packet.state.players.push_back({15.0f, 25.0f, 35.0f, 0.2f, 150}); // Player 2
+    packet.state.players.push_back({20.0f, 30.0f, 40.0f, 0.3f, 200}); // Player 3
+    packet.state.players.push_back({25.0f, 35.0f, 45.0f, 0.4f, 250}); // Player 4
 
-    packet.state.students.push_back({1.0f, 2.0f, 3.0f, 0.0f});
-    packet.state.students.push_back({4.0f, 5.0f, 6.0f, 1.0f});
+    // Initialize students states
+    packet.state.students.push_back({1.0f, 2.0f, 3.0f, 0.0f}); // Student 1
+    packet.state.students.push_back({4.0f, 5.0f, 6.0f, 1.0f}); // Student 2
+
     packet.state.level = 5;
 
-    size_t bufferSize = sizeof(size_t) +                                                     // Number of players
-                        4 * (sizeof(float) * 3 + sizeof(float) + sizeof(int)) +              // Player data
-                        sizeof(size_t) +                                                     // Number of students
-                        packet.state.students.size() * (sizeof(float) * 3 + sizeof(float)) + // Student data
-                        sizeof(int);                                                         // Level
+    size_t bufferSize = packet.calculateSize();
 
     char *buffer = new char[bufferSize];
     GameStatePacket::serialize(packet, buffer);

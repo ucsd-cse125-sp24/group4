@@ -15,7 +15,7 @@ struct StudentState {
 };
 
 struct GameState {
-    PlayerState players[4];
+    std::vector<PlayerState> players;
     std::vector<StudentState> students;
     int level;
     // Functions for manipulating the game state
