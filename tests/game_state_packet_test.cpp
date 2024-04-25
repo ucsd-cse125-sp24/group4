@@ -73,11 +73,8 @@ int main() {
                         sizeof(int); // Level
 
     char* buffer = new char[bufferSize];
-    char* bufferStart = buffer;
 
     originalPacket.serialize(originalPacket, buffer);
-
-    buffer = bufferStart; 
     deserializedPacket.deserialize(buffer, deserializedPacket);
 
     // Print original and deserialized packets
@@ -93,8 +90,6 @@ int main() {
         std::cout << "Test failed: Serialized and deserialized data do not match." << std::endl;
         return 1;
     }
-
-    delete[] bufferStart;
 
     return 0;
 }

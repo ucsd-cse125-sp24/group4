@@ -67,12 +67,12 @@ int main()
         inputKeyboard.keyboard.keyCode = 65; // 'A'
         inputKeyboard.keyboard.pressed = false;
 
-        char serializedData[sizeof(InputPacket)];
-        char *outData = serializedData; // outData used for writing to the buffer
-        inputKeyboard.serialize(inputKeyboard, outData);
+        size_t bufferSize = sizeof(InputPacket);
+        char *buffer = new char[bufferSize];
+        inputKeyboard.serialize(inputKeyboard, buffer); 
 
         InputPacket deserializedInputKeyboard;
-        deserializedInputKeyboard.deserialize(serializedData, deserializedInputKeyboard);
+        deserializedInputKeyboard.deserialize(buffer, deserializedInputKeyboard);
 
         std::cout << "Deserialized InputPacket (KEYBOARD):" << std::endl;
         printInputPacket(deserializedInputKeyboard);
@@ -89,12 +89,12 @@ int main()
         inputMouse.mouse.button = 1;
         inputMouse.mouse.pressed = true;
 
-        char serializedData[sizeof(InputPacket)];
-        char *outData = serializedData;
-        inputMouse.serialize(inputMouse, outData);
+        size_t bufferSize = sizeof(InputPacket);
+        char *buffer = new char[bufferSize];
+        inputMouse.serialize(inputMouse, buffer);
 
         InputPacket deserializedInputMouse;
-        deserializedInputMouse.deserialize(serializedData, deserializedInputMouse);
+        deserializedInputMouse.deserialize(buffer, deserializedInputMouse);
 
         std::cout << "\nDeserialized InputPacket (MOUSE):" << std::endl;
         printInputPacket(deserializedInputMouse);
@@ -113,12 +113,12 @@ int main()
         inputKeyboardAndMouse.mouse.button = 1;
         inputKeyboardAndMouse.mouse.pressed = true;
 
-        char serializedData[sizeof(InputPacket)];
-        char *outData = serializedData;
-        inputKeyboardAndMouse.serialize(inputKeyboardAndMouse, outData);
+        size_t bufferSize = sizeof(InputPacket);
+        char *buffer = new char[bufferSize];
+        inputKeyboardAndMouse.serialize(inputKeyboardAndMouse, buffer);
 
         InputPacket deserializedInputKeyboardAndMouse;
-        deserializedInputKeyboardAndMouse.deserialize(serializedData, deserializedInputKeyboardAndMouse);
+        deserializedInputKeyboardAndMouse.deserialize(buffer, deserializedInputKeyboardAndMouse);
 
         std::cout << "\nDeserialized InputPacket (KEYBOARD_AND_MOUSE):" << std::endl;
         printInputPacket(deserializedInputKeyboardAndMouse);

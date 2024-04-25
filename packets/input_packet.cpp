@@ -2,25 +2,27 @@
 #include <cstring>
 
 void InputPacket::serialize(const InputPacket& input, char*& outData) {
+    char* temp = outData;
+
     // Serialize input type
-    memcpy(outData, &input.type, sizeof(input.type));
-    outData += sizeof(input.type);
+    memcpy(temp, &input.type, sizeof(input.type));
+    temp += sizeof(input.type);
 
     // Serialize data based on input type
     switch (input.type) {
         case KEYBOARD:
-            memcpy(outData, &input.keyboard, sizeof(input.keyboard));
-            outData += sizeof(input.keyboard);
+            memcpy(temp, &input.keyboard, sizeof(input.keyboard));
+            temp += sizeof(input.keyboard);
             break;
         case MOUSE:
-            memcpy(outData, &input.mouse, sizeof(input.mouse));
-            outData += sizeof(input.mouse);
+            memcpy(temp, &input.mouse, sizeof(input.mouse));
+            temp += sizeof(input.mouse);
             break;
         case KEYBOARD_AND_MOUSE:
-            memcpy(outData, &input.keyboard, sizeof(input.keyboard));
-            outData += sizeof(input.keyboard);
-            memcpy(outData, &input.mouse, sizeof(input.mouse));
-            outData += sizeof(input.mouse);
+            memcpy(temp, &input.keyboard, sizeof(input.keyboard));
+            temp += sizeof(input.keyboard);
+            memcpy(temp, &input.mouse, sizeof(input.mouse));
+            temp += sizeof(input.mouse);
             break;
     }
 }
