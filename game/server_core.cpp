@@ -46,10 +46,6 @@ void ServerCore::run() {
 
 void ServerCore::shutdown()
 {
-    for (ClientData* client : clients_data)
-    {
-        server.close_client(client->sock);
-    }
     clients_data.clear(); // Clear the client data vector
     server.sock_shutdown();
     running = false;

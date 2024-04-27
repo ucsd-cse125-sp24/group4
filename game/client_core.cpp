@@ -12,8 +12,10 @@ void ClientCore::initialize()
 {
     // Initialize graphics, connect client
     printf("initializing client\n");
-    while (client.is_connected() == false)
-        ;
+    while (!client.is_connected()) {
+        client.connect_to_server();
+        Sleep(100*CONNECT_TIMEOUT);
+    }
     connected = true;
 }
 

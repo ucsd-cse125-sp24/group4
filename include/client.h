@@ -16,6 +16,8 @@ class Client {
 
         Client();
 
+        SOCKET connect_to_server();
+
         bool is_connected() const;
 
         /*
