@@ -4,7 +4,7 @@ project("CSE125 Project")
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-file(GLOB GRAPHICS_SOURCES "${PROJECT_SOURCE_DIR}/src/*")
+file(GLOB GRAPHICS_SOURCES "${PROJECT_SOURCE_DIR}/graphics/*")
 
 add_library(client OBJECT "${PROJECT_SOURCE_DIR}/networking/client.cpp")
 add_library(server OBJECT "${PROJECT_SOURCE_DIR}/networking/server.cpp")

@@ -5,10 +5,10 @@ size_t GameStatePacket::calculateSize() const {
     size_t totalSize = 0;
 
     totalSize += sizeof(size_t);  // To store the number of players
-    totalSize += state.players.size() * (sizeof(float) * 4 + sizeof(int));  // Each player's size: 3 floats for x, y, z, 1 float for orientation, 1 int for score
+    totalSize += state.players.size() * (sizeof(float) * 16 + sizeof(int)); // Each player's size: 16 floats for world matrix, 1 int for score
 
     totalSize += sizeof(size_t);  // To store the number of students
-    totalSize += state.students.size() * (sizeof(float) * 4);  // Each student's size: 3 floats for x, y, z, 1 float for orientation
+    totalSize += state.students.size() * (sizeof(float) * 16); // Each student's size: 16 floats for world matrix
 
     // Add size of level
     totalSize += sizeof(state.level);
@@ -19,46 +19,52 @@ size_t GameStatePacket::calculateSize() const {
 // Ensure outData is large enough to store all the data that is intended to be serialized.
 void GameStatePacket::serialize(const GameStatePacket& packet, char*& outData) {
     char* temp = outData;
+    int size = 0;
     
     // Serialize number of players
     size_t numPlayers = packet.state.players.size();
     memcpy(temp, &numPlayers, sizeof(numPlayers));
     temp += sizeof(numPlayers);
+    size += sizeof(numPlayers);
 
-    // Serialize each player's state including x, y, z, orientation, and score
+    // Serialize each player's state including 16 floats of world matrix, and score
     for (const PlayerState& player : packet.state.players) {
-        memcpy(temp, &player.x, sizeof(player.x));
-        temp += sizeof(player.x);
-        memcpy(temp, &player.y, sizeof(player.y));
-        temp += sizeof(player.y);
-        memcpy(temp, &player.z, sizeof(player.z));
-        temp += sizeof(player.z);
-        memcpy(temp, &player.orientation, sizeof(player.orientation));
-        temp += sizeof(player.orientation);
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                memcpy(temp, &player.world[i][j], sizeof(player.world[i][j]));
+				temp += sizeof(player.world[i][j]);
+                size += sizeof(player.world[i][j]);
+            }
+        }
+
         memcpy(temp, &player.score, sizeof(player.score));
         temp += sizeof(player.score);
+        size += sizeof(player.score);
+
     }
 
     // Serialize number of students
     size_t numStudents = packet.state.students.size();
     memcpy(temp, &numStudents, sizeof(numStudents));
     temp += sizeof(numStudents);
+    size += sizeof(numStudents);
 
-    // Serialize each student's state including x, y, z, and orientation
+
+    // Serialize each student's state including 16 floats of world matrix
     for (const StudentState& student : packet.state.students) {
-        memcpy(temp, &student.x, sizeof(student.x));
-        temp += sizeof(student.x);
-        memcpy(temp, &student.y, sizeof(student.y));
-        temp += sizeof(student.y);
-        memcpy(temp, &student.z, sizeof(student.z));
-        temp += sizeof(student.z);
-        memcpy(temp, &student.orientation, sizeof(student.orientation));
-        temp += sizeof(student.orientation);
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+				memcpy(temp, &student.world[i][j], sizeof(student.world[i][j]));
+                temp += sizeof(student.world[i][j]);
+                size += sizeof(student.world[i][j]);
+            }
+        }
     }
 
     // Serialize level
     memcpy(temp, &packet.state.level, sizeof(packet.state.level));
     temp += sizeof(packet.state.level);
+    size += sizeof(packet.state.level);
 }
 
 void GameStatePacket::deserialize(const char* inData, GameStatePacket& packet) {
@@ -69,16 +75,15 @@ void GameStatePacket::deserialize(const char* inData, GameStatePacket& packet) {
     packet.state.players.clear();
     packet.state.players.resize(numPlayers);
 
-    // Deserialize each player's state including x, y, z, orientation, and score
+    // Deserialize each player's state including 16 floats for world matrix and score
     for (PlayerState& player : packet.state.players) {
-        memcpy(&player.x, inData, sizeof(player.x));
-        inData += sizeof(player.x);
-        memcpy(&player.y, inData, sizeof(player.y));
-        inData += sizeof(player.y);
-        memcpy(&player.z, inData, sizeof(player.z));
-        inData += sizeof(player.z);
-        memcpy(&player.orientation, inData, sizeof(player.orientation));
-        inData += sizeof(player.orientation);
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+				memcpy(&player.world[i][j], inData, sizeof(float));
+				inData += sizeof(float);
+			}
+        }
+
         memcpy(&player.score, inData, sizeof(player.score));
         inData += sizeof(player.score);
     }
@@ -90,16 +95,14 @@ void GameStatePacket::deserialize(const char* inData, GameStatePacket& packet) {
     packet.state.students.clear();
     packet.state.students.resize(numStudents);
 
-    // Deserialize each student's state including x, y, z, and orientation
+    // Deserialize each student's state including 16 floats for world matrix
     for (StudentState& student : packet.state.students) {
-        memcpy(&student.x, inData, sizeof(student.x));
-        inData += sizeof(student.x);
-        memcpy(&student.y, inData, sizeof(student.y));
-        inData += sizeof(student.y);
-        memcpy(&student.z, inData, sizeof(student.z));
-        inData += sizeof(student.z);
-        memcpy(&student.orientation, inData, sizeof(student.orientation));
-        inData += sizeof(student.orientation);
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+				memcpy(&student.world[i][j], inData, sizeof(float));
+				inData += sizeof(float);
+			}
+        }
     }
 
     // Deserialize level

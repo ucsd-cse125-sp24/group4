@@ -16,6 +16,7 @@
 // Include graphics
 #include "core.h"
 #include "graphics.h"
+#include "enums.h"
 
 class ClientCore
 {

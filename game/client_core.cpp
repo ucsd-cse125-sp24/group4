@@ -25,6 +25,8 @@ void ClientCore::shutdown()
 {
     // Clean up all resources
     connected = false;
+    Window::clean_up();
+    delete window;
     client.close_conn();
 }
 
@@ -74,7 +76,12 @@ void ClientCore::receive_updates()
     clientState = packet.state;
 }
 
-void ClientCore::process_server_data() {}
+void ClientCore::process_server_data() {
+    // Only update the single cube for now.
+    // TODO: Extend to multiple objects (students, players, etc.) - need a Scene class for that.
+    
+    // TODO: Take the ClientState World and slap it into the cube
+}
 
 void ClientCore::renderGameState()
 {
@@ -84,16 +91,39 @@ void ClientCore::renderGameState()
     std::cout << "Players:" << std::endl;
     for (const auto &player : clientState.players)
     {
-        std::cout << "  x: " << player.x << ", y: " << player.y << ", z: " << player.z
-                  << ", orientation: " << player.orientation << ", score: " << player.score << std::endl;
+
+        Window::cube->set_world(player.world);
+        // Print player world matrix
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+				std::cout << player.world[i][j] << " ";
+			}
+			std::cout << std::endl;
+		}
+        std::cout << "  Score: " << player.score << std::endl;
+        
+        std::cout.flush();
     }
-    std::cout << "Students:" << std::endl;
-    for (const auto &student : clientState.students)
-    {
-        std::cout << "  x: " << student.x << ", y: " << student.y << ", z: " << student.z
-                  << ", orientation: " << student.orientation << std::endl;
-    }
+
+    // Don't need students rn...
+    //std::cout << "Students:" << std::endl;
+    //for (const auto &student : clientState.students)
+    //{
+    //    // Print student world matrix
+    //    for (int i = 0; i < 4; i++)
+    //    {
+    //        for (int j = 0; j < 4; j++)
+    //        {
+    //            std::cout << student.world[i][j] << " ";
+    //        }
+    //        std::cout << std::endl;
+    //    }
+    //}
     printf("\n\n");
+
+
 
     // Render
     Window::display_callback(window);

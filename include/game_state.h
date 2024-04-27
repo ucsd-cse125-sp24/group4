@@ -6,15 +6,13 @@
 #include "enums.h"
 
 struct PlayerState {
-    float x, y, z;
-    float orientation;
+    glm::mat4 world;
     int score;
     // Add other player-specific state variables
 };
 
 struct StudentState {
-    float x, y, z;
-    float orientation;
+    glm::mat4 world;
     // Add other student-specific state variables
 };
 
