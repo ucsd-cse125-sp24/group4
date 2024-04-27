@@ -32,7 +32,6 @@ void ServerCore::run() {
         }
         //printf("server connected to %i clients\n", server.get_num_clients());
         receive_data();
-        process_input();
         update_game_state();
         send_updates();
         
@@ -47,9 +46,9 @@ void ServerCore::run() {
 
 void ServerCore::shutdown()
 {
-    for (ClientData client : clients_data)
+    for (ClientData* client : clients_data)
     {
-        server.close_client(client.sock);
+        server.close_client(client->sock);
     }
     clients_data.clear(); // Clear the client data vector
     server.sock_shutdown();
@@ -69,15 +68,17 @@ void ServerCore::receive_data()
     timeout.tv_sec = CONNECT_TIMEOUT;
     timeout.tv_usec = 0;
 
-    for (ClientData client : clients_data)
+    InputPacket packet;
+    char *buf;
+
+    for (ClientData* client : clients_data)
     {
-        FD_SET(client.sock, &readFdSet);
+        FD_SET(client->sock, &readFdSet);
         if (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0)
         {
-            char *buf = server.sock_receive(client.sock);
+            buf = server.sock_receive(client->sock);
             if (buf)
             {
-                InputPacket packet;
                 InputPacket::deserialize(buf, packet);
 
                 // Print for testing
@@ -91,10 +92,8 @@ void ServerCore::receive_data()
     }
 }
 
-void ServerCore::process_input() {}
-
 void ServerCore::update_game_state() {
-    while (serverState.students.size() < 5) {
+    while (serverState.students.size() < 5) { // TODO: change "5"s in this func to constants defined elsewhere
         StudentState s_state;
         s_state.x = serverState.students.size();
         s_state.y = serverState.students.size();
@@ -117,7 +116,7 @@ void ServerCore::send_updates()
     GameStatePacket::serialize(packet, buffer);
 
     for (auto i = 0; i < clients_data.size(); i++) {
-        bool send_success = server.sock_send(clients_data[i].sock, bufferSize, buffer);
+        bool send_success = server.sock_send(clients_data[i]->sock, bufferSize, buffer);
         // if client shutdown, tear down this client/player
         if (!send_success) {                                                                           
             clients_data.erase(clients_data.begin() + i);
@@ -131,8 +130,8 @@ void ServerCore::send_updates()
 
 void ServerCore::accept_new_clients(int i) {
     SOCKET clientSock = server.get_client_sock(i);
-    ClientData client;
-    client.sock = clientSock;
+    ClientData* client = new ClientData;
+    client->sock = clientSock;
     clients_data.push_back(client);
 
     PlayerState p_state;

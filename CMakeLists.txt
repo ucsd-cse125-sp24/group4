@@ -8,6 +8,7 @@ file(GLOB GRAPHICS_SOURCES "${PROJECT_SOURCE_DIR}/src/*")
 
 add_library(client OBJECT "${PROJECT_SOURCE_DIR}/networking/client.cpp")
 add_library(server OBJECT "${PROJECT_SOURCE_DIR}/networking/server.cpp")
+add_library(packets OBJECT "${PROJECT_SOURCE_DIR}/packets/game_state_packet.cpp" "${PROJECT_SOURCE_DIR}/packets/input_packet.cpp")
 
 link_directories("${PROJECT_SOURCE_DIR}/lib")
 
@@ -18,23 +19,32 @@ target_link_libraries(GraphicsTest PRIVATE glfw3)
 
 file(COPY ${PROJECT_SOURCE_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-add_executable(server_core "${PROJECT_SOURCE_DIR}/game/game_logic_pg.cpp" "${PROJECT_SOURCE_DIR}/game/server_core.cpp" "${PROJECT_SOURCE_DIR}/packets/game_state_packet.cpp" "${PROJECT_SOURCE_DIR}/packets/input_packet.cpp")
+add_executable(server_core "${PROJECT_SOURCE_DIR}/game/game_logic_pg.cpp" "${PROJECT_SOURCE_DIR}/game/server_core.cpp")
 target_include_directories(server_core PRIVATE "${PROJECT_SOURCE_DIR}/include")
-target_link_libraries(server_core PRIVATE server client ws2_32)
+target_link_libraries(server_core PRIVATE server client packets ws2_32)
 
-add_executable(client_core "${PROJECT_SOURCE_DIR}/game/game_logic_client.cpp" "${PROJECT_SOURCE_DIR}/game/client_core.cpp" "${PROJECT_SOURCE_DIR}/packets/game_state_packet.cpp" "${PROJECT_SOURCE_DIR}/packets/input_packet.cpp" ${GRAPHICS_SOURCES})
+add_executable(client_core "${PROJECT_SOURCE_DIR}/game/game_logic_client.cpp" "${PROJECT_SOURCE_DIR}/game/client_core.cpp" ${GRAPHICS_SOURCES})
 target_include_directories(client_core PRIVATE "${PROJECT_SOURCE_DIR}/include")
-target_link_libraries(client_core PRIVATE server client ws2_32 glfw3)
+target_link_libraries(client_core PRIVATE server client packets ws2_32 glfw3)
 
 
 # ----- Testing executables and tests below -----
-add_executable(NetworkUnitTests tests/network_test.cpp "${PROJECT_SOURCE_DIR}/networking/client.cpp" "${PROJECT_SOURCE_DIR}/networking/server.cpp")
-target_link_libraries(NetworkUnitTests PRIVATE ws2_32 mswsock advapi32)
+add_executable(NetworkUnitTests tests/network_test.cpp)
+target_link_libraries(NetworkUnitTests PRIVATE server client ws2_32 mswsock advapi32)
+
+add_executable(ServerCoreTests tests/servercore_test.cpp "${PROJECT_SOURCE_DIR}/game/server_core.cpp")
+target_link_libraries(ServerCoreTests PRIVATE server client packets ws2_32)
 
 enable_testing()
 
 add_test(NAME NetworkConnectTest COMMAND NetworkUnitTests "connect")
 add_test(NAME NetworkDataTransportTest COMMAND NetworkUnitTests "data_transport")
+
+add_test(NAME ServerCoreListenAcceptTest COMMAND ServerCoreTests "listen_accept")
+add_test(NAME ServerCoreReceiveTest COMMAND ServerCoreTests "receive")
+add_test(NAME ServerCoreUpdateTest COMMAND ServerCoreTests "update")
+add_test(NAME ServerCoreSendTest COMMAND ServerCoreTests "send")
+add_test(NAME ServerCoreShutdownTest COMMAND ServerCoreTests "shutdown")
 
 # ---- Packets test ----
 add_executable(GameStatePacketTest tests/game_state_packet_test.cpp "${PROJECT_SOURCE_DIR}/packets/game_state_packet.cpp")

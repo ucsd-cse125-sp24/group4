@@ -41,7 +41,7 @@ class ServerCore {
 
         bool running;                   // Server running state
         Server server;
-        std::vector<ClientData> clients_data;
+        std::vector<ClientData*> clients_data;
         GameState serverState;
         // std::vector<ClientData> data;   // all client data passed in. later add other data like changes in npc or environment?
         std::vector<std::string> data;  // string for now
