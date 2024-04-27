@@ -38,6 +38,8 @@ add_test(NAME NetworkDataTransportTest COMMAND NetworkUnitTests "data_transport"
 
 # ---- Packets test ----
 add_executable(GameStatePacketTest tests/game_state_packet_test.cpp "${PROJECT_SOURCE_DIR}/packets/game_state_packet.cpp")
+target_include_directories(server_core PRIVATE "${PROJECT_SOURCE_DIR}/include")
+
 add_executable(InputPacketTest tests/input_packet_test.cpp "${PROJECT_SOURCE_DIR}/packets/input_packet.cpp")
 
 add_test(NAME GameStatePacketTest COMMAND GameStatePacketTest)
