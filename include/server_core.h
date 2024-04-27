@@ -3,11 +3,15 @@
 
 #include <vector>
 #include <string>
+#include <iostream>
 #include <Winsock2.h>
 
 #include "server.h"
 #include "client.h"
 #include "windows_socket.h"
+#include "input_packet.h"
+#include "game_state_packet.h"
+#include "game_state.h"
 
 #define NUM_CLIENTS 1
 
@@ -17,6 +21,9 @@ struct ClientData {
 };
 
 class ServerCore {
+    private:
+        int curr_id = 0;
+
     public:
         ServerCore();                   // Constructor
         ~ServerCore();                  // Destructor
@@ -35,7 +42,7 @@ class ServerCore {
         bool running;                   // Server running state
         Server server;
         std::vector<ClientData> clients_data;
-
+        GameState serverState;
         // std::vector<ClientData> data;   // all client data passed in. later add other data like changes in npc or environment?
         std::vector<std::string> data;  // string for now
 };

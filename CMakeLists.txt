@@ -18,11 +18,11 @@ target_link_libraries(GraphicsTest PRIVATE glfw3)
 
 file(COPY ${PROJECT_SOURCE_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-add_executable(server_core "${PROJECT_SOURCE_DIR}/game/game_logic_pg.cpp" "${PROJECT_SOURCE_DIR}/game/server_core.cpp")
+add_executable(server_core "${PROJECT_SOURCE_DIR}/game/game_logic_pg.cpp" "${PROJECT_SOURCE_DIR}/game/server_core.cpp" "${PROJECT_SOURCE_DIR}/packets/game_state_packet.cpp" "${PROJECT_SOURCE_DIR}/packets/input_packet.cpp")
 target_include_directories(server_core PRIVATE "${PROJECT_SOURCE_DIR}/include")
 target_link_libraries(server_core PRIVATE server client ws2_32)
 
-add_executable(client_core "${PROJECT_SOURCE_DIR}/game/game_logic_client.cpp" "${PROJECT_SOURCE_DIR}/game/server_core.cpp" ${GRAPHICS_SOURCES})
+add_executable(client_core "${PROJECT_SOURCE_DIR}/game/game_logic_client.cpp" "${PROJECT_SOURCE_DIR}/game/client_core.cpp" "${PROJECT_SOURCE_DIR}/packets/game_state_packet.cpp" "${PROJECT_SOURCE_DIR}/packets/input_packet.cpp" ${GRAPHICS_SOURCES})
 target_include_directories(client_core PRIVATE "${PROJECT_SOURCE_DIR}/include")
 target_link_libraries(client_core PRIVATE server client ws2_32 glfw3)
 
@@ -35,3 +35,10 @@ enable_testing()
 
 add_test(NAME NetworkConnectTest COMMAND NetworkUnitTests "connect")
 add_test(NAME NetworkDataTransportTest COMMAND NetworkUnitTests "data_transport")
+
+# ---- Packets test ----
+add_executable(GameStatePacketTest tests/game_state_packet_test.cpp "${PROJECT_SOURCE_DIR}/packets/game_state_packet.cpp")
+add_executable(InputPacketTest tests/input_packet_test.cpp "${PROJECT_SOURCE_DIR}/packets/input_packet.cpp")
+
+add_test(NAME GameStatePacketTest COMMAND GameStatePacketTest)
+add_test(NAME InputPacketTest COMMAND InputPacketTest)
