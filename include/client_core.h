@@ -1,5 +1,6 @@
 #ifndef CLIENT_CORE_H
 #define CLIENT_CORE_H
+#pragma once
 
 #include <vector>
 #include <deque>
