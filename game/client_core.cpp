@@ -26,7 +26,6 @@ void ClientCore::shutdown()
     // Clean up all resources
     connected = false;
     Window::clean_up();
-    delete window;
     client.close_conn();
 }
 
