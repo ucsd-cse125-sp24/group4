@@ -14,12 +14,16 @@ DWORD __stdcall call_listen(void* servercore){
 
 int test_listen_accept() {
     ServerCore sc;
-    if (sc.isRunning())
+    if (sc.isRunning()) {
+        sc.shutdown();
         return 1;
+    }
 
     sc.listen();
-    if (!sc.isRunning() || sc.clients_data.size() != 0)
+    if (!sc.isRunning() || sc.clients_data.size() != 0) {
+        sc.shutdown();
         return 1;
+    }
     
     unsigned long threadID = 0U;
     HANDLE hand = CreateThread(nullptr, 0U, &call_listen, &sc, 0, &threadID);
@@ -31,14 +35,24 @@ int test_listen_accept() {
     }
     WaitForSingleObject(hand, 1000);
     
-    if (!sc.isRunning() || sc.clients_data.size() != NUM_CLIENTS || sc.serverState.players.size() != NUM_CLIENTS)
+    if (!sc.isRunning() || sc.clients_data.size() != NUM_CLIENTS || sc.serverState.players.size() != NUM_CLIENTS) {
+        for (Client c : client_list)
+            c.close_conn();
+        sc.shutdown();
         return 1;
+    }
     
     for (PlayerState ps : sc.serverState.players) {
-        if (ps.x != 0.0f || ps.y != 0.0f || ps.z != 0.0f || ps.orientation != 0.0f || ps.score != 0)
+        if (ps.x != 0.0f || ps.y != 0.0f || ps.z != 0.0f || ps.orientation != 0.0f || ps.score != 0) {
+            for (Client c : client_list)
+                c.close_conn();
+            sc.shutdown();
             return 1;
+        }
     }
 
+    for (Client c : client_list)
+        c.close_conn();
     sc.shutdown();
     return 0;
 }
@@ -73,6 +87,8 @@ int test_receive() {
     // confirm receipt from each client
     sc.receive_data(); // TODO: receive func in servercore has to actually do smth with or at least store recv data lmao
 
+    for (Client c : client_list)
+        c.close_conn();
     sc.shutdown();
     return 0;
 }
@@ -102,10 +118,16 @@ int test_send() {
     // confirm receipt from server
     for (Client c : client_list) {
         buf = c.sock_receive();
-        if (!buf || !buf[0]) // TODO: more precisely test contents of recv data once send logic is finalized
+        if (!buf || !buf[0]) { // TODO: more precisely test contents of recv data once send logic is finalized
+            for (Client c : client_list)
+                c.close_conn();
+            sc.shutdown();
             return 1;
+        }
     }
 
+    for (Client c : client_list)
+        c.close_conn();
     sc.shutdown();
     return 0;
 }

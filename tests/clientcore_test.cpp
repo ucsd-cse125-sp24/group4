@@ -1,0 +1,202 @@
+#include "../include/client_core.h"
+#include "../include/server.h"
+
+#define NUM_CLIENTS 4
+
+DWORD __stdcall call_init(void* clientcore){
+   auto object = reinterpret_cast<ClientCore*>(clientcore);
+   object->initialize();
+   return 0U;
+} 
+
+int test_initialize() {
+    ClientCore cc;
+
+    if (cc.client.is_connected() || cc.connected) { // shouldn't be connected yet
+        cc.shutdown();
+        return 1;
+    }
+    
+    unsigned long threadID = 0U;
+    HANDLE hand = CreateThread(nullptr, 0U, &call_init, &cc, 0, &threadID);
+
+    Server server;
+    server.sock_listen();
+
+    WaitForSingleObject(hand, 2000);
+
+    if (!cc.client.is_connected() || !cc.connected) { // should be connected
+        cc.shutdown();
+        server.sock_shutdown();
+        return 1;
+    }
+
+    cc.shutdown();
+    server.sock_shutdown();
+    return 0;
+}
+
+int test_receive() {
+    ClientCore cc;
+    unsigned long threadID = 0U;
+    HANDLE hand = CreateThread(nullptr, 0U, &call_init, &cc, 0, &threadID);
+    Server server;
+    server.sock_listen();
+    WaitForSingleObject(hand, 2000);
+    
+    // make server send some state packet
+    GameStatePacket packet;
+    packet.state.level = 1;
+    for (int i = 0; i < NUM_CLIENTS; i++) {
+        PlayerState ps;
+        ps.x = (float)i;
+        ps.y = (float)i;
+        ps.z = (float)i;
+        ps.orientation = (float)i;
+        ps.score = i;
+        packet.state.players.push_back(ps);
+
+        StudentState ss;
+        ss.x = (float)i;
+        ss.y = (float)i;
+        ss.z = (float)i;
+        ss.orientation = (float)i;
+        packet.state.students.push_back(ss);
+    }
+    size_t bufferSize = packet.calculateSize();
+    char *buffer = new char[bufferSize];
+    GameStatePacket::serialize(packet, buffer);
+    server.sock_send(server.get_client_sock(0), bufferSize, buffer);
+
+    // confirm receipt from server
+    cc.receive_updates();
+    if (cc.clientState.level != packet.state.level ||
+        cc.clientState.players.size() != packet.state.players.size() ||
+        cc.clientState.students.size() != packet.state.students.size()) {
+        cc.shutdown();
+        server.sock_shutdown();
+        return 1;
+    }
+    for (int i = 0; i < cc.clientState.players.size(); i++) {
+        if (cc.clientState.players[i].x != packet.state.players[i].x ||
+            cc.clientState.players[i].y != packet.state.players[i].y ||
+            cc.clientState.players[i].z != packet.state.players[i].z ||
+            cc.clientState.players[i].orientation != packet.state.players[i].orientation ||
+            cc.clientState.players[i].score != packet.state.players[i].score) {
+            cc.shutdown();
+            server.sock_shutdown();
+            return 1;
+        }
+    }
+    for (int i = 0; i < cc.clientState.students.size(); i++) {
+        if (cc.clientState.students[i].x != packet.state.students[i].x ||
+            cc.clientState.students[i].y != packet.state.students[i].y ||
+            cc.clientState.students[i].z != packet.state.students[i].z ||
+            cc.clientState.students[i].orientation != packet.state.students[i].orientation) {
+            cc.shutdown();
+            server.sock_shutdown();
+            return 1;
+        }
+    }
+
+    cc.shutdown();
+    server.sock_shutdown();
+    return 0;
+}
+
+int test_process() {
+    // TODO: determine what process func in clientcore does
+    return 0;
+}
+
+int test_render() {
+    // TODO: idk if this can even be tested we'll see
+    return 0;
+}
+
+int test_send() {
+    ClientCore cc;
+    unsigned long threadID = 0U;
+    HANDLE hand = CreateThread(nullptr, 0U, &call_init, &cc, 0, &threadID);
+    Server server;
+    server.sock_listen();
+    WaitForSingleObject(hand, 2000);
+
+    // send data to server
+    InputPacket in_packet;
+    in_packet.events.push_back(0);
+    in_packet.events.push_back(1);
+    in_packet.cam_angle = 2.0f;
+    size_t bufferSize = in_packet.calculateSize();
+    char* buf = new char[bufferSize];;
+    InputPacket::serialize(in_packet, buf);
+    
+    cc.send_input(); // TODO: clientcore needs to be able to specify inputpacket somehow, either param or some member var
+    delete[] buf;
+
+    // confirm receipt from client
+    char* server_buf = server.sock_receive(server.get_client_sock(0));
+    InputPacket packet;
+    InputPacket::deserialize(server_buf, packet);
+    if (in_packet.cam_angle != packet.cam_angle ||
+        in_packet.events.size() != packet.events.size()) {
+        cc.shutdown();
+        server.sock_shutdown();
+        return 1;
+    }
+    for (int i = 0; i < packet.events.size(); i++) {
+        if (in_packet.events[i] != packet.events[i]) {
+            cc.shutdown();
+            server.sock_shutdown();
+            return 1;
+        }
+    }
+
+    cc.shutdown();
+    server.sock_shutdown();
+    return 0;
+}
+
+int test_shutdown() {
+    ClientCore cc;
+    unsigned long threadID = 0U;
+    HANDLE hand = CreateThread(nullptr, 0U, &call_init, &cc, 0, &threadID);
+    Server server;
+    server.sock_listen();
+    WaitForSingleObject(hand, 2000);
+
+    if (!cc.client.is_connected() || !cc.connected) {
+        cc.shutdown();
+        server.sock_shutdown();
+        return 1;
+    }
+
+    cc.shutdown();
+    server.sock_shutdown();
+
+    return (cc.client.is_connected() || cc.connected);
+}
+
+int main(int argc, char* argv[]) {
+    if (argc != 2) {
+        printf("specify which test:\n./test {\"initialize\", \"receive\", \"process\", \"render\", \"send\", \"shutdown\"}\n");
+        return 1;
+    }
+
+    std::string arg = argv[1];
+
+    if (arg == "initialize")
+        return test_initialize();
+    else if (arg == "receive")
+        return test_receive();
+    else if (arg == "process")
+        return test_process();
+    else if (arg == "render")
+        return test_render();
+    else if (arg == "send")
+        return test_send();
+    else if (arg == "shutdown")
+        return test_shutdown();
+    printf("specify which test:\n./test {\"initialize\", \"receive\", \"process\", \"render\", \"send\", \"shutdown\"}\n");
+    return 1;
+}

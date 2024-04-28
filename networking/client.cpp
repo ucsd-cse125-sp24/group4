@@ -97,6 +97,7 @@ void Client::close_conn() {
         printf("shutdown failed with error: %d\n", WSAGetLastError());
         closesocket(this->conn_sock);
     }
+    this->conn_sock = INVALID_SOCKET;
     WSACleanup();
 }
 

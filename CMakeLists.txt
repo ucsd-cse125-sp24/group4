@@ -35,6 +35,9 @@ target_link_libraries(NetworkUnitTests PRIVATE server client ws2_32 mswsock adva
 add_executable(ServerCoreTests tests/servercore_test.cpp "${PROJECT_SOURCE_DIR}/game/server_core.cpp")
 target_link_libraries(ServerCoreTests PRIVATE server client packets ws2_32)
 
+add_executable(ClientCoreTests tests/clientcore_test.cpp "${PROJECT_SOURCE_DIR}/game/client_core.cpp")
+target_link_libraries(ClientCoreTests PRIVATE server client packets ws2_32)
+
 enable_testing()
 
 add_test(NAME NetworkConnectTest COMMAND NetworkUnitTests "connect")
@@ -45,6 +48,13 @@ add_test(NAME ServerCoreReceiveTest COMMAND ServerCoreTests "receive")
 add_test(NAME ServerCoreUpdateTest COMMAND ServerCoreTests "update")
 add_test(NAME ServerCoreSendTest COMMAND ServerCoreTests "send")
 add_test(NAME ServerCoreShutdownTest COMMAND ServerCoreTests "shutdown")
+
+add_test(NAME ClientCoreInitializetTest COMMAND ClientCoreTests "initialize")
+add_test(NAME ClientCoreReceiveTest COMMAND ClientCoreTests "receive")
+add_test(NAME ClientCoreProcessTest COMMAND ClientCoreTests "process")
+add_test(NAME ClientCoreRenderTest COMMAND ClientCoreTests "render")
+add_test(NAME ClientCoreSendTest COMMAND ClientCoreTests "send")
+add_test(NAME ClientCoreShutdownTest COMMAND ClientCoreTests "shutdown")
 
 # ---- Packets test ----
 add_executable(GameStatePacketTest tests/game_state_packet_test.cpp "${PROJECT_SOURCE_DIR}/packets/game_state_packet.cpp")
