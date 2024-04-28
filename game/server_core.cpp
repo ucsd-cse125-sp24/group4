@@ -31,6 +31,7 @@ void ServerCore::run() {
             this->listen();
         }
         //printf("server connected to %i clients\n", server.get_num_clients());
+        //this->listen(); // uncomment to allow connections during runtime (one check per cycle)
         receive_data();
         update_game_state();
         send_updates();
