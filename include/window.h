@@ -5,6 +5,7 @@
 #include "camera.h"
 #include "input.h"
 #include "enums.h"
+#include "game_state.h"
 
 /*
  * Window.h

@@ -4,7 +4,7 @@ project("CSE125 Project")
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-file(GLOB GRAPHICS_SOURCES "${PROJECT_SOURCE_DIR}/src/*")
+file(GLOB GRAPHICS_SOURCES "${PROJECT_SOURCE_DIR}/graphics/*")
 
 add_library(client OBJECT "${PROJECT_SOURCE_DIR}/networking/client.cpp")
 add_library(server OBJECT "${PROJECT_SOURCE_DIR}/networking/server.cpp")
@@ -38,6 +38,8 @@ add_test(NAME NetworkDataTransportTest COMMAND NetworkUnitTests "data_transport"
 
 # ---- Packets test ----
 add_executable(GameStatePacketTest tests/game_state_packet_test.cpp "${PROJECT_SOURCE_DIR}/packets/game_state_packet.cpp")
+target_include_directories(GameStatePacketTest PRIVATE "${PROJECT_SOURCE_DIR}/include")
+
 add_executable(InputPacketTest tests/input_packet_test.cpp "${PROJECT_SOURCE_DIR}/packets/input_packet.cpp")
 
 add_test(NAME GameStatePacketTest COMMAND GameStatePacketTest)
