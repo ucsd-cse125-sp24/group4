@@ -19,13 +19,11 @@ size_t GameStatePacket::calculateSize() const {
 // Ensure outData is large enough to store all the data that is intended to be serialized.
 void GameStatePacket::serialize(const GameStatePacket& packet, char*& outData) {
     char* temp = outData;
-    int size = 0;
     
     // Serialize number of players
     size_t numPlayers = packet.state.players.size();
     memcpy(temp, &numPlayers, sizeof(numPlayers));
     temp += sizeof(numPlayers);
-    size += sizeof(numPlayers);
 
     // Serialize each player's state including 16 floats of world matrix, and score
     for (const PlayerState& player : packet.state.players) {
@@ -33,13 +31,11 @@ void GameStatePacket::serialize(const GameStatePacket& packet, char*& outData) {
             for (int j = 0; j < 4; j++) {
                 memcpy(temp, &player.world[i][j], sizeof(player.world[i][j]));
 				temp += sizeof(player.world[i][j]);
-                size += sizeof(player.world[i][j]);
             }
         }
 
         memcpy(temp, &player.score, sizeof(player.score));
         temp += sizeof(player.score);
-        size += sizeof(player.score);
 
     }
 
@@ -47,8 +43,6 @@ void GameStatePacket::serialize(const GameStatePacket& packet, char*& outData) {
     size_t numStudents = packet.state.students.size();
     memcpy(temp, &numStudents, sizeof(numStudents));
     temp += sizeof(numStudents);
-    size += sizeof(numStudents);
-
 
     // Serialize each student's state including 16 floats of world matrix
     for (const StudentState& student : packet.state.students) {
@@ -56,7 +50,6 @@ void GameStatePacket::serialize(const GameStatePacket& packet, char*& outData) {
             for (int j = 0; j < 4; j++) {
 				memcpy(temp, &student.world[i][j], sizeof(student.world[i][j]));
                 temp += sizeof(student.world[i][j]);
-                size += sizeof(student.world[i][j]);
             }
         }
     }
@@ -64,7 +57,6 @@ void GameStatePacket::serialize(const GameStatePacket& packet, char*& outData) {
     // Serialize level
     memcpy(temp, &packet.state.level, sizeof(packet.state.level));
     temp += sizeof(packet.state.level);
-    size += sizeof(packet.state.level);
 }
 
 void GameStatePacket::deserialize(const char* inData, GameStatePacket& packet) {
