@@ -25,6 +25,13 @@ public:
 	// Objects to draw - TODO replace with Scene object later
 	static Cube* cube;
 
+	// Camera
+	static Camera* cam;
+
+	// For tracking the mouse
+	static float lastX;
+	static float lastY;
+
 
 	// INITIALIZATION ----------------------------------------------------------
 	static GLFWwindow* create_window(int width, int height);
@@ -39,7 +46,9 @@ public:
 	static void display_callback(GLFWwindow* window);
 	static void idle_callback();
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+	static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
 	// Helper to let client poll for events
 	static std::vector<int> get_input_actions();
+	static float get_cam_angle_radians();
 };
