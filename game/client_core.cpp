@@ -45,13 +45,17 @@ void ClientCore::send_input()
     InputPacket packet;/*
     packet.events.push_back(0);
     packet.events.push_back(1);*/
-    packet.cam_angle = 0.0f;
+    packet.cam_angle = Window::get_cam_angle_radians();
     // TODO: Get events and push it into packet
     std::vector<int> tmp = Window::get_input_actions();
     for (int event : tmp)
         packet.events.push_back(event);
 
     // TODO: Get cam_angle and push it to packet - Camera controls need to be implemented first
+ 
+    if (glfwWindowShouldClose(window)) {
+        shutdown();
+    }
 
     size_t bufferSize = packet.calculateSize();
     char *buffer = new char[bufferSize];
@@ -102,8 +106,6 @@ void ClientCore::renderGameState()
 			std::cout << std::endl;
 		}
         std::cout << "  Score: " << player.score << std::endl;
-        
-        std::cout.flush();
     }
 
     // Don't need students rn...
