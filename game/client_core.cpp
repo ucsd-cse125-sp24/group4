@@ -69,8 +69,8 @@ void ClientCore::receive_updates() {
     fd_set readFdSet;
     FD_ZERO(&readFdSet);
     timeval timeout;
-    timeout.tv_sec = CONNECT_TIMEOUT;
-    timeout.tv_usec = 0;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 100;
 
     char * received_data;
     GameStatePacket packet;

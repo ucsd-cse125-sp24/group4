@@ -1,7 +1,7 @@
 #include <chrono>
 #include "../include/server_core.h"
 
-#define TICK_MICROSECS 40000 // this gives 25 fps (fps = 1M / TICK_US)
+#define TICK_MICROSECS 10000 // this gives 100 fps (fps = 1M / TICK_US)
 
 ServerCore::ServerCore() : running(false) {}
 
@@ -31,9 +31,7 @@ void ServerCore::run() {
             this->listen();
         }
         //printf("server connected to %i clients\n", server.get_num_clients());
-        this->listen(); // uncomment to allow connections during runtime (one check per cycle)
         receive_data();
-        // process_input(); Moved to receive_data - called per packet
         update_game_state();
         send_updates();
         
@@ -63,8 +61,8 @@ void ServerCore::receive_data()
     fd_set readFdSet;
     FD_ZERO(&readFdSet);
     timeval timeout;
-    timeout.tv_sec = CONNECT_TIMEOUT;
-    timeout.tv_usec = 0;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 10;
 
     InputPacket packet;
     char *buf;
@@ -75,7 +73,7 @@ void ServerCore::receive_data()
         if (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0)
         {
             buf = server.sock_receive(client->sock);
-            if (buf)
+            if (buf && buf[0])
             {
                 InputPacket::deserialize(buf, packet);
                 process_input(packet);
