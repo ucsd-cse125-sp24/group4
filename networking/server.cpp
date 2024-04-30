@@ -83,8 +83,8 @@ void Server::sock_listen() {
     }
     if (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0) {
         client_conn = accept(this->listen_sock, NULL, NULL);
-        printf("connected %d\n", this->get_num_clients());
         this->connections.push_back(client_conn);
+        printf("connected %d\n", this->get_num_clients());
     }
 }
 
