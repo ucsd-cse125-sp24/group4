@@ -21,7 +21,17 @@ struct GameState {
     std::vector<StudentState> students;
     int level;
     // Functions for manipulating the game state
+    // update player stuff
     void updateScores();
     void movePlayer(int playerId, int event, float orientation);
-    // Other relevant game state functions
+
+    // update npc stuff
+
+    // student_update(): for s in students: update
+
+    // student update(current_state): current -> return new_state
+    // fill students with the new new_state
+    
+    // send students to client - servercore
+
 };

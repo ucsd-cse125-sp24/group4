@@ -126,6 +126,10 @@ void ServerCore::update_game_state() {
 
     // Update parts of the game that don't depend on player input.
 
+    /*
+    serverState.student_update()
+    */
+
     // Enemy AI etc
     while (serverState.students.size() < 5) {
         StudentState s_state;
