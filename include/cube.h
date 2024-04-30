@@ -27,4 +27,5 @@ public:
 	// Getters and setters
 	glm::mat4 get_world() { return model; }
 	void set_color(glm::vec3 color) { this->color = color; }
+	void set_world(glm::mat4 world) { model = world; }
 };

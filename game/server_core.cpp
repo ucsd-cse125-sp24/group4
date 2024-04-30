@@ -33,6 +33,7 @@ void ServerCore::run() {
         //printf("server connected to %i clients\n", server.get_num_clients());
         //this->listen(); // uncomment to allow connections during runtime (one check per cycle)
         receive_data();
+        // process_input(); Moved to receive_data - called per packet
         update_game_state();
         send_updates();
         
@@ -77,6 +78,7 @@ void ServerCore::receive_data()
             if (buf)
             {
                 InputPacket::deserialize(buf, packet);
+                process_input(packet);
 
                 // Print for testing
                 printf("\nEvents: ");
@@ -89,13 +91,49 @@ void ServerCore::receive_data()
     }
 }
 
+void ServerCore::process_input(InputPacket packet) {
+    // For now operate on first player by default. TODO: Identify by socket num? Client ID?
+    glm::mat4 world = serverState.players[0].world;
+
+    float SCALE = 0.05f; // TODO: Define this somewhere else. Maybe in a constants folder?
+
+    // Process input events
+    for (int event : packet.events) {
+        glm::vec3 dir;
+        switch (event) {
+        case MOVE_FORWARD:
+            dir = glm::vec3(0.0f, 0.0f, -1.0f);
+            break;
+        case MOVE_BACKWARD:
+            dir = glm::vec3(0.0f, 0.0f, 1.0f);
+			break;
+        case MOVE_LEFT:
+			dir = glm::vec3(-1.0f, 0.0f, 0.0f);
+			break;
+        case MOVE_RIGHT:
+            dir = glm::vec3(1.0f, 0.0f, 0.0f);
+            break;
+        }
+
+        // Rotate dir by camera angle
+        dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
+
+        world = glm::translate(world, dir * SCALE);
+
+    }
+
+    serverState.players[0].world = world;
+}
+
 void ServerCore::update_game_state() {
-    while (serverState.students.size() < 5) { // TODO: change "5"s in this func to constants defined elsewhere
+
+    // Update parts of the game that don't depend on player input.
+
+    // Enemy AI etc
+    while (serverState.students.size() < 5) {
         StudentState s_state;
-        s_state.x = serverState.students.size();
-        s_state.y = serverState.students.size();
-        s_state.z = serverState.students.size();
-        s_state.orientation = serverState.students.size();
+
+        s_state.world = glm::mat4(1.0f); // TEMP
 
         serverState.students.push_back(s_state);
     }
@@ -132,10 +170,8 @@ void ServerCore::accept_new_clients(int i) {
     clients_data.push_back(client);
 
     PlayerState p_state;
-    p_state.x = 0.0f;
-    p_state.y = 0.0f;
-    p_state.z = 0.0f;
-    p_state.orientation = 0.0f;
+    p_state.world = glm::mat4(1.0f);
+
     p_state.score = 0;
 
     serverState.players.push_back(p_state);

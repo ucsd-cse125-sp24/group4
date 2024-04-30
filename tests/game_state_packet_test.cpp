@@ -6,14 +6,14 @@
 
 void setupGameStatePacket(GameStatePacket& packet) {
     // Initialize player states
-    packet.state.players.push_back({10.0f, 20.0f, 30.0f, 0.1f, 100}); // Player 1
-    packet.state.players.push_back({15.0f, 25.0f, 35.0f, 0.2f, 150}); // Player 2
-    packet.state.players.push_back({20.0f, 30.0f, 40.0f, 0.3f, 200}); // Player 3
-    packet.state.players.push_back({25.0f, 35.0f, 45.0f, 0.4f, 250}); // Player 4
+    packet.state.players.push_back({ glm::mat4(1.0f), 100 }); // Player 1
+    packet.state.players.push_back({ glm::mat4(2.0f), 150 }); // Player 2
+    packet.state.players.push_back({ glm::mat4(3.0f), 200 }); // Player 3
+    packet.state.players.push_back({ glm::mat4(4.0f), 250 }); // Player 4
 
     // Initialize students states
-    packet.state.students.push_back({1.0f, 2.0f, 3.0f, 0.0f}); // Student 1
-    packet.state.students.push_back({4.0f, 5.0f, 6.0f, 1.0f}); // Student 2
+    packet.state.students.push_back({ glm::mat4(1.0f)} ); // Student 1
+    packet.state.students.push_back({ glm::mat4(2.0f)} ); // Student 2
 
     packet.state.level = 5;
 }
@@ -21,11 +21,10 @@ void setupGameStatePacket(GameStatePacket& packet) {
 bool compareGameStatePackets(const GameStatePacket& a, const GameStatePacket& b) {
     if (a.state.level != b.state.level) return false;
 
+    if (a.state.players.size() != b.state.players.size()) return false;
+
     for (int i = 0; i < 4; i++) {
-        if (a.state.players[i].x != b.state.players[i].x ||
-            a.state.players[i].y != b.state.players[i].y ||
-            a.state.players[i].z != b.state.players[i].z ||
-            a.state.players[i].orientation != b.state.players[i].orientation ||
+        if (a.state.players[i].world != b.state.players[i].world ||
             a.state.players[i].score != b.state.players[i].score) {
             return false;
         }
@@ -34,10 +33,7 @@ bool compareGameStatePackets(const GameStatePacket& a, const GameStatePacket& b)
     if (a.state.students.size() != b.state.students.size()) return false;
 
     for (size_t i = 0; i < a.state.students.size(); i++) {
-        if (a.state.students[i].x != b.state.students[i].x ||
-            a.state.students[i].y != b.state.students[i].y ||
-            a.state.students[i].z != b.state.students[i].z ||
-            a.state.students[i].orientation != b.state.students[i].orientation) {
+        if (a.state.students[i].world != b.state.players[i].world) {
             return false;
         }
     }
@@ -49,13 +45,26 @@ void printGameStatePacket(const GameStatePacket& packet) {
     std::cout << "Level: " << packet.state.level << std::endl;
     std::cout << "Players:" << std::endl;
     for (const auto& player : packet.state.players) {
-        std::cout << "  x: " << player.x << ", y: " << player.y << ", z: " << player.z
-                  << ", orientation: " << player.orientation << ", score: " << player.score << std::endl;
+        std::cout << "World: " << std::endl;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+				std::cout << player.world[i][j] << " ";
+			}
+			std::cout << std::endl;
+		}
+
+        std::cout << "Points: " << player.score << std::endl;
     }
+
     std::cout << "Students:" << std::endl;
     for (const auto& student : packet.state.students) {
-        std::cout << "  x: " << student.x << ", y: " << student.y << ", z: " << student.z
-                  << ", orientation: " << student.orientation << std::endl;
+        std::cout << "World: " << std::endl;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                std::cout << student.world[i][j] << " ";
+            }
+            std::cout << std::endl;
+        }
     }
 }
 

@@ -1,5 +1,6 @@
 #ifndef CLIENT_CORE_H
 #define CLIENT_CORE_H
+#pragma once
 
 #include <vector>
 #include <deque>
@@ -12,6 +13,11 @@
 #include "input_packet.h"
 #include "game_state_packet.h"
 #include "game_state.h"
+
+// Include graphics
+#include "core.h"
+#include "graphics.h"
+#include "enums.h"
 
 class ClientCore
 {
@@ -32,6 +38,7 @@ public:
     bool connected; // Connection state
     Client client;  // client.conn_sock = socket,
     GameState clientState;
+    GLFWwindow* window; // Game window
 };
 
 #endif
