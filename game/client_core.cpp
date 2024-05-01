@@ -57,7 +57,7 @@ void ClientCore::send_input()
     char *buffer = new char[bufferSize];
 
     InputPacket::serialize(packet, buffer);
-    if (!client.sock_send(bufferSize, buffer)) {
+    if (!client.sock_send((int)bufferSize, buffer)) {
         delete[] buffer;
         shutdown();
     }

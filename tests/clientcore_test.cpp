@@ -1,7 +1,7 @@
 #include "../include/client_core.h"
 #include "../include/server.h"
 
-#define NUM_CLIENTS 4
+#define NUM_TEST_CLIENTS 4
 
 DWORD __stdcall call_init(void* clientcore){
    auto object = reinterpret_cast<ClientCore*>(clientcore);
@@ -47,26 +47,20 @@ int test_receive() {
     // make server send some state packet
     GameStatePacket packet;
     packet.state.level = 1;
-    for (int i = 0; i < NUM_CLIENTS; i++) {
+    for (int i = 0; i < NUM_TEST_CLIENTS; i++) {
         PlayerState ps;
-        ps.x = (float)i;
-        ps.y = (float)i;
-        ps.z = (float)i;
-        ps.orientation = (float)i;
+        ps.world = glm::mat4((float)i);
         ps.score = i;
         packet.state.players.push_back(ps);
 
         StudentState ss;
-        ss.x = (float)i;
-        ss.y = (float)i;
-        ss.z = (float)i;
-        ss.orientation = (float)i;
+        ss.world = glm::mat4((float)i);
         packet.state.students.push_back(ss);
     }
     size_t bufferSize = packet.calculateSize();
     char *buffer = new char[bufferSize];
     GameStatePacket::serialize(packet, buffer);
-    server.sock_send(server.get_client_sock(0), bufferSize, buffer);
+    server.sock_send(server.get_client_sock(0), (int)bufferSize, buffer);
 
     // confirm receipt from server
     cc.receive_updates();
@@ -78,10 +72,7 @@ int test_receive() {
         return 1;
     }
     for (int i = 0; i < cc.clientState.players.size(); i++) {
-        if (cc.clientState.players[i].x != packet.state.players[i].x ||
-            cc.clientState.players[i].y != packet.state.players[i].y ||
-            cc.clientState.players[i].z != packet.state.players[i].z ||
-            cc.clientState.players[i].orientation != packet.state.players[i].orientation ||
+        if (cc.clientState.players[i].world != packet.state.players[i].world ||
             cc.clientState.players[i].score != packet.state.players[i].score) {
             cc.shutdown();
             server.sock_shutdown();
@@ -89,10 +80,7 @@ int test_receive() {
         }
     }
     for (int i = 0; i < cc.clientState.students.size(); i++) {
-        if (cc.clientState.students[i].x != packet.state.students[i].x ||
-            cc.clientState.students[i].y != packet.state.students[i].y ||
-            cc.clientState.students[i].z != packet.state.students[i].z ||
-            cc.clientState.students[i].orientation != packet.state.students[i].orientation) {
+        if (cc.clientState.students[i].world != packet.state.students[i].world) {
             cc.shutdown();
             server.sock_shutdown();
             return 1;

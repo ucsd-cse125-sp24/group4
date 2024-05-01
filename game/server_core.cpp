@@ -30,6 +30,7 @@ void ServerCore::run() {
         {
             this->listen();
         }
+        this->listen(); // comment to disallow joining mid-game
         //printf("server connected to %i clients\n", server.get_num_clients());
         receive_data();
         update_game_state();
@@ -148,8 +149,8 @@ void ServerCore::send_updates()
     char *buffer = new char[bufferSize];
     GameStatePacket::serialize(packet, buffer);
 
-    for (auto i = 0; i < clients_data.size(); i++) {
-        bool send_success = server.sock_send(clients_data[i]->sock, bufferSize, buffer);
+    for (auto i = 0; i < (int)clients_data.size(); i++) {
+        bool send_success = server.sock_send(clients_data[i]->sock, (int)bufferSize, buffer);
         // if client shutdown, tear down this client/player
         if (!send_success) {                                                                           
             clients_data.erase(clients_data.begin() + i);

@@ -35,8 +35,8 @@ target_link_libraries(NetworkUnitTests PRIVATE server client ws2_32 mswsock adva
 add_executable(ServerCoreTests tests/servercore_test.cpp "${PROJECT_SOURCE_DIR}/game/server_core.cpp")
 target_link_libraries(ServerCoreTests PRIVATE server client packets ws2_32)
 
-add_executable(ClientCoreTests tests/clientcore_test.cpp "${PROJECT_SOURCE_DIR}/game/client_core.cpp")
-target_link_libraries(ClientCoreTests PRIVATE server client packets ws2_32)
+add_executable(ClientCoreTests tests/clientcore_test.cpp "${PROJECT_SOURCE_DIR}/game/client_core.cpp" ${GRAPHICS_SOURCES})
+target_link_libraries(ClientCoreTests PRIVATE server client packets ws2_32 glfw3)
 
 enable_testing()
 

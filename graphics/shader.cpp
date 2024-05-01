@@ -1,4 +1,4 @@
-#include "shader.h"
+#include "../include/shader.h"
 
 // constructor generates the shader on the fly
 Shader::Shader(const char* vertexPath, const char* fragmentPath)

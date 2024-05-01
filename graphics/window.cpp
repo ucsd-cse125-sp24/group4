@@ -1,4 +1,4 @@
-#include "window.h"
+#include "../include/window.h"
 
 int Window::width;
 int Window::height;
@@ -142,7 +142,7 @@ void Window::idle_callback() {
 	// This is called every frame
 
 
-	float SCALE = 0.01; // TODO, define somewhere else (once moved to server)
+	float SCALE = (float)0.01; // TODO, define somewhere else (once moved to server)
 	 //Right now this depends on frame rate. Maybe add deltaTime? Maybe handle this server-side?
 	//for (int i = 0; i < events.size(); i++) { 
 	//	switch (events[i]) {

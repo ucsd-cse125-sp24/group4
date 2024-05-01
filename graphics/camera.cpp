@@ -1,4 +1,4 @@
-#include "camera.h"
+#include "../include/camera.h"
 
 Camera::Camera(glm::mat4 target) {
 	// Set default values

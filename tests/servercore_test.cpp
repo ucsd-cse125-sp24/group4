@@ -1,12 +1,12 @@
 #include "../include/server_core.h"
 
-#define NUM_CLIENTS 4
+#define NUM_TEST_CLIENTS 4
 
 // CreateThread doesn't like calling an object's member function;
 // call non-member function which calls the obj's member function instead
 DWORD __stdcall call_listen(void* servercore){
    auto object = reinterpret_cast<ServerCore*>(servercore);
-   while (object->server.get_num_clients() < NUM_CLIENTS){
+   while (object->server.get_num_clients() < NUM_TEST_CLIENTS){
      object->listen();
    } 
    return 0U;
@@ -28,14 +28,14 @@ int test_listen_accept() {
     unsigned long threadID = 0U;
     HANDLE hand = CreateThread(nullptr, 0U, &call_listen, &sc, 0, &threadID);
     std::vector<Client> client_list;
-    for (int i = 0; i < NUM_CLIENTS; i++) {
+    for (int i = 0; i < NUM_TEST_CLIENTS; i++) {
         // connect client to server
         client_list.push_back(Client());
         printf("connected %d\n", i);
     }
     WaitForSingleObject(hand, 1000);
     
-    if (!sc.isRunning() || sc.clients_data.size() != NUM_CLIENTS || sc.serverState.players.size() != NUM_CLIENTS) {
+    if (!sc.isRunning() || sc.clients_data.size() != NUM_TEST_CLIENTS || sc.serverState.players.size() != NUM_TEST_CLIENTS) {
         for (Client c : client_list)
             c.close_conn();
         sc.shutdown();
@@ -43,7 +43,7 @@ int test_listen_accept() {
     }
     
     for (PlayerState ps : sc.serverState.players) {
-        if (ps.x != 0.0f || ps.y != 0.0f || ps.z != 0.0f || ps.orientation != 0.0f || ps.score != 0) {
+        if (ps.world != glm::mat4(1.0f) || ps.score != 0) {
             for (Client c : client_list)
                 c.close_conn();
             sc.shutdown();
@@ -63,7 +63,7 @@ int test_receive() {
     unsigned long threadID = 0U;
     HANDLE hand = CreateThread(nullptr, 0U, &call_listen, &sc, 0, &threadID);
     std::vector<Client> client_list;
-    for (int i = 0; i < NUM_CLIENTS; i++) {
+    for (int i = 0; i < NUM_TEST_CLIENTS; i++) {
         // connect client to server
         client_list.push_back(Client());
         printf("connected %d\n", i);
@@ -80,7 +80,7 @@ int test_receive() {
     InputPacket::serialize(packet, buf);
     
     for (Client c : client_list) {
-        c.sock_send(bufferSize, buf);
+        c.sock_send((int)bufferSize, buf);
     }
     delete[] buf;
 
@@ -104,7 +104,7 @@ int test_send() {
     unsigned long threadID = 0U;
     HANDLE hand = CreateThread(nullptr, 0U, &call_listen, &sc, 0, &threadID);
     std::vector<Client> client_list;
-    for (int i = 0; i < NUM_CLIENTS; i++) {
+    for (int i = 0; i < NUM_TEST_CLIENTS; i++) {
         // connect client to server
         client_list.push_back(Client());
         printf("connected %d\n", i);
