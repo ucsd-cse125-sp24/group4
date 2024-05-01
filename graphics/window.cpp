@@ -1,4 +1,4 @@
-#include "window.h"
+#include "../include/window.h"
 
 int Window::width;
 int Window::height;

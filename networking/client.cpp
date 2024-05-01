@@ -5,15 +5,20 @@ Code adapted from https://learn.microsoft.com/en-us/windows/win32/winsock/comple
 #include <windows.h>
 
 Client::Client() {
+    this->connect_to_server();
+}
+
+SOCKET Client::connect_to_server() {
     struct addrinfo* result = NULL, *ptr = NULL, hints;
     this->conn_sock = INVALID_SOCKET;
 
     WSADATA wsaData;
+    SOCKET conn = INVALID_SOCKET;
 
     int wresult = WSAStartup(MAKEWORD(2,2), &wsaData);
     if (wresult != 0) {
         printf("WSAStartup failed: %d\n", wresult);
-        return;
+        return INVALID_SOCKET;
     }
 
     ZeroMemory( &hints, sizeof(hints) );
@@ -26,20 +31,18 @@ Client::Client() {
     if ( iResult != 0 ) {
         printf("getaddrinfo failed with error: %d\n", iResult);
         WSACleanup();
-        return;
+        return INVALID_SOCKET;
     }
-
-    SOCKET conn = INVALID_SOCKET;
+    
     // Attempt to connect to an address until one succeeds
     for(ptr=result; ptr != NULL; ptr=ptr->ai_next) {
 
         // Create a SOCKET for connecting to server
-        conn = socket(ptr->ai_family, ptr->ai_socktype, 
-            ptr->ai_protocol);
+        conn = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
         if (conn == INVALID_SOCKET) {
             printf("socket failed with error: %d\n", WSAGetLastError());
             WSACleanup();
-            return;
+            return INVALID_SOCKET;
         }
 
         // Connect to server.
@@ -57,11 +60,11 @@ Client::Client() {
     if (conn == INVALID_SOCKET) {
         printf("Unable to connect to server!\n");
         WSACleanup();
-        return;
+        return INVALID_SOCKET;
     }
 
     this->conn_sock = conn;
-    Sleep(100*CONNECT_TIMEOUT);
+    return this->conn_sock;
 }
 
 bool Client::sock_send(int length, const char* data) {
@@ -94,6 +97,7 @@ void Client::close_conn() {
         printf("shutdown failed with error: %d\n", WSAGetLastError());
         closesocket(this->conn_sock);
     }
+    this->conn_sock = INVALID_SOCKET;
     WSACleanup();
 }
 

@@ -1,4 +1,4 @@
-#include "input.h"
+#include "../include/input.h"
 
 void Input::update(int key, int action) {
 	keys[key] = action;

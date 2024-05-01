@@ -12,12 +12,12 @@ void ClientCore::initialize()
 {
     // Initialize graphics, connect client
     printf("initializing client\n");
-
     // Initialize graphics
     window = Graphics::set_up_window();
-
-    while (client.is_connected() == false)
-        ;
+    while (!client.is_connected()) {
+        client.connect_to_server();
+        Sleep(100*CONNECT_TIMEOUT);
+    }
     connected = true;
 }
 
@@ -61,7 +61,7 @@ void ClientCore::send_input()
     char *buffer = new char[bufferSize];
 
     InputPacket::serialize(packet, buffer);
-    if (!client.sock_send(bufferSize, buffer)) {
+    if (!client.sock_send((int)bufferSize, buffer)) {
         delete[] buffer;
         shutdown();
     }
@@ -69,16 +69,27 @@ void ClientCore::send_input()
     delete[] buffer;
 }
 
-void ClientCore::receive_updates()
-{
-    // Receive data from the server
-    char *received_data = client.sock_receive();
+void ClientCore::receive_updates() {
+    fd_set readFdSet;
+    FD_ZERO(&readFdSet);
+    timeval timeout;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 100;
 
+    char * received_data;
     GameStatePacket packet;
-    GameStatePacket::deserialize(received_data, packet);
-    clientState = packet.state;
-}
 
+    FD_SET(client.conn_sock, &readFdSet);
+    while (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0) {
+        received_data = client.sock_receive();
+        if (received_data && received_data[0]){
+            GameStatePacket::deserialize(received_data, packet);
+            clientState = packet.state;
+            //server_updates.messages.push_back(received_data);
+            printf("client got \"%s\" from server\n", received_data);
+        }
+    }
+}
 void ClientCore::process_server_data() {
     // Only update the single cube for now.
     // TODO: Extend to multiple objects (students, players, etc.) - need a Scene class for that.

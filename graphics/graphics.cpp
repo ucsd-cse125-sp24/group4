@@ -1,4 +1,4 @@
-#include "graphics.h"
+#include "../include/graphics.h"
 
 void Graphics::setup_opengl_settings() {
 	// TODO: Understand this :sob:

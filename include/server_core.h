@@ -14,7 +14,7 @@
 #include "game_state.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/rotate_vector.hpp>
+#include "glm/gtx/rotate_vector.hpp"
 
 #define NUM_CLIENTS 1
 
@@ -30,7 +30,7 @@ class ServerCore {
     public:
         ServerCore();                   // Constructor
         ~ServerCore();                  // Destructor
-        void initialize();              // Initialize server resources
+        void listen();              // Initialize server resources
         void shutdown();                // Clean up resources
         void run();                     // Run the server's main loop
 
@@ -40,11 +40,11 @@ class ServerCore {
         void process_input(InputPacket packet);           // Process inputs
         void update_game_state();       // Update the game state
         void send_updates();            // Send updates to clients
-        void accept_new_clients();
+        void accept_new_clients(int i);
 
         bool running;                   // Server running state
         Server server;
-        std::vector<ClientData> clients_data;
+        std::vector<ClientData*> clients_data;
         GameState serverState;
 };
 
