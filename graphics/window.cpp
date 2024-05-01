@@ -6,12 +6,15 @@ const char* Window::window_title = "Graphics Client";
 Shader* Window::shader_program = nullptr;
 Input* Window::input = nullptr;
 
+// Mouse
+float Window::lastX = 400, Window::lastY = 300; // TODO: change if resolution changes
+
 // TODO: Replace with Scene later
 Cube* Window::cube = nullptr;
 Cube* cube2 = nullptr;
 
 // Camera
-Camera* cam;
+Camera* Window::cam;
 
 
 GLFWwindow* Window::create_window(int width, int height) {
@@ -54,7 +57,6 @@ GLFWwindow* Window::create_window(int width, int height) {
 
 	glViewport(0, 0, 800, 600);
 
-
 	// Shader program - maybe move somewhere else?
 	// Initialize shader
 	shader_program = new Shader("shaders/shader.vert", "shaders/shader.frag");
@@ -71,17 +73,20 @@ GLFWwindow* Window::create_window(int width, int height) {
 	// Call the resize callback to make sure things get drawn immediately.
 	Window::resize_callback(window, width, height);
 
+	// Capture mouse
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	return window;
 }
 
 void Window::setup_callbacks(GLFWwindow* window) {
 	// Set the required callback functions
-
-	/* glfwSetCursorPosCallback(window, Window::mouse_callback);
-	glfwSetScrollCallback(window, Window::scroll_callback);*/
+	/*glfwSetScrollCallback(window, Window::scroll_callback);*/
 
 	glfwSetKeyCallback(window, Window::key_callback);
 	glfwSetWindowSizeCallback(window, Window::resize_callback);
+	glfwSetCursorPosCallback(window, Window::mouse_callback);
+
 }
 
 void Window::setup_scene() {
@@ -113,6 +118,8 @@ void Window::resize_callback(GLFWwindow* window, int width, int height) {
 
 	// Camera re-set aspect ratio
 	cam->set_aspect(float(width) / float(height));
+
+	// TODO re-center the mouse
 }
 
 void Window::display_callback(GLFWwindow* window) {
@@ -141,26 +148,6 @@ void Window::idle_callback() {
 	// Perform any updates as necessary
 	// This is called every frame
 
-
-	float SCALE = (float)0.01; // TODO, define somewhere else (once moved to server)
-	 //Right now this depends on frame rate. Maybe add deltaTime? Maybe handle this server-side?
-	//for (int i = 0; i < events.size(); i++) { 
-	//	switch (events[i]) {
-	//	case MOVE_FORWARD:
-	//		cube->move(glm::vec3(0, 0, -1 * SCALE));
-	//		break;
-	//	case MOVE_BACKWARD:
-	//		cube->move(glm::vec3(0, 0, 1 * SCALE));
-	//		break;
-	//	case MOVE_LEFT:
-	//		cube->move(glm::vec3(-1 * SCALE, 0, 0));
-	//		break;
-	//	case MOVE_RIGHT:
-	//		cube->move(glm::vec3(1 * SCALE, 0, 0));
-	//		break;
-	//	}
-	//}	
-
 }
 
 std::vector<int> Window::get_input_actions() {
@@ -168,7 +155,6 @@ std::vector<int> Window::get_input_actions() {
 }
 
 void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 	}
@@ -178,4 +164,31 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 	if (action == GLFW_PRESS || action == GLFW_RELEASE) {
 		input->update(key, action);
 	}
+}
+
+void Window::mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+	float offsetX = xpos - lastX;
+	float offsetY = lastY - ypos; // Reversed since y-coordinates range from bottom to top
+	lastX = xpos;
+	lastY = ypos;
+
+	float sensitivity = 0.1f; // TODO set this somewhere
+	
+	// Update camera
+	cam->turn_azimuth(offsetX * sensitivity);
+	cam->turn_incline(offsetY * sensitivity);
+}
+
+// First constrain to -180, 180
+// Then convert to radians
+float Window::get_cam_angle_radians() {
+	float angle = cam->get_azimuth();
+	while (angle > 180) {
+		angle -= 360;
+	}
+	while (angle < -180) {
+		angle += 360;
+	}
+
+	return glm::radians(angle);
 }
