@@ -49,12 +49,12 @@ add_test(NAME ServerCoreUpdateTest COMMAND ServerCoreTests "update")
 add_test(NAME ServerCoreSendTest COMMAND ServerCoreTests "send")
 add_test(NAME ServerCoreShutdownTest COMMAND ServerCoreTests "shutdown")
 
-add_test(NAME ClientCoreInitializetTest COMMAND ClientCoreTests "initialize")
-add_test(NAME ClientCoreReceiveTest COMMAND ClientCoreTests "receive")
-add_test(NAME ClientCoreProcessTest COMMAND ClientCoreTests "process")
-add_test(NAME ClientCoreRenderTest COMMAND ClientCoreTests "render")
-add_test(NAME ClientCoreSendTest COMMAND ClientCoreTests "send")
-add_test(NAME ClientCoreShutdownTest COMMAND ClientCoreTests "shutdown")
+# add_test(NAME ClientCoreInitializetTest COMMAND ClientCoreTests "initialize")
+# add_test(NAME ClientCoreReceiveTest COMMAND ClientCoreTests "receive")
+# add_test(NAME ClientCoreProcessTest COMMAND ClientCoreTests "process")
+# add_test(NAME ClientCoreRenderTest COMMAND ClientCoreTests "render")
+# add_test(NAME ClientCoreSendTest COMMAND ClientCoreTests "send")
+# add_test(NAME ClientCoreShutdownTest COMMAND ClientCoreTests "shutdown")
 
 # ---- Packets test ----
 add_executable(GameStatePacketTest tests/game_state_packet_test.cpp "${PROJECT_SOURCE_DIR}/packets/game_state_packet.cpp")

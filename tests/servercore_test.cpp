@@ -10,7 +10,13 @@ DWORD __stdcall call_listen(void* servercore){
      object->listen();
    } 
    return 0U;
-} 
+}
+
+void close_and_shutdown(ServerCore* sc, std::vector<Client> client_list) {
+    for (Client c : client_list)
+        c.close_conn();
+    sc->shutdown();
+}
 
 int test_listen_accept() {
     ServerCore sc;
@@ -36,24 +42,18 @@ int test_listen_accept() {
     WaitForSingleObject(hand, 1000);
     
     if (!sc.isRunning() || sc.clients_data.size() != NUM_TEST_CLIENTS || sc.serverState.players.size() != NUM_TEST_CLIENTS) {
-        for (Client c : client_list)
-            c.close_conn();
-        sc.shutdown();
+        close_and_shutdown(&sc, client_list);
         return 1;
     }
     
     for (PlayerState ps : sc.serverState.players) {
         if (ps.world != glm::mat4(1.0f) || ps.score != 0) {
-            for (Client c : client_list)
-                c.close_conn();
-            sc.shutdown();
+            close_and_shutdown(&sc, client_list);
             return 1;
         }
     }
 
-    for (Client c : client_list)
-        c.close_conn();
-    sc.shutdown();
+    close_and_shutdown(&sc, client_list);
     return 0;
 }
 
@@ -85,11 +85,13 @@ int test_receive() {
     delete[] buf;
 
     // confirm receipt from each client
-    sc.receive_data(); // TODO: receive func in servercore has to actually do smth with or at least store recv data lmao
+    sc.receive_data();
+    for (PlayerState ps : sc.serverState.players) {
+        // TODO: test serverstate's players' worlds all align with sent data
+        printf("hi :>");
+    }
 
-    for (Client c : client_list)
-        c.close_conn();
-    sc.shutdown();
+    close_and_shutdown(&sc, client_list);
     return 0;
 }
 
@@ -115,20 +117,38 @@ int test_send() {
     sc.send_updates();
     
     char* buf;
+    GameStatePacket packet;
     // confirm receipt from server
     for (Client c : client_list) {
         buf = c.sock_receive();
-        if (!buf || !buf[0]) { // TODO: more precisely test contents of recv data once send logic is finalized
-            for (Client c : client_list)
-                c.close_conn();
-            sc.shutdown();
+        if (!buf || !buf[0]) {
+            close_and_shutdown(&sc, client_list);
             return 1;
+        } else {
+            GameStatePacket::deserialize(buf, packet);
+            if (packet.state.level != sc.serverState.level ||
+                packet.state.players.size() != sc.serverState.players.size() ||
+                packet.state.students.size() != sc.serverState.students.size()) {
+                close_and_shutdown(&sc, client_list);
+                return 1;
+            }
+            for (int i = 0; i < packet.state.players.size(); i++) {
+                if (packet.state.players[i].score != sc.serverState.players[i].score ||
+                    packet.state.players[i].world != sc.serverState.players[i].world) {
+                        close_and_shutdown(&sc, client_list);
+                        return 1;
+                    }
+            }
+            for (int i = 0; i < packet.state.students.size(); i++) {
+                if (packet.state.students[i].world != sc.serverState.students[i].world) {
+                        close_and_shutdown(&sc, client_list);
+                        return 1;
+                    }
+            }
         }
     }
 
-    for (Client c : client_list)
-        c.close_conn();
-    sc.shutdown();
+    close_and_shutdown(&sc, client_list);
     return 0;
 }
 
