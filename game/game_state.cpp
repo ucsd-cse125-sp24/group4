@@ -44,13 +44,13 @@ void GameState::moveStudent(StudentState &student)
         switch (student.currentDir)
         {
         case 0: // Moving up
-            step = glm::vec3(0.0f, stepSize, 0.0f);
+            step = glm::vec3(0.0f, 0.0f, -stepSize);
             break;
         case 1: // Moving right
             step = glm::vec3(stepSize, 0.0f, 0.0f);
             break;
         case 2: // Moving down
-            step = glm::vec3(0.0f, -stepSize, 0.0f);
+            step = glm::vec3(0.0f, 0.0f, stepSize);
             break;
         case 3: // Moving left
             step = glm::vec3(-stepSize, 0.0f, 0.0f);
@@ -65,7 +65,7 @@ void GameState::moveStudent(StudentState &student)
         student.distanceMoved = 0.0f;
         student.currentDir = (student.currentDir + 1) % 4;
 
-        glm::mat4 newRotation = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f * student.currentDir), glm::vec3(0.0f, 0.0f, 1.0f));
+        glm::mat4 newRotation = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         glm::vec3 currentPosition = glm::vec3(student.world[3][0], student.world[3][1], student.world[3][2]);
         student.world = glm::translate(newRotation, currentPosition);
     }
