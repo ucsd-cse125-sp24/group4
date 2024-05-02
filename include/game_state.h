@@ -13,7 +13,8 @@ struct PlayerState {
 
 struct StudentState {
     glm::mat4 world;
-    // Add other student-specific state variables
+    int currentDir; // 0 = up, 1 = right, 2 = down, 3 = left
+    float distanceMoved;
 };
 
 struct GameState {
@@ -24,6 +25,7 @@ struct GameState {
     // update player stuff
     void updateScores();
     void movePlayer(int playerId, int event, float orientation);
+    void moveStudent(StudentState& student);
 
     // update npc stuff
 
