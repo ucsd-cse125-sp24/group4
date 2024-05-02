@@ -16,8 +16,15 @@ void ClientCore::initialize()
     window = Graphics::set_up_window();
     while (!client.is_connected()) {
         client.connect_to_server();
-        Sleep(100*CONNECT_TIMEOUT);
     }
+    
+    // recv id from server
+    char* buffer = client.sock_receive();
+    if (!buffer || !buffer[0]){
+        // TODO: indicate failure somehow
+        return;
+    }
+    this->id = *((short*)buffer);
     connected = true;
 }
 

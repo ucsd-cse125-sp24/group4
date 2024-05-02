@@ -1,9 +1,10 @@
 #ifndef SERVER_CORE_H
 #define SERVER_CORE_H
 
-#include <vector>
-#include <string>
 #include <iostream>
+#include <queue>
+#include <string>
+#include <vector>
 #include <Winsock2.h>
 
 #include "server.h"
@@ -21,11 +22,12 @@
 struct ClientData {
     SOCKET sock;                        // not sure about this
     std::vector<std::string> messages;  // string for now
+    short id;
 };
 
 class ServerCore {
     private:
-        int curr_id = 0;
+        std::queue<short> available_ids;
 
     public:
         ServerCore();                   // Constructor

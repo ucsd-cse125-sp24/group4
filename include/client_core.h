@@ -21,24 +21,27 @@
 
 class ClientCore
 {
-public:
-    ClientCore();
-    ~ClientCore();
+    private:
+        short id;
 
-    void initialize(); // Initialize client resources
-    void shutdown();   // Clean up resources
-    void run();        // Main client loop
+    public:
+        ClientCore();
+        ~ClientCore();
 
-    void send_input();                     // Send player input (event?) to the server
-    void receive_updates();                // Receive updates from server
-    void process_server_data();            // Process the received data
-    void update_local_game_state();        // Update local game state based on server updates
-    void renderGameState(); // Render the game state to the user
+        void initialize(); // Initialize client resources
+        void shutdown();   // Clean up resources
+        void run();        // Main client loop
 
-    bool connected; // Connection state
-    Client client;  // client.conn_sock = socket,
-    GameState clientState;
-    GLFWwindow* window; // Game window
+        void send_input();                     // Send player input (event?) to the server
+        void receive_updates();                // Receive updates from server
+        void process_server_data();            // Process the received data
+        void update_local_game_state();        // Update local game state based on server updates
+        void renderGameState(); // Render the game state to the user
+
+        bool connected; // Connection state
+        Client client;  // client.conn_sock = socket,
+        GameState clientState;
+        GLFWwindow* window; // Game window
 };
 
 #endif
