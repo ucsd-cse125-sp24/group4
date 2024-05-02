@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../include/core.h"
+#include "core.h"
 
 enum ColliderType {
 	SPHERE,

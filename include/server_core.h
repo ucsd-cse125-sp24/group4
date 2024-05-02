@@ -12,6 +12,7 @@
 #include "input_packet.h"
 #include "game_state_packet.h"
 #include "game_state.h"
+#include "physics_world.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/rotate_vector.hpp"
@@ -46,6 +47,7 @@ class ServerCore {
         Server server;
         std::vector<ClientData*> clients_data;
         GameState serverState;
+        PhysicsWorld pWorld;
 };
 
 #endif

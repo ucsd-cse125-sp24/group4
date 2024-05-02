@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../include/core.h"
+#include "core.h"
 #include "colliders.h"
 
 
@@ -12,8 +12,8 @@ struct GameObject {
     glm::vec3 velocity;    // Velocity of the object
     glm::vec3 force; // Acceleration of the object
     float mass;            // Mass of the object
-    Collider* collider; // bounding volume/box
+    //Collider* collider; // bounding volume/box
 
     // Constructor to initialize properties
-    GameObject(glm::vec3 pos, glm::vec3 vel, glm::vec3 acc, float m, Collider* c);
+    //GameObject(glm::vec3 pos, glm::vec3 vel, glm::vec3 acc, float m, Collider* c);
 };
