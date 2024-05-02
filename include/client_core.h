@@ -21,10 +21,9 @@
 
 class ClientCore
 {
-    private:
+    public:
         short id;
 
-    public:
         ClientCore();
         ~ClientCore();
 

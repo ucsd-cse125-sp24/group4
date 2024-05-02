@@ -1,12 +1,10 @@
 #include "../include/server_core.h"
 
-#define NUM_TEST_CLIENTS 4
-
 // CreateThread doesn't like calling an object's member function;
 // call non-member function which calls the obj's member function instead
 DWORD __stdcall call_listen(void* servercore){
    auto object = reinterpret_cast<ServerCore*>(servercore);
-   while (object->server.get_num_clients() < NUM_TEST_CLIENTS){
+   while (object->server.get_num_clients() < NUM_CLIENTS){
      object->listen();
    } 
    return 0U;
@@ -34,18 +32,25 @@ int test_listen_accept() {
     unsigned long threadID = 0U;
     HANDLE hand = CreateThread(nullptr, 0U, &call_listen, &sc, 0, &threadID);
     std::vector<Client> client_list;
-    for (int i = 0; i < NUM_TEST_CLIENTS; i++) {
+    for (int i = 0; i < NUM_CLIENTS; i++) {
         // connect client to server
         client_list.push_back(Client());
         printf("connected %d\n", i);
     }
     WaitForSingleObject(hand, 1000);
     
-    if (!sc.isRunning() || sc.clients_data.size() != NUM_TEST_CLIENTS || sc.serverState.players.size() != NUM_TEST_CLIENTS) {
+    if (!sc.isRunning() || sc.clients_data.size() != NUM_CLIENTS || sc.serverState.players.size() != NUM_CLIENTS) {
         close_and_shutdown(&sc, client_list);
         return 1;
     }
     
+    for (int i = 1; i <= NUM_CLIENTS; i++) {
+        if (sc.clients_data[i-1]->id != (short)i) {
+            printf("wrong id %d\n", sc.clients_data[i]->id);
+            close_and_shutdown(&sc, client_list);
+            return 1;
+        }
+    }
     for (PlayerState ps : sc.serverState.players) {
         if (ps.world != glm::mat4(1.0f) || ps.score != 0) {
             close_and_shutdown(&sc, client_list);
@@ -63,7 +68,7 @@ int test_receive() {
     unsigned long threadID = 0U;
     HANDLE hand = CreateThread(nullptr, 0U, &call_listen, &sc, 0, &threadID);
     std::vector<Client> client_list;
-    for (int i = 0; i < NUM_TEST_CLIENTS; i++) {
+    for (int i = 0; i < NUM_CLIENTS; i++) {
         // connect client to server
         client_list.push_back(Client());
         printf("connected %d\n", i);
@@ -106,9 +111,11 @@ int test_send() {
     unsigned long threadID = 0U;
     HANDLE hand = CreateThread(nullptr, 0U, &call_listen, &sc, 0, &threadID);
     std::vector<Client> client_list;
-    for (int i = 0; i < NUM_TEST_CLIENTS; i++) {
+    for (int i = 0; i < NUM_CLIENTS; i++) {
         // connect client to server
-        client_list.push_back(Client());
+        Client c = Client();
+        c.sock_receive(); // id can be ignored for this test, just recv to flush
+        client_list.push_back(c);
         printf("connected %d\n", i);
     }
     WaitForSingleObject(hand, 1000);
@@ -116,35 +123,34 @@ int test_send() {
     // send data to all clients
     sc.send_updates();
     
-    char* buf;
     GameStatePacket packet;
+    char* buf;
     // confirm receipt from server
     for (Client c : client_list) {
         buf = c.sock_receive();
         if (!buf || !buf[0]) {
             close_and_shutdown(&sc, client_list);
             return 1;
-        } else {
-            GameStatePacket::deserialize(buf, packet);
-            if (packet.state.level != sc.serverState.level ||
-                packet.state.players.size() != sc.serverState.players.size() ||
-                packet.state.students.size() != sc.serverState.students.size()) {
-                close_and_shutdown(&sc, client_list);
-                return 1;
-            }
-            for (int i = 0; i < packet.state.players.size(); i++) {
-                if (packet.state.players[i].score != sc.serverState.players[i].score ||
-                    packet.state.players[i].world != sc.serverState.players[i].world) {
-                        close_and_shutdown(&sc, client_list);
-                        return 1;
-                    }
-            }
-            for (int i = 0; i < packet.state.students.size(); i++) {
-                if (packet.state.students[i].world != sc.serverState.students[i].world) {
-                        close_and_shutdown(&sc, client_list);
-                        return 1;
-                    }
-            }
+        }
+        GameStatePacket::deserialize(buf, packet);
+        if (packet.state.level != sc.serverState.level ||
+            packet.state.players.size() != sc.serverState.players.size() ||
+            packet.state.students.size() != sc.serverState.students.size()) {
+            close_and_shutdown(&sc, client_list);
+            return 1;
+        }
+        for (int i = 0; i < packet.state.players.size(); i++) {
+            if (packet.state.players[i].score != sc.serverState.players[i].score ||
+                packet.state.players[i].world != sc.serverState.players[i].world) {
+                    close_and_shutdown(&sc, client_list);
+                    return 1;
+                }
+        }
+        for (int i = 0; i < packet.state.students.size(); i++) {
+            if (packet.state.students[i].world != sc.serverState.students[i].world) {
+                    close_and_shutdown(&sc, client_list);
+                    return 1;
+                }
         }
     }
 

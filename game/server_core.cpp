@@ -50,6 +50,8 @@ void ServerCore::run() {
 
 void ServerCore::shutdown()
 {
+    for (ClientData* c : clients_data)
+        free(c);
     clients_data.clear(); // Clear the client data vector
     server.sock_shutdown();
     running = false;
@@ -173,7 +175,7 @@ void ServerCore::accept_new_clients(int i) {
     ClientData* client = new ClientData;
     client->sock = clientSock;
     client->id = this->available_ids.front(); // assign next avail id to client
-    char* buffer;
+    char* buffer = new char[sizeof(short)];
     *((short*)buffer) = client->id;
     bool send_success = server.sock_send(client->sock, sizeof(short), buffer);
     if (!send_success) {
@@ -181,6 +183,7 @@ void ServerCore::accept_new_clients(int i) {
         free(client);
         return;
     }
+    delete[] buffer;
     this->available_ids.pop(); // on success, id is no longer available, client is added
     clients_data.push_back(client);
 

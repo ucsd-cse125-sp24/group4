@@ -11,8 +11,6 @@ ClientCore::~ClientCore()
 void ClientCore::initialize()
 {
     // Initialize graphics, connect client
-    printf("initializing client\n");
-    // Initialize graphics
     window = Graphics::set_up_window();
     while (!client.is_connected()) {
         client.connect_to_server();
@@ -22,10 +20,12 @@ void ClientCore::initialize()
     char* buffer = client.sock_receive();
     if (!buffer || !buffer[0]){
         // TODO: indicate failure somehow
+        printf("recv failure\n");
         return;
     }
     this->id = *((short*)buffer);
     connected = true;
+    printf("client connected with id %d\n", this->id);
 }
 
 void ClientCore::shutdown()
@@ -90,6 +90,7 @@ void ClientCore::receive_updates() {
     while (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0) {
         received_data = client.sock_receive();
         if (received_data && received_data[0]){
+            printf("receive is non null, deserializing...\n");
             GameStatePacket::deserialize(received_data, packet);
             clientState = packet.state;
             //server_updates.messages.push_back(received_data);
