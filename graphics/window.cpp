@@ -13,6 +13,8 @@ float Window::lastX = 400, Window::lastY = 300; // TODO: change if resolution ch
 Cube* Window::cube = nullptr;
 Cube* cube2 = nullptr;
 
+int Window::player_id = 0; // 0 by default
+
 // Camera
 Camera* Window::cam;
 
@@ -128,10 +130,12 @@ void Window::display_callback(GLFWwindow* window) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// TODO: Render any objects you need to here
+	// TODO: First set the camera to the right location
+	cam->update(cube->get_world());
 
 	cube->draw(cam->get_view_project_mtx(), shader_program);
 	cube2->draw(cam->get_view_project_mtx(), shader_program);
-	cam->update(cube->get_world());
+
 
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();

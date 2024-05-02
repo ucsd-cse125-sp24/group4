@@ -10,15 +10,20 @@ ClientCore::~ClientCore()
 
 void ClientCore::initialize()
 {
-    // Initialize graphics, connect client
+    // First connect client
     printf("initializing client\n");
-    // Initialize graphics
-    window = Graphics::set_up_window();
+
     while (!client.is_connected()) {
         client.connect_to_server();
         Sleep(100*CONNECT_TIMEOUT);
     }
     connected = true;
+
+    // Initialize graphics
+    // TODO: somehow set this ID to be the player number - determined by server
+    // Currently hard coded to 0. Everyone is player 1.
+    int id = 0;
+    window = Graphics::set_up_window(0);
 }
 
 void ClientCore::shutdown()
@@ -138,6 +143,6 @@ void ClientCore::renderGameState()
 
 
     // Render
-    Window::display_callback(window);
+    Window::display_callback(window, clientState);
     Window::idle_callback();
 }

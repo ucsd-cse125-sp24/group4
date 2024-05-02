@@ -22,6 +22,7 @@ public:
 	static Input* input;
 	static Shader* shader_program;
 
+	static int player_id;
 	// Objects to draw - TODO replace with Scene object later
 	static Cube* cube;
 

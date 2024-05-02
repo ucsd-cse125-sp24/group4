@@ -16,5 +16,5 @@ public:
 	static void setup_opengl_settings();
 
 	// TODO: Maybe singleton? idk
-	static GLFWwindow* set_up_window();
+	static GLFWwindow* set_up_window(int id);
 };

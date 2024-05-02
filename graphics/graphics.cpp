@@ -14,10 +14,11 @@ void Graphics::setup_opengl_settings() {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-GLFWwindow* Graphics::set_up_window() {
+GLFWwindow* Graphics::set_up_window(int id) {
 	GLFWwindow* window = Window::create_window(800, 600);
 	if (!window) exit(EXIT_FAILURE);
 
+	Window::player_id = id;
 	// Callback functions are registered AFTER creating the window
 	// and BEFORE the render loop is initiated
 	Graphics::setup_opengl_settings();
