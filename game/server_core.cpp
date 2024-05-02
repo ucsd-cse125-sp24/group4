@@ -175,12 +175,14 @@ void ServerCore::accept_new_clients(int i) {
 
     serverState.players.push_back(p_state);
 
-    GameObject newPlayerObject;
+    PlayerObject newPlayerObject;
     newPlayerObject.force = glm::vec3(0, 0, 0);
     newPlayerObject.velocity = glm::vec3(0, 0, 0);
     newPlayerObject.position = glm::vec3(0, 0, 0);
     newPlayerObject.mass = 10;
-    pWorld.AddObject(&newPlayerObject);
+    
+    pWorld.addObject(&newPlayerObject);
+    pWorld.addPlayer(&newPlayerObject);
 
     printf("added new client data\n");
 }
