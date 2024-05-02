@@ -24,9 +24,6 @@ void ClientCore::initialize()
     printf("client connected with id %d\n", this->id);
 
     // Initialize graphics
-    // TODO: somehow set this ID to be the player number - determined by server
-    // Currently hard coded to 0. Everyone is player 1.
-    int id = 0;
     window = Graphics::set_up_window(this->id);
 }
 

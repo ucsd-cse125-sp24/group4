@@ -18,4 +18,5 @@ int main() {
     }
 
     return 0;
+    // getting a segfault after return, some memory err or smth? anyway it's not gamebreaking so
 }
