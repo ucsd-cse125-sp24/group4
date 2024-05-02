@@ -10,8 +10,6 @@ ClientCore::~ClientCore()
 
 void ClientCore::initialize()
 {
-    // Initialize graphics, connect client
-    window = Graphics::set_up_window();
     while (!client.is_connected()) {
         client.connect_to_server();
     }
@@ -26,6 +24,12 @@ void ClientCore::initialize()
     this->id = *((short*)buffer);
     connected = true;
     printf("client connected with id %d\n", this->id);
+
+    // Initialize graphics
+    // TODO: somehow set this ID to be the player number - determined by server
+    // Currently hard coded to 0. Everyone is player 1.
+    int id = 0;
+    window = Graphics::set_up_window(this->id);
 }
 
 void ClientCore::shutdown()

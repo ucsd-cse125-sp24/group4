@@ -44,7 +44,7 @@ int test_listen_accept() {
         return 1;
     }
     
-    for (int i = 1; i <= NUM_CLIENTS; i++) {
+    for (int i = 0; i < NUM_CLIENTS; i++) {
         if (sc.clients_data[i-1]->id != (short)i) {
             printf("wrong id %d\n", sc.clients_data[i]->id);
             close_and_shutdown(&sc, client_list);

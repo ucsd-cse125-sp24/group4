@@ -5,7 +5,7 @@
 
 ServerCore::ServerCore() {
     this->running = false;
-    for (short i = 1; i <= NUM_CLIENTS; i++) // setup available ids to include 1-n
+    for (short i = 0; i < NUM_CLIENTS; i++) // setup available ids to include 1-n
         this->available_ids.push(i);
 }
 
