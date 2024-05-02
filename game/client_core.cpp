@@ -143,6 +143,6 @@ void ClientCore::renderGameState()
 
 
     // Render
-    Window::display_callback(window, clientState);
+    Window::display_callback(window);
     Window::idle_callback();
 }
