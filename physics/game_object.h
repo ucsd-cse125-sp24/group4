@@ -1,7 +1,8 @@
 #pragma once
 
-#include "graphics.h"
+#include "../include/core.h"
 #include "colliders.h"
+
 
 
 struct GameObject {

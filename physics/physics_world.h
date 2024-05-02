@@ -1,9 +1,11 @@
 #include "game_object.h"
+#include "../include/core.h"
+#include <vector>
 
 class PhysicsWorld {
 private:
 	std::vector<GameObject*> m_objects;
-	vec3 m_gravity = vec3(0, -9.81f, 0);
+	glm::vec3 m_gravity = glm::vec3(0, -9.81f, 0);
  
 public:
 	void AddObject   (GameObject* object) { /* ... */ }
@@ -20,7 +22,7 @@ public:
 			// check y >= 0
 			obj->position += obj->velocity * dt;
  
-			obj->force = vec3(0, 0, 0); // reset net force at the end
+			obj->force = glm::vec3(0, 0, 0); // reset net force at the end
 		}
 	}
 };

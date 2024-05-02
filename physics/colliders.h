@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../include/core.h"
+
 enum ColliderType {
 	SPHERE,
 	PLANE,
