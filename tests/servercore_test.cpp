@@ -1,10 +1,12 @@
 #include "../include/server_core.h"
 
+#define NUM_TEST_CLIENTS 4
+
 // CreateThread doesn't like calling an object's member function;
 // call non-member function which calls the obj's member function instead
 DWORD __stdcall call_listen(void* servercore){
    auto object = reinterpret_cast<ServerCore*>(servercore);
-   while (object->server.get_num_clients() < NUM_CLIENTS){
+   while (object->server.get_num_clients() < NUM_TEST_CLIENTS){
      object->listen();
    } 
    return 0U;
@@ -32,20 +34,20 @@ int test_listen_accept() {
     unsigned long threadID = 0U;
     HANDLE hand = CreateThread(nullptr, 0U, &call_listen, &sc, 0, &threadID);
     std::vector<Client> client_list;
-    for (int i = 0; i < NUM_CLIENTS; i++) {
+    for (int i = 0; i < NUM_TEST_CLIENTS; i++) {
         // connect client to server
         client_list.push_back(Client());
         printf("connected %d\n", i);
     }
     WaitForSingleObject(hand, 1000);
     
-    if (!sc.isRunning() || sc.clients_data.size() != NUM_CLIENTS || sc.serverState.players.size() != NUM_CLIENTS) {
+    if (!sc.isRunning() || sc.clients_data.size() != NUM_TEST_CLIENTS || sc.serverState.players.size() != NUM_TEST_CLIENTS) {
         close_and_shutdown(&sc, client_list);
         return 1;
     }
     
-    for (int i = 0; i < NUM_CLIENTS; i++) {
-        if (sc.clients_data[i-1]->id != (short)i) {
+    for (int i = 0; i < NUM_TEST_CLIENTS; i++) {
+        if (sc.clients_data[i]->id != (short)i) {
             printf("wrong id %d\n", sc.clients_data[i]->id);
             close_and_shutdown(&sc, client_list);
             return 1;
@@ -68,7 +70,7 @@ int test_receive() {
     unsigned long threadID = 0U;
     HANDLE hand = CreateThread(nullptr, 0U, &call_listen, &sc, 0, &threadID);
     std::vector<Client> client_list;
-    for (int i = 0; i < NUM_CLIENTS; i++) {
+    for (int i = 0; i < NUM_TEST_CLIENTS; i++) {
         // connect client to server
         client_list.push_back(Client());
         printf("connected %d\n", i);
@@ -111,7 +113,7 @@ int test_send() {
     unsigned long threadID = 0U;
     HANDLE hand = CreateThread(nullptr, 0U, &call_listen, &sc, 0, &threadID);
     std::vector<Client> client_list;
-    for (int i = 0; i < NUM_CLIENTS; i++) {
+    for (int i = 0; i < NUM_TEST_CLIENTS; i++) {
         // connect client to server
         Client c = Client();
         c.sock_receive(); // id can be ignored for this test, just recv to flush

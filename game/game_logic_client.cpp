@@ -12,7 +12,10 @@ int main() {
     clientCore.initialize();
 
     clientCore.run();
-    clientCore.shutdown();
+
+    if (clientCore.is_connected()) {
+        clientCore.shutdown();
+    }
 
     return 0;
 }

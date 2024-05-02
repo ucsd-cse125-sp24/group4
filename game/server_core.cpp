@@ -1,11 +1,11 @@
 #include <chrono>
 #include "../include/server_core.h"
 
-#define TICK_MICROSECS 10000 // this gives 100 fps (fps = 1M / TICK_US)
+#define TICK_MICROSECS 20000 // this gives 50 fps (fps = 1M / TICK_US)
 
 ServerCore::ServerCore() {
     this->running = false;
-    for (short i = 0; i < NUM_CLIENTS; i++) // setup available ids to include 1-n
+    for (short i = 0; i < MAX_CLIENTS; i++) // setup available ids to include 1-n
         this->available_ids.push(i);
 }
 

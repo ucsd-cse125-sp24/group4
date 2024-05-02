@@ -28,6 +28,7 @@ class ClientCore
         ~ClientCore();
 
         void initialize(); // Initialize client resources
+        bool is_connected();
         void shutdown();   // Clean up resources
         void run();        // Main client loop
 
