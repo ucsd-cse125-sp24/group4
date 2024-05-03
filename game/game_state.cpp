@@ -65,8 +65,31 @@ void GameState::moveStudent(StudentState &student)
         student.distanceMoved = 0.0f;
         student.currentDir = (student.currentDir + 1) % 4;
 
-        glm::mat4 newRotation = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f * student.currentDir), glm::vec3(0.0f, 0.0f, 1.0f));
+        // Extract the current position from the existing matrix
         glm::vec3 currentPosition = glm::vec3(student.world[3][0], student.world[3][1], student.world[3][2]);
-        student.world = glm::translate(newRotation, currentPosition);
+
+        // Create a new rotation matrix
+        glm::mat4 newRotation = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+        // Apply rotation to the current matrix without affecting the translation component
+        glm::mat4 rotatedMatrix = student.world * newRotation;
+
+        // Set the translation component back to its original
+        rotatedMatrix[3] = glm::vec4(currentPosition, 1.0f);
+
+        // Update the student's world matrix
+        student.world = rotatedMatrix;
+
+
+        //  for (int j = 0; j < 4; j++)
+        //     {
+        //         for (int i = 0; i < 4; i++)
+        //         {
+        //             std::cout << currentPosition[i][j] << " ";
+        //         }
+        //         std::cout << std::endl;
+        //     }
+        // std::cout << "\n\n";
+
     }
 }
