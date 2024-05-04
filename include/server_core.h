@@ -46,7 +46,6 @@ class ServerCore {
         Server server;
         std::vector<ClientData> clients_data;
         GameState serverState;
-        std::vector<Student*> students;
 };
 
 #endif
