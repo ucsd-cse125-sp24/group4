@@ -20,9 +20,8 @@ int main()
 
     state.students.push_back(student);
 
-    // This test should make student goes up by 5 steps, then turn right and walks for another 5 steps.
-    // The first 5 steps seem correct, but the second 5 (rotate to turn right and walk) is not working properly
-    for (int x = 0; x < 10; x++)
+    // This test checks the case where student starts at the bottom left of the squaren, traverses each side of the square, and returns to the starting point
+    for (int x = 0; x < 20; x++)
     {
         for (StudentState& s : state.students)
         {
