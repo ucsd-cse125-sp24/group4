@@ -12,7 +12,6 @@
 #include "input_packet.h"
 #include "game_state_packet.h"
 #include "game_state.h"
-#include "student_npc.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/rotate_vector.hpp>
