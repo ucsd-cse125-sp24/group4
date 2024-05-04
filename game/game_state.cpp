@@ -34,8 +34,8 @@ void GameState::movePlayer(int playerId, int event, float orientation)
 
 void GameState::moveStudent(StudentState &student)
 {
-    const float stepSize = 1.0f;
-    const float totalDistance = 5.0f;
+    const float stepSize = 1.0f; // Assume 1 step at a time
+    const float totalDistance = 5.0f; // Assume each side of the square is 5
 
     glm::vec3 step(0.0f);
     glm::vec3 currentPos = glm::vec3(student.world[3]);
@@ -62,7 +62,7 @@ void GameState::moveStudent(StudentState &student)
     if (student.distanceMoved >= totalDistance)
     {
         student.distanceMoved = 0.0f;
-        student.currentDir = (student.currentDir + 1) % 4;
+        student.currentDir = (student.currentDir + 1) % 4; // Change to next direction
 
         // Perform rotation
         glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 0, 1));
