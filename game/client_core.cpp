@@ -10,20 +10,25 @@ ClientCore::~ClientCore()
 
 void ClientCore::initialize()
 {
-    // First connect client
-    printf("initializing client\n");
-
     while (!client.is_connected()) {
         client.connect_to_server();
-        Sleep(100*CONNECT_TIMEOUT);
     }
+    
+    // recv id from server
+    char* buffer = client.sock_receive();
+    while (!buffer || !buffer[0]){
+        buffer = client.sock_receive();
+    }
+    this->id = *((short*)buffer);
     connected = true;
+    printf("client connected with id %d\n", this->id);
 
     // Initialize graphics
-    // TODO: somehow set this ID to be the player number - determined by server
-    // Currently hard coded to 0. Everyone is player 1.
-    int id = 0;
-    window = Graphics::set_up_window(0);
+    window = Graphics::set_up_window(this->id);
+}
+
+bool ClientCore::is_connected() {
+    return connected;
 }
 
 void ClientCore::shutdown()
@@ -38,10 +43,10 @@ void ClientCore::run()
 {
     while (connected)
     {
-        send_input();
         receive_updates();
         process_server_data();
         renderGameState();
+        send_input(); // moving to bottom bc only send can shutdown
     }
 }
 
@@ -60,6 +65,7 @@ void ClientCore::send_input()
  
     if (glfwWindowShouldClose(window)) {
         shutdown();
+        return;
     }
 
     size_t bufferSize = packet.calculateSize();
@@ -67,7 +73,6 @@ void ClientCore::send_input()
 
     InputPacket::serialize(packet, buffer);
     if (!client.sock_send((int)bufferSize, buffer)) {
-        delete[] buffer;
         shutdown();
     }
 
@@ -79,7 +84,7 @@ void ClientCore::receive_updates() {
     FD_ZERO(&readFdSet);
     timeval timeout;
     timeout.tv_sec = 0;
-    timeout.tv_usec = 100;
+    timeout.tv_usec = 10;
 
     char * received_data;
     GameStatePacket packet;
