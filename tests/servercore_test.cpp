@@ -46,6 +46,13 @@ int test_listen_accept() {
         return 1;
     }
     
+    for (int i = 0; i < NUM_TEST_CLIENTS; i++) {
+        if (sc.clients_data[i]->id != (short)i) {
+            printf("wrong id %d\n", sc.clients_data[i]->id);
+            close_and_shutdown(&sc, client_list);
+            return 1;
+        }
+    }
     for (PlayerState ps : sc.serverState.players) {
         if (ps.world != glm::mat4(1.0f) || ps.score != 0) {
             close_and_shutdown(&sc, client_list);
@@ -108,7 +115,9 @@ int test_send() {
     std::vector<Client> client_list;
     for (int i = 0; i < NUM_TEST_CLIENTS; i++) {
         // connect client to server
-        client_list.push_back(Client());
+        Client c = Client();
+        c.sock_receive(); // id can be ignored for this test, just recv to flush
+        client_list.push_back(c);
         printf("connected %d\n", i);
     }
     WaitForSingleObject(hand, 1000);
@@ -116,35 +125,34 @@ int test_send() {
     // send data to all clients
     sc.send_updates();
     
-    char* buf;
     GameStatePacket packet;
+    char* buf;
     // confirm receipt from server
     for (Client c : client_list) {
         buf = c.sock_receive();
         if (!buf || !buf[0]) {
             close_and_shutdown(&sc, client_list);
             return 1;
-        } else {
-            GameStatePacket::deserialize(buf, packet);
-            if (packet.state.level != sc.serverState.level ||
-                packet.state.players.size() != sc.serverState.players.size() ||
-                packet.state.students.size() != sc.serverState.students.size()) {
-                close_and_shutdown(&sc, client_list);
-                return 1;
-            }
-            for (int i = 0; i < packet.state.players.size(); i++) {
-                if (packet.state.players[i].score != sc.serverState.players[i].score ||
-                    packet.state.players[i].world != sc.serverState.players[i].world) {
-                        close_and_shutdown(&sc, client_list);
-                        return 1;
-                    }
-            }
-            for (int i = 0; i < packet.state.students.size(); i++) {
-                if (packet.state.students[i].world != sc.serverState.students[i].world) {
-                        close_and_shutdown(&sc, client_list);
-                        return 1;
-                    }
-            }
+        }
+        GameStatePacket::deserialize(buf, packet);
+        if (packet.state.level != sc.serverState.level ||
+            packet.state.players.size() != sc.serverState.players.size() ||
+            packet.state.students.size() != sc.serverState.students.size()) {
+            close_and_shutdown(&sc, client_list);
+            return 1;
+        }
+        for (int i = 0; i < packet.state.players.size(); i++) {
+            if (packet.state.players[i].score != sc.serverState.players[i].score ||
+                packet.state.players[i].world != sc.serverState.players[i].world) {
+                    close_and_shutdown(&sc, client_list);
+                    return 1;
+                }
+        }
+        for (int i = 0; i < packet.state.students.size(); i++) {
+            if (packet.state.students[i].world != sc.serverState.students[i].world) {
+                    close_and_shutdown(&sc, client_list);
+                    return 1;
+                }
         }
     }
 

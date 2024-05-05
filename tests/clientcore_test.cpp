@@ -25,7 +25,7 @@ int test_initialize() {
 
     WaitForSingleObject(hand, 2000);
 
-    if (!cc.client.is_connected() || !cc.connected) { // should be connected
+    if (!cc.client.is_connected() || !cc.connected || cc.id != 0) { // should be connected
         cc.shutdown();
         server.sock_shutdown();
         return 1;

@@ -1,9 +1,13 @@
 #include <chrono>
 #include "../include/server_core.h"
 
-#define TICK_MICROSECS 10000 // this gives 100 fps (fps = 1M / TICK_US)
+#define TICK_MICROSECS 20000 // this gives 50 fps (fps = 1M / TICK_US)
 
-ServerCore::ServerCore() : running(false) {}
+ServerCore::ServerCore() {
+    this->running = false;
+    for (short i = 0; i < MAX_CLIENTS; i++) // setup available ids to include 1-n
+        this->available_ids.push(i);
+}
 
 ServerCore::~ServerCore()
 {
@@ -31,7 +35,6 @@ void ServerCore::run() {
             this->listen();
         }
         this->listen(); // comment to disallow joining mid-game
-        //printf("server connected to %i clients\n", server.get_num_clients());
         receive_data();
         update_game_state();
         send_updates();
@@ -47,6 +50,8 @@ void ServerCore::run() {
 
 void ServerCore::shutdown()
 {
+    for (ClientData* c : clients_data)
+        free(c);
     clients_data.clear(); // Clear the client data vector
     server.sock_shutdown();
     running = false;
@@ -152,7 +157,10 @@ void ServerCore::send_updates()
     for (auto i = 0; i < (int)clients_data.size(); i++) {
         bool send_success = server.sock_send(clients_data[i]->sock, (int)bufferSize, buffer);
         // if client shutdown, tear down this client/player
-        if (!send_success) {                                                                           
+        if (!send_success) {
+            this->available_ids.push(clients_data[i]->id); // reclaim id as available
+            server.close_client(clients_data[i]->sock);
+            free(clients_data[i]);
             clients_data.erase(clients_data.begin() + i);
             serverState.players.erase(serverState.players.begin() + i);
             i--;
@@ -166,6 +174,17 @@ void ServerCore::accept_new_clients(int i) {
     SOCKET clientSock = server.get_client_sock(i);
     ClientData* client = new ClientData;
     client->sock = clientSock;
+    client->id = this->available_ids.front(); // assign next avail id to client
+    char* buffer = new char[sizeof(short)];
+    *((short*)buffer) = client->id;
+    bool send_success = server.sock_send(client->sock, sizeof(short), buffer);
+    if (!send_success) {
+        server.close_client(clientSock); // abort conn
+        free(client);
+        return;
+    }
+    delete[] buffer;
+    this->available_ids.pop(); // on success, id is no longer available, client is added
     clients_data.push_back(client);
 
     PlayerState p_state;
