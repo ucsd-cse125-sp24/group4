@@ -2,6 +2,7 @@
 #include <vector>
 #include <cstring>
 #include <cassert>
+#include <cmath>
 #include "../include/game_state.h"
 
 // To run the test:
@@ -34,6 +35,8 @@ int main()
                 }
                 std::cout << std::endl;
             }
+            // degree is:
+            std::cout << atan2(s.world[0][1],s.world[0][0]) * (180 / 3.141592);
             std::cout << "\n\n";
         }
     }
