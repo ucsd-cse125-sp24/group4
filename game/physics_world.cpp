@@ -1,10 +1,10 @@
 #include "../include/physics_world.h"
 
-void PhysicsWorld::AddObject   (GameObject* object) { 
+void PhysicsWorld::addObject (GameObject* object) { 
     m_objects.push_back(object);
 }
 
-void PhysicsWorld::RemoveObject(GameObject* object) { 
+void PhysicsWorld::removeObject (GameObject* object) { 
     // Find the object in the vector
     auto it = std::find(m_objects.begin(), m_objects.end(), object);
     
@@ -16,7 +16,33 @@ void PhysicsWorld::RemoveObject(GameObject* object) {
     }
 }
 
-void PhysicsWorld::Step(float dt)
+void PhysicsWorld::addPlayer (PlayerObject* player) {
+    p_objects.push_back(player);
+}
+
+void PhysicsWorld::removePlayer (PlayerObject* player) {
+    // Find the object in the vector
+    auto it = std::find(p_objects.begin(), p_objects.end(), player);
+    
+    // If the object is found, erase it
+    if (it != p_objects.end()) {
+        p_objects.erase(it);
+        //delete object->collider;
+        delete player;
+    }
+}
+
+PlayerObject* PhysicsWorld::findPlayer(int id) {
+    for (PlayerObject* player : p_objects) {
+        if (player->playerId == id) {
+            return player;
+        }
+    }
+    printf("Error: player with id %d does not exist.\n", id);
+    return NULL;
+}
+
+void PhysicsWorld::step(float dt)
 {
     for (GameObject* obj : m_objects) {
         obj->force += obj->mass * m_gravity; // apply a force
