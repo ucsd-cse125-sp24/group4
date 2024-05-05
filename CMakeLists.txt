@@ -9,7 +9,7 @@ file(GLOB GRAPHICS_SOURCES "${PROJECT_SOURCE_DIR}/graphics/*")
 add_library(client OBJECT "${PROJECT_SOURCE_DIR}/networking/client.cpp")
 add_library(server OBJECT "${PROJECT_SOURCE_DIR}/networking/server.cpp")
 add_library(packets OBJECT "${PROJECT_SOURCE_DIR}/packets/game_state_packet.cpp" "${PROJECT_SOURCE_DIR}/packets/input_packet.cpp")
-add_library(physics OBJECT "${PROJECT_SOURCE_DIR}/game/physics_world.cpp")
+add_library(physics OBJECT "${PROJECT_SOURCE_DIR}/game/physics_world.cpp" "${PROJECT_SOURCE_DIR}/game/player_object.cpp")
 
 link_directories("${PROJECT_SOURCE_DIR}/lib")
 

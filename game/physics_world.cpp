@@ -42,17 +42,20 @@ PlayerObject* PhysicsWorld::findPlayer(int id) {
     return NULL;
 }
 
-void PhysicsWorld::step(float dt)
+void PhysicsWorld::step()
 {
+    float dt = 0.02f;
     for (GameObject* obj : m_objects) {
-        obj->force += obj->mass * m_gravity; // apply a force
+        // obj->force += obj->mass * m_gravity; // apply a force
 
-        obj->velocity += obj->force / obj->mass * dt;
+        // glm::vec3 ori_v = obj->velocity;
+        // obj->velocity += obj->force / obj->mass * dt;
 
-        // check y >= 0
-        obj->position += obj->velocity * dt;
-
-        obj->force = glm::vec3(0, 0, 0); // reset net force at the end
+        // // check y >= 0
+        // obj->position += 0.5f * (ori_v + obj->velocity) * dt;
+        //obj->position = glm::vec3(0, 0, 0);
+        printf("positions: <%f, %f, %f>\n", obj->position.x, obj->position.y, obj->position.z);
+        //obj->force = glm::vec3(0, 0, 0); // reset net force at the end
     }
 }
 

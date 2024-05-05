@@ -17,5 +17,5 @@ class PhysicsWorld {
 		void removePlayer (PlayerObject* object);
 		PlayerObject* findPlayer(int id);
 
-		void step(float dt);
+		void step();
 };

@@ -82,7 +82,7 @@ void ServerCore::receive_data()
             if (buf && buf[0])
             {
                 InputPacket::deserialize(buf, packet);
-                process_input(packet);
+                process_input(packet, client->id);
 
                 // Print for testing
                 printf("\nEvents: ");
@@ -95,9 +95,10 @@ void ServerCore::receive_data()
     }
 }
 
-void ServerCore::process_input(InputPacket packet) {
+void ServerCore::process_input(InputPacket packet, int packet_id) {
     // For now operate on first player by default. TODO: Identify by socket num? Client ID?
     glm::mat4 world = serverState.players[0].world;
+    PlayerObject* client_player = pWorld.findPlayer(packet_id);
 
     float SCALE = 0.05f; // TODO: Define this somewhere else. Maybe in a constants folder?
 
@@ -106,19 +107,23 @@ void ServerCore::process_input(InputPacket packet) {
         glm::vec3 dir;
         switch (event) {
         case MOVE_FORWARD:
+            //client_player->moveForward();
             dir = glm::vec3(0.0f, 0.0f, -1.0f);
             break;
         case MOVE_BACKWARD:
+            //client_player->moveBackward();
             dir = glm::vec3(0.0f, 0.0f, 1.0f);
 			break;
         case MOVE_LEFT:
+            //client_player->moveLeft();
 			dir = glm::vec3(-1.0f, 0.0f, 0.0f);
 			break;
         case MOVE_RIGHT:
+            //client_player->moveRight();
             dir = glm::vec3(1.0f, 0.0f, 0.0f);
             break;
         }
-
+        pWorld.step();
         // Rotate dir by camera angle
         dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
 
@@ -194,14 +199,15 @@ void ServerCore::accept_new_clients(int i) {
 
     serverState.players.push_back(p_state);
 
-    PlayerObject newPlayerObject;
-    newPlayerObject.force = glm::vec3(0, 0, 0);
-    newPlayerObject.velocity = glm::vec3(0, 0, 0);
-    newPlayerObject.position = glm::vec3(0, 0, 0);
-    newPlayerObject.mass = 10;
+    PlayerObject* newPlayerObject;
+    newPlayerObject->force = glm::vec3(0.0f, 0.0f, 0.0f);
+    newPlayerObject->velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+    newPlayerObject->position = glm::vec3(0.0f, 0.0f, 0.0f);
+    newPlayerObject->mass = 10;
+    newPlayerObject->playerId = client->id;
     
-    pWorld.addObject(&newPlayerObject);
-    pWorld.addPlayer(&newPlayerObject);
+    pWorld.addObject(newPlayerObject);
+    pWorld.addPlayer(newPlayerObject);
 
     printf("added new client data\n");
 }
