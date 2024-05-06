@@ -22,9 +22,9 @@ public:
 	static Input* input;
 	static Shader* shader_program;
 
-	static int player_id;
-	// Objects to draw - TODO replace with Scene object later
-	static Cube* cube;
+	static short player_id;
+	// Objects to draw - TODO
+	static std::vector<Drawable*> players;
 
 	// Camera
 	static Camera* cam;
@@ -52,4 +52,6 @@ public:
 	// Helper to let client poll for events
 	static std::vector<int> get_input_actions();
 	static float get_cam_angle_radians();
+
+	static void update_state(GameState& state);
 };
