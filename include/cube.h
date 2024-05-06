@@ -1,16 +1,13 @@
 #pragma once
 #include "core.h"
+#include "drawable.h"
 #include "shader.h"
 #include <vector>
 
-class Cube {
+class Cube : public Drawable {
 private:
 	GLuint VAO;
 	GLuint VBO_positions, VBO_normals, EBO;
-	
-	glm::mat4 model; // Possibly decouple from cube/primitives in general
-					 // if we want to render multiple of the same object
-	glm::vec3 color;
 
 	// cube information
 	std::vector<glm::vec3> positions;
@@ -24,8 +21,4 @@ public:
 	void draw(const glm::mat4& viewProjMtx, Shader* shader);
 	void move(glm::vec3 direction);
 
-	// Getters and setters
-	glm::mat4 get_world() { return model; }
-	void set_color(glm::vec3 color) { this->color = color; }
-	void set_world(glm::mat4 world) { model = world; }
 };
