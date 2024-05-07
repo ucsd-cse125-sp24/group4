@@ -176,7 +176,7 @@ void ServerCore::accept_new_clients(int i) {
     client->sock = clientSock;
     client->id = this->available_ids.front(); // assign next avail id to client
     char* buffer = new char[sizeof(short)];
-    *((short*)buffer) = client->id;
+    *((short*)buffer) = client->id + 1; // add 1 bc we can't send 0 (null); clientcore subs 1 to correct
     bool send_success = server.sock_send(client->sock, sizeof(short), buffer);
     if (!send_success) {
         server.close_client(clientSock); // abort conn

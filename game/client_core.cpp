@@ -19,7 +19,7 @@ void ClientCore::initialize()
     while (!buffer || !buffer[0]){
         buffer = client.sock_receive();
     }
-    this->id = *((short*)buffer);
+    this->id = *((short*)buffer) - 1;
     connected = true;
     printf("client connected with id %d\n", this->id);
 
@@ -41,6 +41,7 @@ void ClientCore::shutdown()
 
 void ClientCore::run()
 {
+    return;
     while (connected)
     {
         receive_updates();
