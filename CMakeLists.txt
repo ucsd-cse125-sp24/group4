@@ -45,7 +45,7 @@ add_test(NAME GameStatePacketTest COMMAND GameStatePacketTest)
 add_test(NAME InputPacketTest COMMAND InputPacketTest)
 
 # ---- NPC movements test ----
-add_executable(NPCMovementsTest tests/npc_update_test.cpp game/game_state.cpp)
+add_executable(NPCMovementsTest tests/npc_movements_test.cpp game/game_state.cpp)
 
 add_test(NAME NPCMovementsTest COMMAND NPCMovementsTest)
 
