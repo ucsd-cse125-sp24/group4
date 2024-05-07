@@ -22,6 +22,5 @@ struct GameState {
     int level;
     // Functions for manipulating the game state
     void updateScores();
-    void movePlayer(int playerId, int event, float orientation);
     // Other relevant game state functions
 };
