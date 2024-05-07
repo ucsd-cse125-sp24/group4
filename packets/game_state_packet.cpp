@@ -116,7 +116,7 @@ void GameStatePacket::deserialize(const char *inData, GameStatePacket &packet)
             for (int j = 0; j < 4; j++)
             {
                 memcpy(&student.world[i][j], inData, sizeof(student.world[i][j]));
-                inData += sizeof(sizeof(student.world[i][j]));
+                inData += sizeof(student.world[i][j]);
             }
         }
 
