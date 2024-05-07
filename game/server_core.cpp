@@ -138,14 +138,26 @@ void ServerCore::update_game_state() {
     */
 
     // Enemy AI etc
-    while (serverState.students.size() < 5) {
-        StudentState s_state;
-
-        s_state.world = glm::mat4(1.0f); // TEMP
-
-        serverState.students.push_back(s_state);
+    while (serverState.students.size() < 1) {
+        StudentState student;
+        serverState.students.push_back(student);
     }
-    serverState.level = 5;
+
+    auto now = std::chrono::high_resolution_clock::now();
+
+    for (StudentState& s : serverState.students){
+        float deltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(now - s.lastUpdate).count();
+        s.timeSinceLastUpdate += deltaTime;
+
+        if (s.timeSinceLastUpdate >= 1.0f) {  // Check if 1 second has passed
+            serverState.moveStudent(s);      // Move student
+            s.timeSinceLastUpdate = 0.0f;    // Reset the timer
+        }
+
+        s.lastUpdate = now;  // Update the last update time
+    }
+    
+
 }
 
 void ServerCore::send_updates()
