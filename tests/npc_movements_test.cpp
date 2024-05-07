@@ -5,10 +5,6 @@
 #include <cmath>
 #include "../include/game_state.h"
 
-// To run the test:
-// g++ -Iinclude -o testNPC tests/npc_update_test.cpp game/game_state.cpp
-// ./testNPC
-
 bool checkPosition(const glm::vec3 &expected, const glm::vec3 &actual)
 {
     return glm::length(actual - expected) == 0;
