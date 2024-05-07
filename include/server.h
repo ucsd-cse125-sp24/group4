@@ -3,7 +3,7 @@
 #include "windows_socket.h"
 #include <vector>
 
-#define MAX_CLIENTS 8
+#define MAX_CLIENTS 4
 
 /*
 Module to run the game server

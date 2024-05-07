@@ -1,4 +1,4 @@
-#include "cube.h"
+#include "../include/cube.h"
 
 Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax) {
 	// Model matrix - Maybe decouple from cube?
@@ -145,14 +145,9 @@ void Cube::draw(const glm::mat4& viewProjMtx, Shader* shader) {
     glBindVertexArray(VAO);
 
     // Draw the points using triangles, indexed with the EBO
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, (int)indices.size(), GL_UNSIGNED_INT, 0);
 
     // Unbind the VAO and shader program
     glBindVertexArray(0);
     glUseProgram(0);
-}
-
-void Cube::move(glm::vec3 direction) {
-	// Move the cube in the direction specified
-	model = glm::translate(model, direction);
 }

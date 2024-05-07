@@ -1,4 +1,4 @@
-#include "window.h"
+#include "../include/window.h"
 
 int Window::width;
 int Window::height;
@@ -6,12 +6,16 @@ const char* Window::window_title = "Graphics Client";
 Shader* Window::shader_program = nullptr;
 Input* Window::input = nullptr;
 
-// TODO: Replace with Scene later
-Cube* Window::cube = nullptr;
-Cube* cube2 = nullptr;
+// Mouse
+float Window::lastX = 400, Window::lastY = 300; // TODO: change if resolution changes
+
+// TODO: Remove cubes?
+std::vector<Drawable*> Window::players;
+
+short Window::player_id = 0; // 0 by default
 
 // Camera
-Camera* cam;
+Camera* Window::cam;
 
 
 GLFWwindow* Window::create_window(int width, int height) {
@@ -54,7 +58,6 @@ GLFWwindow* Window::create_window(int width, int height) {
 
 	glViewport(0, 0, 800, 600);
 
-
 	// Shader program - maybe move somewhere else?
 	// Initialize shader
 	shader_program = new Shader("shaders/shader.vert", "shaders/shader.frag");
@@ -71,33 +74,54 @@ GLFWwindow* Window::create_window(int width, int height) {
 	// Call the resize callback to make sure things get drawn immediately.
 	Window::resize_callback(window, width, height);
 
+	// Capture mouse
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	return window;
 }
 
 void Window::setup_callbacks(GLFWwindow* window) {
 	// Set the required callback functions
-
-	/* glfwSetCursorPosCallback(window, Window::mouse_callback);
-	glfwSetScrollCallback(window, Window::scroll_callback);*/
+	/*glfwSetScrollCallback(window, Window::scroll_callback);*/
 
 	glfwSetKeyCallback(window, Window::key_callback);
 	glfwSetWindowSizeCallback(window, Window::resize_callback);
+	glfwSetCursorPosCallback(window, Window::mouse_callback);
+
 }
 
 void Window::setup_scene() {
-	cube = new Cube();
-	cube2 = new Cube();
-	cube2->set_color(glm::vec3(1, 0, 0));
+	// Populate players
+	Cube* cube = new Cube(); // p1 - yellow
+	players.push_back(cube);
 
-	cam->update(cube->get_world());
+	Cube* cube2 = new Cube();
+	cube2->set_color(glm::vec3(1, 0, 0)); // p2 - red
+	players.push_back(cube2);
+
+	// p3 - green
+	Cube* cube3 = new Cube();
+	cube3->set_color(glm::vec3(0, 1, 0));
+	players.push_back(cube3);
+
+	// p4 - blue
+	Cube* cube4 = new Cube();
+	cube4->set_color(glm::vec3(0, 0, 1));
+	players.push_back(cube4);
+
+
+	// TODO: Move to callback -- Do I need to center here...
+	//cam->update(cube->get_world());
 }
 
 void Window::clean_up() {
 	// Deallcoate the objects
-	delete cube;
-	delete cube2;
 	delete cam;
 	delete input;
+
+	for(Drawable* player : players) {
+		delete player;
+	}
 
 	// Delete the shader program
 	delete shader_program;
@@ -113,6 +137,8 @@ void Window::resize_callback(GLFWwindow* window, int width, int height) {
 
 	// Camera re-set aspect ratio
 	cam->set_aspect(float(width) / float(height));
+
+	// TODO re-center the mouse
 }
 
 void Window::display_callback(GLFWwindow* window) {
@@ -121,17 +147,20 @@ void Window::display_callback(GLFWwindow* window) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// TODO: Render any objects you need to here
+	// TODO: First set the camera to the right location
+	std::cout << "I am player " << player_id << std::endl;
+	cam->update(players[player_id]->get_world());
 
-	cube->draw(cam->get_view_project_mtx(), shader_program);
-	cube2->draw(cam->get_view_project_mtx(), shader_program);
-	cam->update(cube->get_world());
+	for(Drawable* player : players) {
+		player->draw(cam->get_view_project_mtx(), shader_program);
+	}
+
 
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
 
 	// Swap buffers
 	glfwSwapBuffers(window);
-
 }
 
 void Window::idle_callback() {
@@ -141,26 +170,6 @@ void Window::idle_callback() {
 	// Perform any updates as necessary
 	// This is called every frame
 
-
-	float SCALE = 0.01; // TODO, define somewhere else (once moved to server)
-	 //Right now this depends on frame rate. Maybe add deltaTime? Maybe handle this server-side?
-	//for (int i = 0; i < events.size(); i++) { 
-	//	switch (events[i]) {
-	//	case MOVE_FORWARD:
-	//		cube->move(glm::vec3(0, 0, -1 * SCALE));
-	//		break;
-	//	case MOVE_BACKWARD:
-	//		cube->move(glm::vec3(0, 0, 1 * SCALE));
-	//		break;
-	//	case MOVE_LEFT:
-	//		cube->move(glm::vec3(-1 * SCALE, 0, 0));
-	//		break;
-	//	case MOVE_RIGHT:
-	//		cube->move(glm::vec3(1 * SCALE, 0, 0));
-	//		break;
-	//	}
-	//}	
-
 }
 
 std::vector<int> Window::get_input_actions() {
@@ -168,7 +177,6 @@ std::vector<int> Window::get_input_actions() {
 }
 
 void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 	}
@@ -178,4 +186,39 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 	if (action == GLFW_PRESS || action == GLFW_RELEASE) {
 		input->update(key, action);
 	}
+}
+
+void Window::mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+	float offsetX = xpos - lastX;
+	float offsetY = lastY - ypos; // Reversed since y-coordinates range from bottom to top
+	lastX = xpos;
+	lastY = ypos;
+
+	float sensitivity = 0.1f; // TODO set this somewhere
+	
+	// Update camera
+	cam->turn_azimuth(offsetX * sensitivity);
+	cam->turn_incline(offsetY * sensitivity);
+}
+
+// First constrain to -180, 180
+// Then convert to radians
+float Window::get_cam_angle_radians() {
+	float angle = cam->get_azimuth();
+	while (angle > 180) {
+		angle -= 360;
+	}
+	while (angle < -180) {
+		angle += 360;
+	}
+
+	return glm::radians(angle);
+}
+
+void Window::update_state(GameState& state) {
+	// player positions
+	for(int i = 0; i < state.players.size(); i++) {
+		players[i]->set_world(state.players[i].world);
+	}
+	// TODO: Update other fields - student, etc
 }

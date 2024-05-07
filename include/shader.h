@@ -3,7 +3,7 @@
 // Shader from learnOpenGL: https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/shader_s.h
 // https://learnopengl.com/Getting-started/Shaders
 
-#include <glad/glad.h>
+#include "glad/glad.h"
 
 #include <string>
 #include <fstream>

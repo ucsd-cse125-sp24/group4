@@ -1,52 +1,57 @@
+#include <chrono>
 #include "../include/server_core.h"
 
-ServerCore::ServerCore() : running(false) {}
+#define TICK_MICROSECS 20000 // this gives 50 fps (fps = 1M / TICK_US)
+
+ServerCore::ServerCore() {
+    this->running = false;
+    for (short i = 0; i < MAX_CLIENTS; i++) // setup available ids to include 1-n
+        this->available_ids.push(i);
+}
 
 ServerCore::~ServerCore()
 {
     shutdown();
 }
 
-void ServerCore::initialize()
-{
+void ServerCore::listen() {
     // Initialize network components, game state, graphics, etc.
-    printf("initializing\n");
-
-    while (server.get_num_clients() < NUM_CLIENTS)
-        server.sock_listen();
-
+    server.sock_listen();
+    //maybe display some waiting for players screen?
+    for (int i = int(this->clients_data.size()); i < server.get_num_clients(); i++) {
+        // for each new connected client, initialize ClientData
+        this->accept_new_clients(i);
+    }
     running = true;
 }
 
-void ServerCore::run()
-{
-    int prev = 0;
-    while (isRunning())
-    {
+void ServerCore::run() {
+    running = true;
+    while (isRunning()) {
+        auto start = std::chrono::high_resolution_clock::now();
+
         while (server.get_num_clients() < NUM_CLIENTS)
         {
-            prev = server.get_num_clients();
-            server.sock_listen();
-            // maybe display some waiting for players screen?
-            if (server.get_num_clients() > prev)
-            { // for each new connected client, initialize ClientData
-                this->accept_new_clients();
-                printf("server connection %i\n", server.get_num_clients());
-            }
+            this->listen();
         }
+        this->listen(); // comment to disallow joining mid-game
         receive_data();
-        // process_input(); Moved to receive_data - called per packet
         update_game_state();
         send_updates();
+        
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration_us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+        while (duration_us.count() < TICK_MICROSECS) {
+            stop = std::chrono::high_resolution_clock::now();
+            duration_us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+        }
     }
 }
 
 void ServerCore::shutdown()
 {
-    for (ClientData client : clients_data)
-    {
-        server.close_client(client.sock);
-    }
+    for (ClientData* c : clients_data)
+        free(c);
     clients_data.clear(); // Clear the client data vector
     server.sock_shutdown();
     running = false;
@@ -62,20 +67,22 @@ void ServerCore::receive_data()
     fd_set readFdSet;
     FD_ZERO(&readFdSet);
     timeval timeout;
-    timeout.tv_sec = CONNECT_TIMEOUT;
-    timeout.tv_usec = 0;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 10;
 
-    for (ClientData client : clients_data)
+    InputPacket packet;
+    char *buf;
+
+    for (ClientData* client : clients_data)
     {
-        FD_SET(client.sock, &readFdSet);
+        FD_SET(client->sock, &readFdSet);
         if (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0)
         {
-            char *buf = server.sock_receive(client.sock);
-            if (buf)
+            buf = server.sock_receive(client->sock);
+            if (buf && buf[0])
             {
-                InputPacket packet;
                 InputPacket::deserialize(buf, packet);
-                process_input(packet);
+                process_input(packet, client->id);
 
                 // Print for testing
                 printf("\nEvents: ");
@@ -88,9 +95,9 @@ void ServerCore::receive_data()
     }
 }
 
-void ServerCore::process_input(InputPacket packet) {
+void ServerCore::process_input(InputPacket packet, short id) {
     // For now operate on first player by default. TODO: Identify by socket num? Client ID?
-    glm::mat4 world = serverState.players[0].world;
+    glm::mat4 world = serverState.players[id].world;
 
     float SCALE = 0.05f; // TODO: Define this somewhere else. Maybe in a constants folder?
 
@@ -119,7 +126,7 @@ void ServerCore::process_input(InputPacket packet) {
 
     }
 
-    serverState.players[0].world = world;
+    serverState.players[id].world = world;
 }
 
 void ServerCore::update_game_state() {
@@ -151,10 +158,13 @@ void ServerCore::send_updates()
     char *buffer = new char[bufferSize];
     GameStatePacket::serialize(packet, buffer);
 
-    for (auto i = 0; i < clients_data.size(); i++) {
-        bool send_success = server.sock_send(clients_data[i].sock, bufferSize, buffer);
+    for (auto i = 0; i < (int)clients_data.size(); i++) {
+        bool send_success = server.sock_send(clients_data[i]->sock, (int)bufferSize, buffer);
         // if client shutdown, tear down this client/player
-        if (!send_success) {                                                                           
+        if (!send_success) {
+            this->available_ids.push(clients_data[i]->id); // reclaim id as available
+            server.close_client(clients_data[i]->sock);
+            free(clients_data[i]);
             clients_data.erase(clients_data.begin() + i);
             serverState.players.erase(serverState.players.begin() + i);
             i--;
@@ -164,11 +174,21 @@ void ServerCore::send_updates()
     delete[] buffer;
 }
 
-void ServerCore::accept_new_clients()
-{
-    SOCKET clientSock = server.get_client_sock(0);
-    ClientData client;
-    client.sock = clientSock;
+void ServerCore::accept_new_clients(int i) {
+    SOCKET clientSock = server.get_client_sock(i);
+    ClientData* client = new ClientData;
+    client->sock = clientSock;
+    client->id = this->available_ids.front(); // assign next avail id to client
+    char* buffer = new char[sizeof(short)];
+    *((short*)buffer) = client->id + 1; // add 1 bc we can't send 0 (null); clientcore subs 1 to correct
+    bool send_success = server.sock_send(client->sock, sizeof(short), buffer);
+    if (!send_success) {
+        server.close_client(clientSock); // abort conn
+        free(client);
+        return;
+    }
+    delete[] buffer;
+    this->available_ids.pop(); // on success, id is no longer available, client is added
     clients_data.push_back(client);
 
     PlayerState p_state;

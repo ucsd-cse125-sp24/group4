@@ -10,15 +10,25 @@ ClientCore::~ClientCore()
 
 void ClientCore::initialize()
 {
-    // Initialize graphics, connect client
-    printf("initializing client\n");
+    while (!client.is_connected()) {
+        client.connect_to_server();
+    }
+    
+    // recv id from server
+    char* buffer = client.sock_receive();
+    while (!buffer || !buffer[0]){
+        buffer = client.sock_receive();
+    }
+    this->id = *((short*)buffer) - 1;
+    connected = true;
+    printf("client connected with id %d\n", this->id);
 
     // Initialize graphics
-    window = Graphics::set_up_window();
+    window = Graphics::set_up_window(this->id);
+}
 
-    while (client.is_connected() == false)
-        ;
-    connected = true;
+bool ClientCore::is_connected() {
+    return connected;
 }
 
 void ClientCore::shutdown()
@@ -31,12 +41,13 @@ void ClientCore::shutdown()
 
 void ClientCore::run()
 {
+    return;
     while (connected)
     {
-        send_input();
         receive_updates();
         process_server_data();
         renderGameState();
+        send_input(); // moving to bottom bc only send can shutdown
     }
 }
 
@@ -45,66 +56,75 @@ void ClientCore::send_input()
     InputPacket packet;/*
     packet.events.push_back(0);
     packet.events.push_back(1);*/
-    packet.cam_angle = 0.0f;
+    packet.cam_angle = Window::get_cam_angle_radians();
     // TODO: Get events and push it into packet
     std::vector<int> tmp = Window::get_input_actions();
     for (int event : tmp)
         packet.events.push_back(event);
 
     // TODO: Get cam_angle and push it to packet - Camera controls need to be implemented first
+ 
+    if (glfwWindowShouldClose(window)) {
+        shutdown();
+        return;
+    }
 
     size_t bufferSize = packet.calculateSize();
     char *buffer = new char[bufferSize];
 
     InputPacket::serialize(packet, buffer);
-    if (!client.sock_send(bufferSize, buffer)) {
-        delete[] buffer;
+    if (!client.sock_send((int)bufferSize, buffer)) {
         shutdown();
     }
 
     delete[] buffer;
 }
 
-void ClientCore::receive_updates()
-{
-    // Receive data from the server
-    char *received_data = client.sock_receive();
+void ClientCore::receive_updates() {
+    fd_set readFdSet;
+    FD_ZERO(&readFdSet);
+    timeval timeout;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 10;
 
+    char * received_data;
     GameStatePacket packet;
-    GameStatePacket::deserialize(received_data, packet);
-    clientState = packet.state;
-}
 
+    FD_SET(client.conn_sock, &readFdSet);
+    while (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0) {
+        received_data = client.sock_receive();
+        if (received_data && received_data[0]){
+            GameStatePacket::deserialize(received_data, packet);
+            clientState = packet.state;
+            //server_updates.messages.push_back(received_data);
+            printf("client got \"%s\" from server\n", received_data);
+        }
+    }
+}
 void ClientCore::process_server_data() {
-    // Only update the single cube for now.
-    // TODO: Extend to multiple objects (students, players, etc.) - need a Scene class for that.
-    
-    // TODO: Take the ClientState World and slap it into the cube
+
+    // Processed in Window
+    Window::update_state(clientState);
 }
 
 void ClientCore::renderGameState()
 {
-    // Print
     printf("\n\n");
-    std::cout << "Level: " << clientState.level << std::endl;
-    std::cout << "Players:" << std::endl;
-    for (const auto &player : clientState.players)
-    {
-
-        Window::cube->set_world(player.world);
-        // Print player world matrix
-        for (int i = 0; i < 4; i++)
-        {
-            for (int j = 0; j < 4; j++)
-            {
-				std::cout << player.world[i][j] << " ";
-			}
-			std::cout << std::endl;
-		}
-        std::cout << "  Score: " << player.score << std::endl;
-        
-        std::cout.flush();
-    }
+  //  std::cout << "Level: " << clientState.level << std::endl;
+  //  std::cout << "Players:" << std::endl;
+  //  for (const auto &player : clientState.players)
+  //  {
+  //      // Print player world matrix
+  //      for (int i = 0; i < 4; i++)
+  //      {
+  //          for (int j = 0; j < 4; j++)
+  //          {
+		//		std::cout << player.world[i][j] << " ";
+		//	}
+		//	std::cout << std::endl;
+		//}
+  //      std::cout << "  Score: " << player.score << std::endl;
+  //  }
 
     // Don't need students rn...
     //std::cout << "Students:" << std::endl;

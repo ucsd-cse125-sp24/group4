@@ -23,8 +23,14 @@ public:
     void update(glm::mat4 target);
     // Do I need a reset?
 
+    // Polar controls
+    // TODO ZOOM?
+    void turn_azimuth(float angle) { azimuth -= angle; } // Also inverted
+    void turn_incline(float angle) { incline -= angle; if (incline < 0) incline = 0; if (incline > 90) incline = 90; std::cout << "incline: " << incline; } // Inverted
+
     // Getters and setters
     void set_aspect(float a) { aspect = a; }
+	float get_azimuth() { return azimuth; }
     glm::mat4 get_view_project_mtx() { return view_project_mtx; }
 
 private:
