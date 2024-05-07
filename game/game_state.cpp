@@ -32,26 +32,24 @@ void GameState::movePlayer(int playerId, int event, float orientation)
     // Move player in the direction
 }
 
-void GameState::moveStudent(StudentState &student)
+void GameState::moveStudent(StudentState &student, const float stepSize, const float totalDistance)
 {
-    const float stepSize = 1.0f; // Assume 1 step at a time
-    const float totalDistance = 5.0f; // Assume each side of the square is 5
 
     glm::vec3 step(0.0f);
     glm::vec3 currentPos = glm::vec3(student.world[3]);
 
     switch (student.currentDir)
     {
-    case 0: // Moving up (decrement z)
+    case StudentState::Direction::NORTH: // decrement z
         step = glm::vec3(0.0f, 0.0f, -stepSize);
         break;
-    case 1: // Moving right (increment x)
+    case StudentState::Direction::EAST: // increment x
         step = glm::vec3(stepSize, 0.0f, 0.0f);
         break;
-    case 2: // Moving down (increment z)
+    case StudentState::Direction::SOUTH: // increment z
         step = glm::vec3(0.0f, 0.0f, stepSize);
         break;
-    case 3: // Moving left (decrement x)
+    case StudentState::Direction::WEST: // decrement x
         step = glm::vec3(-stepSize, 0.0f, 0.0f);
         break;
     }
@@ -62,7 +60,7 @@ void GameState::moveStudent(StudentState &student)
     if (student.distanceMoved >= totalDistance)
     {
         student.distanceMoved = 0.0f;
-        student.currentDir = (student.currentDir + 1) % 4; // Change to next direction
+        student.currentDir = static_cast<StudentState::Direction>((static_cast<int>(student.currentDir) + 1) % 4); // Change to next direction
 
         // Perform rotation
         glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 0, 1));

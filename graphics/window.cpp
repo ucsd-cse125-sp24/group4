@@ -11,7 +11,6 @@ float Window::lastX = 400, Window::lastY = 300; // TODO: change if resolution ch
 
 // TODO: Remove cubes?
 std::vector<Drawable*> Window::players;
-std::vector<Drawable*> Window::students;
 
 short Window::player_id = 0; // 0 by default
 
@@ -111,10 +110,6 @@ void Window::setup_scene() {
 	players.push_back(cube4);
 
 
-	Cube* cube5 = new Cube();
-	cube5->set_color(glm::vec3(1, 1, 1));
-	students.push_back(cube5);
-
 	// TODO: Move to callback -- Do I need to center here...
 	//cam->update(cube->get_world());
 }
@@ -126,10 +121,6 @@ void Window::clean_up() {
 
 	for(Drawable* player : players) {
 		delete player;
-	}
-
-	for(Drawable* student : students) {
-		delete student;
 	}
 
 	// Delete the shader program
@@ -164,9 +155,6 @@ void Window::display_callback(GLFWwindow* window) {
 		player->draw(cam->get_view_project_mtx(), shader_program);
 	}
 
-	for(Drawable* student : students) {
-		student->draw(cam->get_view_project_mtx(), shader_program);
-	}
 
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
@@ -233,7 +221,4 @@ void Window::update_state(GameState& state) {
 		players[i]->set_world(state.players[i].world);
 	}
 	// TODO: Update other fields - student, etc
-	for(int i = 0; i < state.students.size(); i++) {
-		students[i]->set_world(state.students[i].world);
-	}
 }
