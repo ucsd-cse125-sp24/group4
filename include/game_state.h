@@ -13,15 +13,14 @@ struct PlayerState {
 
 struct StudentState {
     enum Direction {
-        NORTH = 0,
-        EAST = 1,
-        SOUTH = 2,
-        WEST = 3
+        NORTH,
+        EAST,
+        SOUTH,
+        WEST
     };
 
     glm::mat4 world;
     Direction currentDir;
-    int orientation;
     float distanceMoved;
 };
 
