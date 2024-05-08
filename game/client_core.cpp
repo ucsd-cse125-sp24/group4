@@ -41,7 +41,6 @@ void ClientCore::shutdown()
 
 void ClientCore::run()
 {
-    return;
     while (connected)
     {
         receive_updates();
