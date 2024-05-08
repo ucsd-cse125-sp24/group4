@@ -3,7 +3,7 @@
 #include "packet.h"
 
 enum ServerState {
-  UNUSED, // ignore 0 since it's difficult to send null
+  UNUSED_SS, // ignore 0 since it's difficult to send null
   LOBBY,
   MAIN_LOOP,
   END_WIN,

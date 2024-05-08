@@ -1,7 +1,7 @@
 #pragma once
 
 enum PacketType {
-    UNUSED, // problems sending null input (enum evaluates to 0), so just skip it
+    UNUSED_P, // problems sending null input (enum evaluates to 0), so just skip it
     PLAYER_INPUT,
     GAME_STATE,
     SERVER_HEARTBEAT
