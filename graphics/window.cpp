@@ -9,11 +9,10 @@ Input* Window::input = nullptr;
 // Mouse
 float Window::lastX = 400, Window::lastY = 300; // TODO: change if resolution changes
 
-// TODO: Replace with Scene later
-Cube* Window::cube = nullptr;
-Cube* cube2 = nullptr;
+// TODO: Remove cubes?
+std::vector<Drawable*> Window::players;
 
-int Window::player_id = 0; // 0 by default
+short Window::player_id = 0; // 0 by default
 
 // Camera
 Camera* Window::cam;
@@ -92,19 +91,37 @@ void Window::setup_callbacks(GLFWwindow* window) {
 }
 
 void Window::setup_scene() {
-	cube = new Cube();
-	cube2 = new Cube();
-	cube2->set_color(glm::vec3(1, 0, 0));
+	// Populate players
+	Cube* cube = new Cube(); // p1 - yellow
+	players.push_back(cube);
 
-	cam->update(cube->get_world());
+	Cube* cube2 = new Cube();
+	cube2->set_color(glm::vec3(1, 0, 0)); // p2 - red
+	players.push_back(cube2);
+
+	// p3 - green
+	Cube* cube3 = new Cube();
+	cube3->set_color(glm::vec3(0, 1, 0));
+	players.push_back(cube3);
+
+	// p4 - blue
+	Cube* cube4 = new Cube();
+	cube4->set_color(glm::vec3(0, 0, 1));
+	players.push_back(cube4);
+
+
+	// TODO: Move to callback -- Do I need to center here...
+	//cam->update(cube->get_world());
 }
 
 void Window::clean_up() {
 	// Deallcoate the objects
-	delete cube;
-	delete cube2;
 	delete cam;
 	delete input;
+
+	for(Drawable* player : players) {
+		delete player;
+	}
 
 	// Delete the shader program
 	delete shader_program;
@@ -131,10 +148,12 @@ void Window::display_callback(GLFWwindow* window) {
 
 	// TODO: Render any objects you need to here
 	// TODO: First set the camera to the right location
-	cam->update(cube->get_world());
+	std::cout << "I am player " << player_id << std::endl;
+	cam->update(players[player_id]->get_world());
 
-	cube->draw(cam->get_view_project_mtx(), shader_program);
-	cube2->draw(cam->get_view_project_mtx(), shader_program);
+	for(Drawable* player : players) {
+		player->draw(cam->get_view_project_mtx(), shader_program);
+	}
 
 
 	// Gets events, including input such as keyboard and mouse or window resizing
@@ -142,7 +161,6 @@ void Window::display_callback(GLFWwindow* window) {
 
 	// Swap buffers
 	glfwSwapBuffers(window);
-
 }
 
 void Window::idle_callback() {
@@ -195,4 +213,12 @@ float Window::get_cam_angle_radians() {
 	}
 
 	return glm::radians(angle);
+}
+
+void Window::update_state(GameState& state) {
+	// player positions
+	for(int i = 0; i < state.players.size(); i++) {
+		players[i]->set_world(state.players[i].world);
+	}
+	// TODO: Update other fields - student, etc
 }

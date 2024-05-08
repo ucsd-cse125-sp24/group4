@@ -119,33 +119,29 @@ void ClientCore::receive_updates() {
     }
 }
 void ClientCore::process_server_data() {
-    // Only update the single cube for now.
-    // TODO: Extend to multiple objects (students, players, etc.) - need a Scene class for that.
-    
-    // TODO: Take the ClientState World and slap it into the cube
+
+    // Processed in Window
+    Window::update_state(world_state);
 }
 
 void ClientCore::renderGameState()
 {
-    // Print
-    // printf("\n\n");
-    // std::cout << "Level: " << world_state.level << std::endl;
-    // std::cout << "Players:" << std::endl;
-    for (const auto &player : world_state.players)
-    {
-
-        Window::cube->set_world(player.world);
-        // Print player world matrix
-        for (int i = 0; i < 4; i++)
-        {
-            for (int j = 0; j < 4; j++)
-            {
-				//std::cout << player.world[i][j] << " ";
-			}
-			//std::cout << std::endl;
-		}
-        //std::cout << "  Score: " << player.score << std::endl;
-    }
+    printf("\n\n");
+  //  std::cout << "Level: " << clientState.level << std::endl;
+  //  std::cout << "Players:" << std::endl;
+  //  for (const auto &player : clientState.players)
+  //  {
+  //      // Print player world matrix
+  //      for (int i = 0; i < 4; i++)
+  //      {
+  //          for (int j = 0; j < 4; j++)
+  //          {
+		//		std::cout << player.world[i][j] << " ";
+		//	}
+		//	std::cout << std::endl;
+		//}
+  //      std::cout << "  Score: " << player.score << std::endl;
+  //  }
 
     // Don't need students rn...
     //std::cout << "Students:" << std::endl;

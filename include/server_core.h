@@ -42,7 +42,7 @@ class ServerCore {
         bool isRunning() const;         // Check if the server is running
 
         void receive_data();            // Receive data from clients
-        void process_input(InputPacket packet);           // Process inputs
+        void process_input(InputPacket packet, short id);           // Process inputs
         void update_game_state();       // Update the game state
         void send_updates();            // Send updates to clients
         void accept_new_clients(int i);

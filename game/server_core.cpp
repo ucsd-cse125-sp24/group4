@@ -102,7 +102,7 @@ void ServerCore::receive_data()
 
                     case PLAYER_INPUT:
                         InputPacket::deserialize(buf, packet);
-                        process_input(packet);
+                        process_input(packet, client->id);
                         // Print for testing
                         printf("\nEvents: ");
                         for (const auto &event : packet.events)
@@ -119,9 +119,9 @@ void ServerCore::receive_data()
     }
 }
 
-void ServerCore::process_input(InputPacket packet) {
+void ServerCore::process_input(InputPacket packet, short id) {
     // For now operate on first player by default. TODO: Identify by socket num? Client ID?
-    glm::mat4 world = serverState.players[0].world;
+    glm::mat4 world = serverState.players[id].world;
 
     float SCALE = 0.05f; // TODO: Define this somewhere else. Maybe in a constants folder?
 
@@ -150,7 +150,7 @@ void ServerCore::process_input(InputPacket packet) {
 
     }
 
-    serverState.players[0].world = world;
+    serverState.players[id].world = world;
 }
 
 void ServerCore::update_game_state() {
@@ -200,7 +200,7 @@ void ServerCore::accept_new_clients(int i) {
     client->sock = clientSock;
     client->id = this->available_ids.front(); // assign next avail id to client
     char* buffer = new char[sizeof(short)];
-    *((short*)buffer) = client->id + 1;
+    *((short*)buffer) = client->id + 1; // add 1 bc we can't send 0 (null); clientcore subs 1 to correct
     bool send_success = server.sock_send(client->sock, sizeof(short), buffer);
     if (!send_success) {
         server.close_client(clientSock); // abort conn
