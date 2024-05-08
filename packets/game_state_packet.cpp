@@ -1,14 +1,14 @@
-#include "../include/game_state_packet.h"
+#include "../include/packets/game_state_packet.h"
 #include <cstring>
 
 size_t GameStatePacket::calculateSize() const
 {
     size_t totalSize = 0;
 
-    // To store the number of players
-    totalSize += sizeof(size_t);
-    // Each player's size: 16 floats for world matrix, 1 int for score
-    totalSize += state.players.size() * (sizeof(float) * 16 + sizeof(int));
+    totalSize += sizeof(PacketType); // store packet type
+
+    totalSize += sizeof(size_t);  // To store the number of players
+    totalSize += state.players.size() * (sizeof(float) * 16 + sizeof(int)); // Each player's size: 16 floats for world matrix, 1 int for score
 
     // To store the number of students
     totalSize += sizeof(size_t);
@@ -22,9 +22,13 @@ size_t GameStatePacket::calculateSize() const
 }
 
 // Ensure outData is large enough to store all the data that is intended to be serialized.
-void GameStatePacket::serialize(const GameStatePacket &packet, char *&outData)
-{
-    char *temp = outData;
+void GameStatePacket::serialize(const GameStatePacket& packet, char*& outData) {
+    char* temp = outData;
+    
+    // serialize packet type
+    PacketType type = GAME_STATE;
+    memcpy(temp, &type, sizeof(type));
+    temp += sizeof(type);
 
     // Serialize number of players
     size_t numPlayers = packet.state.players.size();
@@ -76,8 +80,10 @@ void GameStatePacket::serialize(const GameStatePacket &packet, char *&outData)
     temp += sizeof(packet.state.level);
 }
 
-void GameStatePacket::deserialize(const char *inData, GameStatePacket &packet)
-{
+void GameStatePacket::deserialize(const char* inData, GameStatePacket& packet) {
+    // skip packet type; we know it's GAME_STATE if we're calling this
+    inData += sizeof(PacketType);
+
     // Deserialize number of players
     size_t numPlayers;
     memcpy(&numPlayers, inData, sizeof(numPlayers));

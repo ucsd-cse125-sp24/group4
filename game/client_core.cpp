@@ -1,7 +1,10 @@
 #include "../include/client_core.h"
 #include <iostream>
 
-ClientCore::ClientCore() : connected(false) {}
+ClientCore::ClientCore() {
+    this->connected = false;
+    this->server_state = LOBBY;
+}
 
 ClientCore::~ClientCore()
 {
@@ -41,7 +44,10 @@ void ClientCore::shutdown()
 
 void ClientCore::run()
 {
-    while (connected)
+    while (false) { // eventually: while this->server_state == LOBBY
+        receive_updates();
+    }
+    while (connected) // && state == MAIN_LOOP ?
     {
         receive_updates();
         process_server_data();
@@ -87,15 +93,27 @@ void ClientCore::receive_updates() {
     timeout.tv_usec = 10;
 
     char * received_data;
+    ServerHeartbeatPacket hb;
     GameStatePacket packet;
 
     FD_SET(client.conn_sock, &readFdSet);
     while (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0) {
         received_data = client.sock_receive();
         if (received_data && received_data[0]){
-            GameStatePacket::deserialize(received_data, packet);
-            clientState = packet.state;
-            //server_updates.messages.push_back(received_data);
+            PacketType type = Packet::get_packet_type(received_data);
+            switch(type) {
+                case SERVER_HEARTBEAT:
+                    ServerHeartbeatPacket::deserialize(received_data, hb);
+                    this->server_state = hb.state;
+                    break;
+                case GAME_STATE:
+                    GameStatePacket::deserialize(received_data, packet);
+                    this->world_state = packet.state;
+                    break;
+                default: // shouldn't reach this
+                        printf("Error: unexpected receipt of packet type %d", type);
+            }
+
             printf("client got \"%s\" from server\n", received_data);
         }
     }
@@ -103,7 +121,7 @@ void ClientCore::receive_updates() {
 void ClientCore::process_server_data() {
 
     // Processed in Window
-    Window::update_state(clientState);
+    Window::update_state(world_state);
 }
 
 void ClientCore::renderGameState()

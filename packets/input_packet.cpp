@@ -1,13 +1,25 @@
-#include "../include/input_packet.h"
+#include "../include/packets/input_packet.h"
 #include <cstring>
 
 size_t InputPacket::calculateSize() const {
-    return sizeof(size_t) + sizeof(int) * events.size() + sizeof(float);
+    size_t totalSize = 0;
+    
+    // type, events size, cam angle
+    totalSize += sizeof(PacketType) + sizeof(size_t) + sizeof(float);
+    // events themselves
+    totalSize += sizeof(int) * events.size();
+
+    return totalSize;
 }
 
 // Ensure outData is large enough to store all the data that is intended to be serialized.
 void InputPacket::serialize(const InputPacket& input, char*& outData) {
     char* temp = outData;
+
+    // serialize packet type
+    PacketType type = PLAYER_INPUT;
+    memcpy(temp, &type, sizeof(type));
+    temp += sizeof(type);
     
     // Serialize size of events
     size_t numEvents = input.events.size();
@@ -24,7 +36,8 @@ void InputPacket::serialize(const InputPacket& input, char*& outData) {
 }
 
 void InputPacket::deserialize(const char* inData, InputPacket& input) {
-    const char* temp = inData;
+    // skip packet type; we know it's INPUT if we're calling this
+    const char* temp = inData + sizeof(PacketType);
 
     // Deserialize size of events
     size_t numEvents;
