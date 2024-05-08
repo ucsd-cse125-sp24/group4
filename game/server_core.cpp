@@ -5,6 +5,8 @@
 
 ServerCore::ServerCore() {
     this->running = false;
+    this->ready_players = 0;
+    this->state = LOBBY;
     for (short i = 0; i < MAX_CLIENTS; i++) // setup available ids to include 1-n
         this->available_ids.push(i);
 }
@@ -22,18 +24,25 @@ void ServerCore::listen() {
         // for each new connected client, initialize ClientData
         this->accept_new_clients(i);
     }
+
+    // TODO: update ready_players based on players voting
+    //this->receive_data();
+
     running = true;
 }
 
 void ServerCore::run() {
     running = true;
+
+    while (server.get_num_clients() < NUM_CLIENTS )/*|| 
+          (this->ready_players < server.get_num_clients() && this->ready_players < 1))*/ {
+            this->listen();
+    }
+    this->state = MAIN_LOOP;
+
     while (isRunning()) {
         auto start = std::chrono::high_resolution_clock::now();
 
-        while (server.get_num_clients() < NUM_CLIENTS)
-        {
-            this->listen();
-        }
         this->listen(); // comment to disallow joining mid-game
         receive_data();
         update_game_state();
@@ -46,6 +55,8 @@ void ServerCore::run() {
             duration_us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
         }
     }
+
+    this->state = END_WIN; // future todo to implement logic handling win and lose states
 }
 
 void ServerCore::shutdown()
@@ -81,15 +92,28 @@ void ServerCore::receive_data()
             buf = server.sock_receive(client->sock);
             if (buf && buf[0])
             {
-                InputPacket::deserialize(buf, packet);
-                process_input(packet);
+                PacketType type = Packet::get_packet_type(buf);
+                switch(type) {
+                    // handle diff kinds of packets in diff ways depending on game state
+                    case SERVER_HEARTBEAT: // players voting to start
+                        // expect to deserialize a vote or smth
+                        this->ready_players += 1; // add or subtract ready_players based on vote or rescind vote msgs
+                        break;
 
-                // Print for testing
-                printf("\nEvents: ");
-                for (const auto &event : packet.events)
-                    printf("%d ", event);
-                printf("\n");
-                printf("Camera angle: %f\n\n", packet.cam_angle);
+                    case PLAYER_INPUT:
+                        InputPacket::deserialize(buf, packet);
+                        process_input(packet);
+                        // Print for testing
+                        printf("\nEvents: ");
+                        for (const auto &event : packet.events)
+                            printf("%d ", event);
+                        printf("\n");
+                        printf("Camera angle: %f\n\n", packet.cam_angle);
+                        break;
+
+                    default: // shouldn't reach this
+                        printf("Error: unexpected receipt of packet type %d", type);
+                }   
             }
         }
     }
@@ -176,7 +200,7 @@ void ServerCore::accept_new_clients(int i) {
     client->sock = clientSock;
     client->id = this->available_ids.front(); // assign next avail id to client
     char* buffer = new char[sizeof(short)];
-    *((short*)buffer) = client->id;
+    *((short*)buffer) = client->id + 1;
     bool send_success = server.sock_send(client->sock, sizeof(short), buffer);
     if (!send_success) {
         server.close_client(clientSock); // abort conn

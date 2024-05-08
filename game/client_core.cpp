@@ -1,7 +1,10 @@
 #include "../include/client_core.h"
 #include <iostream>
 
-ClientCore::ClientCore() : connected(false) {}
+ClientCore::ClientCore() {
+    this->connected = false;
+    this->server_state = LOBBY;
+}
 
 ClientCore::~ClientCore()
 {
@@ -19,7 +22,7 @@ void ClientCore::initialize()
     while (!buffer || !buffer[0]){
         buffer = client.sock_receive();
     }
-    this->id = *((short*)buffer);
+    this->id = *((short*)buffer) - 1;
     connected = true;
     printf("client connected with id %d\n", this->id);
 
@@ -41,7 +44,10 @@ void ClientCore::shutdown()
 
 void ClientCore::run()
 {
-    while (connected)
+    while (false) { // eventually: while this->server_state == LOBBY
+        receive_updates();
+    }
+    while (connected) // && state == MAIN_LOOP ?
     {
         receive_updates();
         process_server_data();
@@ -87,15 +93,27 @@ void ClientCore::receive_updates() {
     timeout.tv_usec = 10;
 
     char * received_data;
+    ServerHeartbeatPacket hb;
     GameStatePacket packet;
 
     FD_SET(client.conn_sock, &readFdSet);
     while (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0) {
         received_data = client.sock_receive();
         if (received_data && received_data[0]){
-            GameStatePacket::deserialize(received_data, packet);
-            clientState = packet.state;
-            //server_updates.messages.push_back(received_data);
+            PacketType type = Packet::get_packet_type(received_data);
+            switch(type) {
+                case SERVER_HEARTBEAT:
+                    ServerHeartbeatPacket::deserialize(received_data, hb);
+                    this->server_state = hb.state;
+                    break;
+                case GAME_STATE:
+                    GameStatePacket::deserialize(received_data, packet);
+                    this->world_state = packet.state;
+                    break;
+                default: // shouldn't reach this
+                        printf("Error: unexpected receipt of packet type %d", type);
+            }
+
             printf("client got \"%s\" from server\n", received_data);
         }
     }
@@ -110,10 +128,10 @@ void ClientCore::process_server_data() {
 void ClientCore::renderGameState()
 {
     // Print
-    printf("\n\n");
-    std::cout << "Level: " << clientState.level << std::endl;
-    std::cout << "Players:" << std::endl;
-    for (const auto &player : clientState.players)
+    // printf("\n\n");
+    // std::cout << "Level: " << world_state.level << std::endl;
+    // std::cout << "Players:" << std::endl;
+    for (const auto &player : world_state.players)
     {
 
         Window::cube->set_world(player.world);
@@ -122,11 +140,11 @@ void ClientCore::renderGameState()
         {
             for (int j = 0; j < 4; j++)
             {
-				std::cout << player.world[i][j] << " ";
+				//std::cout << player.world[i][j] << " ";
 			}
-			std::cout << std::endl;
+			//std::cout << std::endl;
 		}
-        std::cout << "  Score: " << player.score << std::endl;
+        //std::cout << "  Score: " << player.score << std::endl;
     }
 
     // Don't need students rn...

@@ -2,7 +2,7 @@
 #include <vector>
 #include <cstring> 
 #include <cassert>
-#include "../include/game_state_packet.h" 
+#include "../include/packets/game_state_packet.h" 
 
 void setupGameStatePacket(GameStatePacket& packet) {
     // Initialize player states

@@ -1,9 +1,10 @@
 #pragma once
 #include <cstddef>
 #include <vector>
-#include "../include/game_state.h"
+#include "../game_state.h"
+#include "packet.h"
 
-struct GameStatePacket {
+struct GameStatePacket : public Packet {
     GameState state; 
 
     size_t calculateSize() const;

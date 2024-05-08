@@ -1,8 +1,9 @@
 #pragma once
 #include <cstddef>
 #include <vector>
+#include "packet.h"
 
-struct InputPacket {
+struct InputPacket : public Packet {
     std::vector<int> events;
     float cam_angle;
 

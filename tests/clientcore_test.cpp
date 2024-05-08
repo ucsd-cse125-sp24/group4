@@ -64,23 +64,23 @@ int test_receive() {
 
     // confirm receipt from server
     cc.receive_updates();
-    if (cc.clientState.level != packet.state.level ||
-        cc.clientState.players.size() != packet.state.players.size() ||
-        cc.clientState.students.size() != packet.state.students.size()) {
+    if (cc.world_state.level != packet.state.level ||
+        cc.world_state.players.size() != packet.state.players.size() ||
+        cc.world_state.students.size() != packet.state.students.size()) {
         cc.shutdown();
         server.sock_shutdown();
         return 1;
     }
-    for (int i = 0; i < cc.clientState.players.size(); i++) {
-        if (cc.clientState.players[i].world != packet.state.players[i].world ||
-            cc.clientState.players[i].score != packet.state.players[i].score) {
+    for (int i = 0; i < cc.world_state.players.size(); i++) {
+        if (cc.world_state.players[i].world != packet.state.players[i].world ||
+            cc.world_state.players[i].score != packet.state.players[i].score) {
             cc.shutdown();
             server.sock_shutdown();
             return 1;
         }
     }
-    for (int i = 0; i < cc.clientState.students.size(); i++) {
-        if (cc.clientState.students[i].world != packet.state.students[i].world) {
+    for (int i = 0; i < cc.world_state.students.size(); i++) {
+        if (cc.world_state.students[i].world != packet.state.students[i].world) {
             cc.shutdown();
             server.sock_shutdown();
             return 1;

@@ -171,10 +171,10 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 }
 
 void Window::mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-	float offsetX = xpos - lastX;
-	float offsetY = lastY - ypos; // Reversed since y-coordinates range from bottom to top
-	lastX = xpos;
-	lastY = ypos;
+	float offsetX = (float)(xpos - lastX);
+	float offsetY = (float)(lastY - ypos); // Reversed since y-coordinates range from bottom to top
+	lastX = (float)xpos;
+	lastY = (float)ypos;
 
 	float sensitivity = 0.1f; // TODO set this somewhere
 	
