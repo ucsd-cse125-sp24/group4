@@ -8,7 +8,7 @@ ServerCore::ServerCore() {
     this->running = false;
     this->ready_players = 0;
     this->state = LOBBY;
-    for (short i = 0; i < MAX_CLIENTS; i++) // setup available ids to include 1-n
+    for (short i = 0; i < MAX_CLIENTS; i++) // set up available ids to include [0, n)
         this->available_ids.push_back(i);
     std::sort(this->available_ids.begin(), this->available_ids.end());
 }
@@ -123,8 +123,15 @@ void ServerCore::receive_data()
 }
 
 void ServerCore::process_input(InputPacket packet, short id) {
-    // For now operate on first player by default. TODO: Identify by socket num? Client ID?
-    glm::mat4 world = serverState.players[id].world;
+    // Find player by id, not index (for loop kinda clunky but it works for now :p)
+    glm::mat4 world = NULL;
+    short i;
+    for (i = 0; i < serverState.players.size(); i++) {
+        if (clients_data[i]->id == id) { // assumes clients are ordered the same in clients_data & serverState T.T
+            world = serverState.players[i].world;
+            break;
+        }
+    }
 
     float SCALE = 0.05f; // TODO: Define this somewhere else. Maybe in a constants folder?
 
@@ -150,10 +157,9 @@ void ServerCore::process_input(InputPacket packet, short id) {
         dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
 
         world = glm::translate(world, dir * SCALE);
-
     }
 
-    serverState.players[id].world = world;
+    serverState.players[i].world = world;
 }
 
 void ServerCore::update_game_state() {
