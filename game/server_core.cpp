@@ -173,8 +173,8 @@ void ServerCore::update_game_state() {
         float deltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(now - s.lastUpdate).count();
         s.timeSinceLastUpdate += deltaTime;
 
-        if (s.timeSinceLastUpdate >= 1.0f) {  // Check if 1 second has passed
-            serverState.moveStudent(s,1.0f,5.0f);      // Move student
+        if (s.timeSinceLastUpdate >= 0.1f) {  // Check if 1 second has passed
+            serverState.moveStudent(s, serverState.players, 0.1f, 5.0f);      // Move student
             s.timeSinceLastUpdate = 0.0f;    // Reset the timer
         }
 

@@ -22,9 +22,11 @@ struct StudentState {
 
     glm::mat4 world;
     Direction currentDir;
+    float rotating; // if rotating > 0 means the object is in phase for rotation. rotating = [0,1]
     float distanceMoved;
     float timeSinceLastUpdate; // Time since last update
     std::chrono::high_resolution_clock::time_point lastUpdate; // Time point of last update
+    bool chasingPlayer;
 
     StudentState() : timeSinceLastUpdate(0.0f) {
         world = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
@@ -42,6 +44,6 @@ struct GameState {
     
     void updateScores();
     void movePlayer(int playerId, int event, float orientation);
-    void moveStudent(StudentState& student, const float stepSize, const float totalDistance);
+    void moveStudent(StudentState& student, std::vector<PlayerState> players, const float stepSize, const float totalDistance);
 
 };
