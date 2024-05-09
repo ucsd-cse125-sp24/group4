@@ -123,6 +123,8 @@ void ServerCore::process_input(InputPacket packet, int packet_id) {
             dir = glm::vec3(1.0f, 0.0f, 0.0f);
             break;
         }
+        playerObject->minBound += dir;
+        playerObject->maxBound += dir;
         pWorld.step();
         // Rotate dir by camera angle
         dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
@@ -205,6 +207,9 @@ void ServerCore::accept_new_clients(int i) {
     newPlayerObject->position = glm::vec3(0.0f, 0.0f, 0.0f);
     newPlayerObject->mass = 10;
     newPlayerObject->playerId = client->id;
+    newPlayerObject->world = p_state.world;
+    newPlayerObject->minBound = glm::vec3(-1, -1, -1);
+    newPlayerObject->maxBound = glm::vec3(1, 1, 1);
     
     pWorld.addObject(newPlayerObject);
     pWorld.addPlayer(newPlayerObject);

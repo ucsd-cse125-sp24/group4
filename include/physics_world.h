@@ -18,4 +18,5 @@ class PhysicsWorld {
 		PlayerObject* findPlayer(int id);
 
 		void step();
+		bool hasCollision();
 };

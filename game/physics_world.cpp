@@ -56,6 +56,29 @@ void PhysicsWorld::step()
         //obj->position = glm::vec3(0, 0, 0);
         printf("positions: <%f, %f, %f>\n", obj->position.x, obj->position.y, obj->position.z);
         //obj->force = glm::vec3(0, 0, 0); // reset net force at the end
+
+        // TBD: add a check for y falling below 0, and response
     }
+
+    hasCollision(); // update position and then check for collision?
+    
 }
 
+bool PhysicsWorld::hasCollision() {
+    for (PlayerObject* player : p_objects) {
+        // treat center point as a collision point for now
+        glm::vec3 point(0.0f, 0.0f, 0.0f);
+        glm::vec3 min = player->Cube.getMinCoords();
+        glm::vec3 max = player->Cube.getMaxCoords();
+
+        // check if cube/box colliding with the the point
+        return (
+            point.x >= box.minX &&
+            point.x <= box.maxX &&
+            point.y >= box.minY &&
+            point.y <= box.maxY &&
+            point.z >= box.minZ &&
+            point.z <= box.maxZ
+        );
+    }
+}
