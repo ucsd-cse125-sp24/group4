@@ -1,4 +1,5 @@
 #include "../include/window.h"
+#include <iostream>
 
 int Window::width;
 int Window::height;
@@ -92,8 +93,11 @@ void Window::setup_callbacks(GLFWwindow* window) {
 
 void Window::setup_scene() {
 	// Populate players
+	Model *player = new Model("models/green.fbx");
+	player->set_color(glm::vec3(0, 1, 0));
+
 	Cube* cube = new Cube(); // p1 - yellow
-	players.push_back(cube);
+	players.push_back(player);
 
 	Cube* cube2 = new Cube();
 	cube2->set_color(glm::vec3(1, 0, 0)); // p2 - red

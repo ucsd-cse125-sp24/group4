@@ -15,7 +15,7 @@ link_directories("${PROJECT_SOURCE_DIR}/lib")
 # graphics client contains main for graphics; don't duplicate for other executables
 add_executable(GraphicsTest ${GRAPHICS_SOURCES} "${PROJECT_SOURCE_DIR}/graphics_client.cpp")
 target_include_directories(GraphicsTest PRIVATE "${PROJECT_SOURCE_DIR}/include")
-target_link_libraries(GraphicsTest PRIVATE glfw3)
+target_link_libraries(GraphicsTest PRIVATE glfw3 assimp-vc143-mtd zlibstaticd)
 
 file(COPY ${PROJECT_SOURCE_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -25,7 +25,7 @@ target_link_libraries(server_core PRIVATE server client packets ws2_32)
 
 add_executable(client_core "${PROJECT_SOURCE_DIR}/game/game_logic_client.cpp" "${PROJECT_SOURCE_DIR}/game/client_core.cpp" ${GRAPHICS_SOURCES})
 target_include_directories(client_core PRIVATE "${PROJECT_SOURCE_DIR}/include")
-target_link_libraries(client_core PRIVATE server client packets ws2_32 glfw3)
+target_link_libraries(client_core PRIVATE server client packets ws2_32 glfw3 assimp-vc143-mtd zlibstaticd)
 
 
 # ----- Testing executables and tests below -----
@@ -36,7 +36,7 @@ add_executable(ServerCoreTests tests/servercore_test.cpp "${PROJECT_SOURCE_DIR}/
 target_link_libraries(ServerCoreTests PRIVATE server client packets ws2_32)
 
 add_executable(ClientCoreTests tests/clientcore_test.cpp "${PROJECT_SOURCE_DIR}/game/client_core.cpp" ${GRAPHICS_SOURCES})
-target_link_libraries(ClientCoreTests PRIVATE server client packets ws2_32 glfw3)
+target_link_libraries(ClientCoreTests PRIVATE server client packets ws2_32 glfw3 assimp-vc143-mtd zlibstaticd)
 
 enable_testing()
 
