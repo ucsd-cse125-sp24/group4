@@ -5,7 +5,7 @@
 #include "../include/server.h"
 
 #define NUM_TRIALS 128
-#define MAX_DATA_LENGTH 512
+#define MAX_DATA_LENGTH 64
 #define NUM_CLIENTS 4
 
 // CreateThread doesn't like calling an object's member function;

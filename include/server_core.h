@@ -29,7 +29,7 @@ struct ClientData {
 class ServerCore {
     private:
         ServerState state;
-        std::queue<short> available_ids;
+        std::vector<short> available_ids;
         short ready_players;
 
     public:

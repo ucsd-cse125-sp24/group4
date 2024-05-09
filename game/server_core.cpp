@@ -8,12 +8,14 @@ ServerCore::ServerCore() {
     this->ready_players = 0;
     this->state = LOBBY;
     for (short i = 0; i < MAX_CLIENTS; i++) // setup available ids to include 1-n
-        this->available_ids.push(i);
+        this->available_ids.push_back(i);
+    std::sort(this->available_ids.begin(), this->available_ids.end());
 }
 
 ServerCore::~ServerCore()
 {
-    shutdown();
+    if (running)
+        shutdown();
 }
 
 void ServerCore::listen() {
@@ -92,6 +94,7 @@ void ServerCore::receive_data()
             buf = server.sock_receive(client->sock);
             if (buf && buf[0])
             {
+                //printf("server received %s\n", buf);
                 PacketType type = Packet::get_packet_type(buf);
                 switch(type) {
                     // handle diff kinds of packets in diff ways depending on game state
@@ -107,8 +110,7 @@ void ServerCore::receive_data()
                         printf("\nEvents: ");
                         for (const auto &event : packet.events)
                             printf("%d ", event);
-                        printf("\n");
-                        printf("Camera angle: %f\n\n", packet.cam_angle);
+                        printf("\nCamera angle: %f\n\n", packet.cam_angle);
                         break;
 
                     default: // shouldn't reach this
@@ -179,10 +181,12 @@ void ServerCore::send_updates()
     GameStatePacket::serialize(packet, buffer);
 
     for (auto i = 0; i < (int)clients_data.size(); i++) {
-        bool send_success = server.sock_send(clients_data[i]->sock, (int)bufferSize, buffer);
+        //printf("sending %d packet %s\n", Packet::get_packet_type(buffer), buffer);
+        bool send_success = server.sock_send(clients_data[i]->sock, CLIENT_RECV_BUFLEN, buffer);
         // if client shutdown, tear down this client/player
         if (!send_success) {
-            this->available_ids.push(clients_data[i]->id); // reclaim id as available
+            this->available_ids.push_back(clients_data[i]->id); // reclaim id as available
+            std::sort(this->available_ids.begin(), this->available_ids.end());
             server.close_client(clients_data[i]->sock);
             free(clients_data[i]);
             clients_data.erase(clients_data.begin() + i);
@@ -201,14 +205,14 @@ void ServerCore::accept_new_clients(int i) {
     client->id = this->available_ids.front(); // assign next avail id to client
     char* buffer = new char[sizeof(short)];
     *((short*)buffer) = client->id + 1; // add 1 bc we can't send 0 (null); clientcore subs 1 to correct
-    bool send_success = server.sock_send(client->sock, sizeof(short), buffer);
+    bool send_success = server.sock_send(client->sock, CLIENT_RECV_BUFLEN, buffer);
     if (!send_success) {
         server.close_client(clientSock); // abort conn
         free(client);
         return;
     }
     delete[] buffer;
-    this->available_ids.pop(); // on success, id is no longer available, client is added
+    this->available_ids.erase(this->available_ids.begin()); // on success, id is no longer available, client is added
     clients_data.push_back(client);
 
     PlayerState p_state;
