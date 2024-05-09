@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <chrono>
 
 // Graphics core
 #include "core.h"
@@ -22,6 +23,16 @@ struct StudentState {
     glm::mat4 world;
     Direction currentDir;
     float distanceMoved;
+    float timeSinceLastUpdate; // Time since last update
+    std::chrono::high_resolution_clock::time_point lastUpdate; // Time point of last update
+
+    StudentState() : timeSinceLastUpdate(0.0f) {
+        world = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
+        currentDir = NORTH; // Start facing up
+        distanceMoved = 0.0f;
+        timeSinceLastUpdate = 0.0f;
+        lastUpdate = std::chrono::high_resolution_clock::now(); // Initialize last update time
+    }
 };
 
 struct GameState {
