@@ -17,33 +17,34 @@ ServerCore::~ServerCore()
 }
 
 void ServerCore::listen() {
-    // Initialize network components, game state, graphics, etc.
+    // get new connection and, if found, add associated client_data
     server.sock_listen();
-    //maybe display some waiting for players screen?
-    for (int i = int(this->clients_data.size()); i < server.get_num_clients(); i++) {
-        // for each new connected client, initialize ClientData
+    for (int i = int(this->clients_data.size()); i < server.get_num_clients(); i++)
         this->accept_new_clients(i);
-    }
 
-    // TODO: update ready_players based on players voting
-    //this->receive_data();
+    // check for votes
+    this->receive_data();
 
-    running = true;
+    running = true; // this might be superfluous now, we'll see
 }
 
 void ServerCore::run() {
     running = true;
+    send_heartbeat();
 
-    while (server.get_num_clients() < NUM_CLIENTS )/*|| 
-          (this->ready_players < server.get_num_clients() && this->ready_players < 1))*/ {
+    // start once max players is reached OR all (nonzero) players are ready anyway
+    while (server.get_num_clients() < NUM_CLIENTS && 
+          (this->ready_players < server.get_num_clients() || this->ready_players < 1)) {
             this->listen();
     }
+    printf("All players have joined or are ready! Game beginning...\n");
     this->state = MAIN_LOOP;
+    send_heartbeat();
 
     while (isRunning()) {
         auto start = std::chrono::high_resolution_clock::now();
 
-        this->listen(); // comment to disallow joining mid-game
+        //this->listen(); // uncomment to allow joining mid-game
         receive_data();
         update_game_state();
         send_updates();
@@ -57,6 +58,7 @@ void ServerCore::run() {
     }
 
     this->state = END_WIN; // future todo to implement logic handling win and lose states
+    send_heartbeat();
 }
 
 void ServerCore::shutdown()
@@ -81,7 +83,8 @@ void ServerCore::receive_data()
     timeout.tv_sec = 0;
     timeout.tv_usec = 10;
 
-    InputPacket packet;
+    InputPacket input_packet;
+    VotePacket vote_packet;
     char *buf;
 
     for (ClientData* client : clients_data)
@@ -95,20 +98,31 @@ void ServerCore::receive_data()
                 PacketType type = Packet::get_packet_type(buf);
                 switch(type) {
                     // handle diff kinds of packets in diff ways depending on game state
-                    case SERVER_HEARTBEAT: // players voting to start
-                        // expect to deserialize a vote or smth
-                        this->ready_players += 1; // add or subtract ready_players based on vote or rescind vote msgs
-                        break;
-
                     case PLAYER_INPUT:
-                        InputPacket::deserialize(buf, packet);
-                        process_input(packet, client->id);
+                        if (state != MAIN_LOOP) // only accept input during core gameplay loop
+                            return;
+                        InputPacket::deserialize(buf, input_packet);
+                        process_input(input_packet, client->id);
                         // Print for testing
                         printf("\nEvents: ");
-                        for (const auto &event : packet.events)
+                        for (const auto &event : input_packet.events)
                             printf("%d ", event);
                         printf("\n");
-                        printf("Camera angle: %f\n\n", packet.cam_angle);
+                        printf("Camera angle: %f\n\n", input_packet.cam_angle);
+                        break;
+
+                    case VOTE:
+                        if (state != LOBBY) // only accept votes while in lobby
+                            return;
+                        VotePacket::deserialize(buf, vote_packet);
+                        printf("received vote %d\n", *(buf + sizeof(Vote)));
+                        // check that vote is actually state-changing and, if it is, update readiness
+                        if (vote_packet.vote == READY && client->ready_to_start == NOT_READY)
+                            ready_players++;
+                        else if (vote_packet.vote == NOT_READY && client->ready_to_start == READY)
+                            ready_players--;
+
+                        client->ready_to_start = vote_packet.vote;
                         break;
 
                     default: // shouldn't reach this
@@ -168,18 +182,34 @@ void ServerCore::update_game_state() {
     serverState.level = 5;
 }
 
-void ServerCore::send_updates()
-{
+void ServerCore::send_heartbeat() {
+    ServerHeartbeatPacket packet;
+    packet.state = this->state;
+
+    size_t bufferSize = packet.calculateSize();
+    char *buffer = new char[bufferSize];
+    ServerHeartbeatPacket::serialize(packet, buffer);
+
+    this->send_serial(buffer, bufferSize);
+    delete[] buffer;
+}
+
+void ServerCore::send_updates() {
     GameStatePacket packet;
     packet.state = serverState;
 
     size_t bufferSize = packet.calculateSize();
-
     char *buffer = new char[bufferSize];
     GameStatePacket::serialize(packet, buffer);
 
-    for (auto i = 0; i < (int)clients_data.size(); i++) {
-        bool send_success = server.sock_send(clients_data[i]->sock, (int)bufferSize, buffer);
+    this->send_serial(buffer, bufferSize);
+    delete[] buffer;
+}
+
+void ServerCore::send_serial(char* to_send, size_t length)
+{
+    for (int i = 0; i < (int)clients_data.size(); i++) {
+        bool send_success = server.sock_send(clients_data[i]->sock, (int)length, to_send);
         // if client shutdown, tear down this client/player
         if (!send_success) {
             this->available_ids.push(clients_data[i]->id); // reclaim id as available
@@ -190,14 +220,13 @@ void ServerCore::send_updates()
             i--;
         }
     }
-
-    delete[] buffer;
 }
 
 void ServerCore::accept_new_clients(int i) {
     SOCKET clientSock = server.get_client_sock(i);
     ClientData* client = new ClientData;
     client->sock = clientSock;
+    client->ready_to_start = NOT_READY;
     client->id = this->available_ids.front(); // assign next avail id to client
     char* buffer = new char[sizeof(short)];
     *((short*)buffer) = client->id + 1; // add 1 bc we can't send 0 (null); clientcore subs 1 to correct
