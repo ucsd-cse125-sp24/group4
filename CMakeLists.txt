@@ -4,9 +4,6 @@ project("CSE125 Project")
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Add Assimp as a subdirectory
-add_subdirectory(assimp)
-
 file(GLOB GRAPHICS_SOURCES graphics/*)
 file(GLOB PACKET_SOURCES packets/*)
 
