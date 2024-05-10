@@ -7,9 +7,9 @@ Module to connect a client to the game server
 */
 class Client {
     private:
-        char recvbuf[DEFAULT_BUFLEN];
-        int buflen = DEFAULT_BUFLEN;
-        char sendbuf[DEFAULT_BUFLEN];
+        char recvbuf[CLIENT_RECV_BUFLEN];
+        int buflen = CLIENT_RECV_BUFLEN;
+        char sendbuf[SERVER_RECV_BUFLEN];
 
     public:
         SOCKET conn_sock;

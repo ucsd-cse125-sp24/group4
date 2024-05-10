@@ -8,7 +8,8 @@ ClientCore::ClientCore() {
 
 ClientCore::~ClientCore()
 {
-    shutdown();
+    if (connected) // only shutdown if it hasn't been called already (else double-closes)
+        shutdown();
 }
 
 void ClientCore::initialize()
@@ -119,13 +120,18 @@ void ClientCore::receive_updates() {
     timeout.tv_sec = 0;
     timeout.tv_usec = 10;
 
-    char * received_data;
+    char * received_data = NULL;
     ServerHeartbeatPacket hb;
     GameStatePacket packet;
 
     FD_SET(client.conn_sock, &readFdSet);
     while (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0) {
         received_data = client.sock_receive();
+        if (received_data == NULL) {
+            printf("receive failed. exiting from client\n");
+            shutdown();
+            return;
+        }
         if (received_data && received_data[0]){
             PacketType type = Packet::get_packet_type(received_data);
             switch(type) {
@@ -138,15 +144,17 @@ void ClientCore::receive_updates() {
                     this->world_state = packet.state;
                     break;
                 default: // shouldn't reach this
-                        printf("Error: unexpected receipt of packet type %d", type);
+                    printf("Error: unexpected receipt of packet type %d\n", type);
+                    shutdown(); // not ideal but ehhh
             }
 
-            printf("client got \"%s\" from server\n", received_data);
+            //printf("client got \"%s\" from server\n", received_data);
         }
+        timeout.tv_sec = 0;
+        timeout.tv_usec = 10;
     }
 }
 void ClientCore::process_server_data() {
-
     // Processed in Window
     Window::update_state(world_state);
 }

@@ -87,7 +87,7 @@ int test_receive() {
     InputPacket::serialize(packet, buf);
     
     for (Client c : client_list) {
-        c.sock_send(DEFAULT_BUFLEN, buf);
+        c.sock_send(SERVER_RECV_BUFLEN, buf);
     }
 
     // confirm receipt from each client
@@ -107,7 +107,7 @@ int test_receive() {
     buf = new char[bufferSize];
     VotePacket::serialize(vote, buf);
     for (Client c : client_list) {
-        c.sock_send(DEFAULT_BUFLEN, buf);
+        c.sock_send(SERVER_RECV_BUFLEN, buf);
     }
 
     // confirm receipt from each client

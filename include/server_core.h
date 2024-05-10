@@ -30,7 +30,7 @@ struct ClientData {
 
 class ServerCore {
     private:
-        std::queue<short> available_ids;
+        std::vector<short> available_ids;
 
     public:
         short ready_players;
@@ -49,7 +49,7 @@ class ServerCore {
         void update_game_state();           // Update the game state
         void send_heartbeat();              // Prepare ServerHeartbeatPacket and call send_packet
         void send_updates();                // Prepare GameStatePacket and call send_packet to send
-        void send_serial(char* to_send, size_t length);   // Send updates to clients
+        void send_serial(char* to_send);    // Send updates to clients
         void accept_new_clients(int i);
 
         bool running;                       // Server running state
