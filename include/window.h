@@ -6,6 +6,7 @@
 #include "input.h"
 #include "enums.h"
 #include "game_state.h"
+#include "model.h"
 
 /*
  * Window.h
