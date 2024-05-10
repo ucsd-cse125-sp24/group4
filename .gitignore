@@ -37,6 +37,3 @@ lib/glfw3.lib
 build/*
 
 **/.DS_Store
-lib/assimp-vc143-mtd.pdb
-lib/assimp-vc143-mtd.lib
-lib/assimp-vc143-mtd.lib
