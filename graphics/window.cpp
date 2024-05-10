@@ -94,24 +94,22 @@ void Window::setup_callbacks(GLFWwindow* window) {
 void Window::setup_scene() {
 	// Populate players
 	Model *player = new Model("models/green.fbx");
-	player->set_color(glm::vec3(0, 1, 0));
-
-	Cube* cube = new Cube(); // p1 - yellow
+	player->set_color(glm::vec3(0, 1, 0)); // p1 - green
 	players.push_back(player);
 
-	Cube* cube2 = new Cube();
-	cube2->set_color(glm::vec3(1, 0, 0)); // p2 - red
-	players.push_back(cube2);
+	Model* player2 = new Model("models/green2.fbx");
+	player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
+	players.push_back(player2);
 
-	// p3 - green
-	Cube* cube3 = new Cube();
-	cube3->set_color(glm::vec3(0, 1, 0));
-	players.push_back(cube3);
+	// p3 - purple
+	Model* player3 = new Model("models/green3.fbx");
+	player3->set_color(glm::vec3(1, 0, 1));
+	players.push_back(player3);
 
 	// p4 - blue
-	Cube* cube4 = new Cube();
-	cube4->set_color(glm::vec3(0, 0, 1));
-	players.push_back(cube4);
+	Model* player4 = new Model("models/green4.fbx");
+	player4->set_color(glm::vec3(0, 0, 1));
+	players.push_back(player4);
 
 
 	// TODO: Move to callback -- Do I need to center here...

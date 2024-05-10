@@ -99,4 +99,18 @@ Mesh Model::process_mesh(aiMesh* mesh, const aiScene* scene) {
 	return Mesh(vertices, indices, textures);
 }
 
+Model::Model() {
 
+}
+
+Model* Model::clone() {
+
+	// Surely this wouldn't cause issues...
+	Model* clone = new Model();
+	clone->model = model;
+	clone->color = color;
+	clone->meshes = meshes;
+	clone->directory = directory;
+
+	return clone;
+}

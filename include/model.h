@@ -15,7 +15,11 @@ public:
 		load_model(path);
 	}
 
+	Model();
+
 	void draw(const glm::mat4& viewProjMtx, Shader* shader);
+
+	Model* clone();
 
 private:
 	// Model data
@@ -29,7 +33,5 @@ private:
 	// Skip textures for now
 
 	//std::vector<Texture> load_mat_textures(aiMaterial* mat, aiTextureType type, std::string typeName);
-
-
 
 };

@@ -13,8 +13,8 @@ add_library(server OBJECT networking/server.cpp)
 link_directories(lib)
 
 # graphics client contains main for graphics; don't duplicate for other executables
-add_executable(GraphicsTest ${GRAPHICS_SOURCES} "${PROJECT_SOURCE_DIR}/graphics_client.cpp")
-target_include_directories(GraphicsTest PRIVATE "${PROJECT_SOURCE_DIR}/include")
+add_executable(GraphicsTest ${GRAPHICS_SOURCES} graphics_client.cpp)
+target_include_directories(GraphicsTest PRIVATE include)
 target_link_libraries(GraphicsTest PRIVATE glfw3 assimp-vc143-mtd zlibstaticd)
 
 file(COPY shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
@@ -23,9 +23,9 @@ add_executable(server_core game/game_logic_pg.cpp game/server_core.cpp ${PACKET_
 target_include_directories(server_core PRIVATE include)
 target_link_libraries(server_core PRIVATE server client ws2_32)
 
-add_executable(client_core "${PROJECT_SOURCE_DIR}/game/game_logic_client.cpp" "${PROJECT_SOURCE_DIR}/game/client_core.cpp" ${GRAPHICS_SOURCES})
-target_include_directories(client_core PRIVATE "${PROJECT_SOURCE_DIR}/include")
-target_link_libraries(client_core PRIVATE server client packets ws2_32 glfw3 assimp-vc143-mtd zlibstaticd)
+add_executable(client_core game/game_logic_client.cpp game/client_core.cpp ${PACKET_SOURCES} ${GRAPHICS_SOURCES})
+target_include_directories(client_core PRIVATE include)
+target_link_libraries(client_core PRIVATE server client ws2_32 glfw3 assimp-vc143-mtd zlibstaticd)
 
 
 # ----- Testing executables and tests below -----
@@ -34,14 +34,6 @@ enable_testing()
 # ---- Network tests ----
 add_executable(NetworkUnitTests tests/network_test.cpp)
 target_link_libraries(NetworkUnitTests PRIVATE server client ws2_32 mswsock advapi32)
-
-add_executable(ServerCoreTests tests/servercore_test.cpp "${PROJECT_SOURCE_DIR}/game/server_core.cpp")
-target_link_libraries(ServerCoreTests PRIVATE server client packets ws2_32)
-
-add_executable(ClientCoreTests tests/clientcore_test.cpp "${PROJECT_SOURCE_DIR}/game/client_core.cpp" ${GRAPHICS_SOURCES})
-target_link_libraries(ClientCoreTests PRIVATE server client packets ws2_32 glfw3 assimp-vc143-mtd zlibstaticd)
-
-enable_testing()
 
 add_test(NAME NetworkConnectTest COMMAND NetworkUnitTests "connect")
 add_test(NAME NetworkDataTransportTest COMMAND NetworkUnitTests "data_transport")
