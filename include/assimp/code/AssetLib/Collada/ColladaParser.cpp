@@ -635,8 +635,7 @@ void ColladaParser::ReadController(XmlNode &node, Collada::Controller &controlle
         const std::string &currentName = currentNode.name();
         if (currentName == "morph") {
             controller.mType = Morph;
-            std::string id = currentNode.attribute("source").as_string();
-            controller.mMeshId = id.substr(1, id.size() - 1);
+            controller.mMeshId = currentNode.attribute("source").as_string();
             int methodIndex = currentNode.attribute("method").as_int();
             if (methodIndex > 0) {
                 std::string method;

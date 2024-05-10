@@ -452,20 +452,18 @@ configure_package_config_file(
     INSTALL_DESTINATION "${CONFIG_INSTALL_DIR}"
 )
 
-if(ASSIMP_INSTALL)
-  install(
-      FILES "${PROJECT_CONFIG}" "${VERSION_CONFIG}"
-      DESTINATION "${CONFIG_INSTALL_DIR}"
-      COMPONENT ${LIBASSIMP-DEV_COMPONENT}
-  )
+install(
+    FILES "${PROJECT_CONFIG}" "${VERSION_CONFIG}"
+    DESTINATION "${CONFIG_INSTALL_DIR}"
+    COMPONENT ${LIBASSIMP-DEV_COMPONENT}
+)
 
-  install(
-      EXPORT "${TARGETS_EXPORT_NAME}"
-      NAMESPACE "${NAMESPACE}"
-      DESTINATION "${CONFIG_INSTALL_DIR}"
-      COMPONENT ${LIBASSIMP-DEV_COMPONENT}
-  )
-endif()
+install(
+    EXPORT "${TARGETS_EXPORT_NAME}"
+    NAMESPACE "${NAMESPACE}"
+    DESTINATION "${CONFIG_INSTALL_DIR}"
+    COMPONENT ${LIBASSIMP-DEV_COMPONENT}
+)
 
 IF( ASSIMP_BUILD_DOCS )
   ADD_SUBDIRECTORY(doc)
@@ -483,7 +481,7 @@ IF(ASSIMP_HUNTER_ENABLED)
   set(ASSIMP_BUILD_MINIZIP TRUE)
 ELSE()
   # If the zlib is already found outside, add an export in case assimpTargets can't find it.
-  IF( ZLIB_FOUND AND ASSIMP_INSTALL)
+  IF( ZLIB_FOUND )
     INSTALL( TARGETS zlib zlibstatic
         EXPORT "${TARGETS_EXPORT_NAME}")
   ENDIF()
@@ -623,10 +621,6 @@ ELSE ()
   ADD_DEFINITIONS( -DASSIMP_BUILD_NO_C4D_IMPORTER )
 ENDIF ()
 
-if(ASSIMP_BUILD_DRACO_STATIC)
-  set(ASSIMP_BUILD_DRACO ON)
-endif()
-
 # Draco requires cmake 3.12
 IF (DEFINED CMAKE_VERSION AND "${CMAKE_VERSION}" VERSION_LESS "3.12")
   message(NOTICE "draco requires cmake 3.12 or newer, cmake is ${CMAKE_VERSION} . Draco is disabled")
@@ -662,29 +656,22 @@ ELSE()
           "-Wno-sign-compare"
           "-Wno-unused-local-typedefs"
         )
-
-        if(NOT ASSIMP_BUILD_DRACO_STATIC)
-          # Draco 1.4.1 does not explicitly export any symbols under GCC/clang
-          list(APPEND DRACO_CXX_FLAGS
-            "-fvisibility=default"
-          )
-        endif()
+        # Draco 1.4.1 does not explicitly export any symbols under GCC/clang
+        list(APPEND DRACO_CXX_FLAGS
+          "-fvisibility=default"
+        )
       ENDIF()
 
       # Don't build or install all of Draco by default
       ADD_SUBDIRECTORY( "contrib/draco" EXCLUDE_FROM_ALL )
 
-      if(ASSIMP_BUILD_DRACO_STATIC)
-        set_property(DIRECTORY "contrib/draco" PROPERTY BUILD_SHARED_LIBS OFF)
-      endif()
-
       if(MSVC OR WIN32)
         set(draco_LIBRARIES "draco")
       else()
-        if(ASSIMP_BUILD_DRACO_STATIC)
-          set(draco_LIBRARIES "draco_static")
-        else()
+        if(BUILD_SHARED_LIBS)
           set(draco_LIBRARIES "draco_shared")
+        else()
+          set(draco_LIBRARIES "draco_static")
         endif()
       endif()
 
@@ -707,17 +694,15 @@ ELSE()
       set(draco_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/contrib/draco/src")
 
       # This is probably wrong
-      if (ASSIMP_INSTALL)
-        INSTALL( TARGETS ${draco_LIBRARIES}
-          EXPORT "${TARGETS_EXPORT_NAME}"
-          LIBRARY DESTINATION ${ASSIMP_LIB_INSTALL_DIR}
-          ARCHIVE DESTINATION ${ASSIMP_LIB_INSTALL_DIR}
-          RUNTIME DESTINATION ${ASSIMP_BIN_INSTALL_DIR}
-          FRAMEWORK DESTINATION ${ASSIMP_LIB_INSTALL_DIR}
-          COMPONENT ${LIBASSIMP_COMPONENT}
-          INCLUDES DESTINATION include
-        )
-      endif()
+      INSTALL( TARGETS ${draco_LIBRARIES}
+        EXPORT "${TARGETS_EXPORT_NAME}"
+        LIBRARY DESTINATION ${ASSIMP_LIB_INSTALL_DIR}
+        ARCHIVE DESTINATION ${ASSIMP_LIB_INSTALL_DIR}
+        RUNTIME DESTINATION ${ASSIMP_BIN_INSTALL_DIR}
+        FRAMEWORK DESTINATION ${ASSIMP_LIB_INSTALL_DIR}
+        COMPONENT ${LIBASSIMP_COMPONENT}
+        INCLUDES DESTINATION include
+      )
     ENDIF()
   ENDIF()
 ENDIF()

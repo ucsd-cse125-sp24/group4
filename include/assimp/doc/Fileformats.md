@@ -28,7 +28,6 @@ __Importers__:
   + KHR_texture_transform ( 5.1 under test )
 - HMB
 - IFC-STEP
-- IQM
 - IRR / IRRMESH
 - [LWO](https://en.wikipedia.org/wiki/LightWave_3D)
 - LWS
