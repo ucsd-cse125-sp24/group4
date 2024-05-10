@@ -12,15 +12,24 @@ struct PlayerState {
 };
 
 struct StudentState {
+    enum Direction {
+        NORTH,
+        EAST,
+        SOUTH,
+        WEST
+    };
+
     glm::mat4 world;
-    // Add other student-specific state variables
+    Direction currentDir;
+    float distanceMoved;
 };
 
 struct GameState {
     std::vector<PlayerState> players;
     std::vector<StudentState> students;
     int level;
-    // Functions for manipulating the game state
+    
     void updateScores();
-    // Other relevant game state functions
+    void moveStudent(StudentState& student, const float stepSize, const float totalDistance);
+
 };

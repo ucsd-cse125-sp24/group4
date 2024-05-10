@@ -1,11 +1,15 @@
 #include "../include/client_core.h"
 #include <iostream>
 
-ClientCore::ClientCore() : connected(false) {}
+ClientCore::ClientCore() {
+    this->connected = false;
+    this->server_state = LOBBY;
+}
 
 ClientCore::~ClientCore()
 {
-    shutdown();
+    if (connected) // only shutdown if it hasn't been called already (else double-closes)
+        shutdown();
 }
 
 void ClientCore::initialize()
@@ -41,7 +45,10 @@ void ClientCore::shutdown()
 
 void ClientCore::run()
 {
-    while (connected)
+    while (false) { // eventually: while this->server_state == LOBBY
+        receive_updates();
+    }
+    while (connected) // && state == MAIN_LOOP ?
     {
         receive_updates();
         process_server_data();
@@ -86,24 +93,43 @@ void ClientCore::receive_updates() {
     timeout.tv_sec = 0;
     timeout.tv_usec = 10;
 
-    char * received_data;
+    char * received_data = NULL;
+    ServerHeartbeatPacket hb;
     GameStatePacket packet;
 
     FD_SET(client.conn_sock, &readFdSet);
     while (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0) {
         received_data = client.sock_receive();
-        if (received_data && received_data[0]){
-            GameStatePacket::deserialize(received_data, packet);
-            clientState = packet.state;
-            //server_updates.messages.push_back(received_data);
-            printf("client got \"%s\" from server\n", received_data);
+        if (received_data == NULL) {
+            printf("receive failed. exiting from client\n");
+            shutdown();
+            return;
         }
+        if (received_data && received_data[0]){
+            PacketType type = Packet::get_packet_type(received_data);
+            switch(type) {
+                case SERVER_HEARTBEAT:
+                    ServerHeartbeatPacket::deserialize(received_data, hb);
+                    this->server_state = hb.state;
+                    break;
+                case GAME_STATE:
+                    GameStatePacket::deserialize(received_data, packet);
+                    this->world_state = packet.state;
+                    break;
+                default: // shouldn't reach this
+                    printf("Error: unexpected receipt of packet type %d\n", type);
+                    shutdown(); // not ideal but ehhh
+            }
+
+            //printf("client got \"%s\" from server\n", received_data);
+        }
+        timeout.tv_sec = 0;
+        timeout.tv_usec = 10;
     }
 }
 void ClientCore::process_server_data() {
-
     // Processed in Window
-    Window::update_state(clientState);
+    Window::update_state(world_state);
 }
 
 void ClientCore::renderGameState()

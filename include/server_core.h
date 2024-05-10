@@ -7,12 +7,13 @@
 #include <vector>
 #include <Winsock2.h>
 
-#include "server.h"
 #include "client.h"
-#include "windows_socket.h"
-#include "input_packet.h"
-#include "game_state_packet.h"
 #include "game_state.h"
+#include "packets/game_state_packet.h"
+#include "packets/input_packet.h"
+#include "packets/server_heartbeat_packet.h"
+#include "server.h"
+#include "windows_socket.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/rotate_vector.hpp"
@@ -27,7 +28,9 @@ struct ClientData {
 
 class ServerCore {
     private:
-        std::queue<short> available_ids;
+        ServerState state;
+        std::vector<short> available_ids;
+        short ready_players;
 
     public:
         ServerCore();                   // Constructor

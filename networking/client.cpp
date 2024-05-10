@@ -82,7 +82,7 @@ bool Client::sock_send(int length, const char* data) {
 char* Client::sock_receive() {
     int iResult = recv(this->conn_sock, this->recvbuf, this->buflen, 0);
     if ( iResult > 0 ) {
-        // printf("Bytes received from server: %d\n", iResult);
+        //printf("%d bytes received from server: %s\n", iResult, this->recvbuf);
         return this->recvbuf;
     } else if ( iResult == 0 )
         printf("Connection closed\n");
