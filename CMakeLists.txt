@@ -19,8 +19,8 @@ target_include_directories(server_core PRIVATE include)
 target_link_libraries(server_core PRIVATE server client ws2_32)
 
 add_executable(client_core game/game_logic_client.cpp game/client_core.cpp ${PACKET_SOURCES} ${GRAPHICS_SOURCES})
-target_include_directories(client_core PRIVATE include)
-target_link_libraries(client_core PRIVATE server client ws2_32 glfw3 assimp-vc143-mtd.lib zlibstaticd)
+target_include_directories(client_core PRIVATE include include/assimp/include)
+target_link_libraries(client_core PRIVATE server client ws2_32 glfw3 assimp zlibstatic)
 
 # ----- Testing executables and tests below -----
 enable_testing()
