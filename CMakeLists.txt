@@ -14,6 +14,7 @@ link_directories(lib)
 
 file(COPY include/assimp/bin/libassimp-5.dll DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY art/models/green_aliens DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/models)
 
 add_executable(server_core game/game_logic_pg.cpp game/server_core.cpp ${PACKET_SOURCES})
 target_include_directories(server_core PRIVATE include)
