@@ -55,12 +55,16 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
 
     if (playerInRange) {
         // Player is close, move towards the player
-        glm::vec3 directionToPlayer = glm::normalize(nearestPlayerPos - currentPos);
-        step = directionToPlayer * stepSize;
+        if (minDistance > 0) {
+            glm::vec3 directionToPlayer = glm::normalize(nearestPlayerPos - currentPos);
+            step = directionToPlayer * stepSize;
+        } else {
+            step = glm::vec3(0.0f);
+        }
         student.chasingPlayer = true;
-        printf("step is %f %f %f\n",step[0],step[1],step[2]);
         currentPos += step;
-    } 
+        // TODO: calculate rotation matrix
+    }
     else if (student.chasingPlayer) {
         // If the player has moved out of range and we were chasing, resume path
         // should implement for it to take the closest, most direct path to the designed path..?
