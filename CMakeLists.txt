@@ -12,21 +12,17 @@ add_library(server OBJECT networking/server.cpp)
 
 link_directories(lib)
 
-# graphics client contains main for graphics; don't duplicate for other executables
-add_executable(GraphicsTest ${GRAPHICS_SOURCES} graphics_client.cpp)
-target_include_directories(GraphicsTest PRIVATE include)
-target_link_libraries(GraphicsTest PRIVATE glfw3)
-
+file(COPY include/assimp/bin/libassimp-5.dll DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY art/models DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_executable(server_core game/game_logic_pg.cpp game/server_core.cpp ${PACKET_SOURCES})
 target_include_directories(server_core PRIVATE include)
 target_link_libraries(server_core PRIVATE server client ws2_32)
 
 add_executable(client_core game/game_logic_client.cpp game/client_core.cpp ${PACKET_SOURCES} ${GRAPHICS_SOURCES})
-target_include_directories(client_core PRIVATE include)
-target_link_libraries(client_core PRIVATE server client ws2_32 glfw3)
-
+target_include_directories(client_core PRIVATE include include/assimp/include)
+target_link_libraries(client_core PRIVATE server client ws2_32 glfw3 assimp zlibstatic)
 
 # ----- Testing executables and tests below -----
 enable_testing()

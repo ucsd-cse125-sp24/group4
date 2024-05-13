@@ -1,4 +1,5 @@
 #include "../include/window.h"
+#include <iostream>
 
 int Window::width;
 int Window::height;
@@ -92,22 +93,33 @@ void Window::setup_callbacks(GLFWwindow* window) {
 
 void Window::setup_scene() {
 	// Populate players
-	Cube* cube = new Cube(); // p1 - yellow
-	players.push_back(cube);
+	// 
+	// unused player models sent into space
+	glm::mat4 temp = glm::translate(glm::mat4(1.0f), glm::vec3(0, 100, 0));
 
-	Cube* cube2 = new Cube();
-	cube2->set_color(glm::vec3(1, 0, 0)); // p2 - red
-	players.push_back(cube2);
 
-	// p3 - green
-	Cube* cube3 = new Cube();
-	cube3->set_color(glm::vec3(0, 1, 0));
-	players.push_back(cube3);
+	Model *player = new Model("models/green.fbx");
+	player->set_color(glm::vec3(0, 1, 0)); // p1 - green
+	player->set_world(temp);
+	players.push_back(player);
+
+
+	Model* player2 = new Model("models/green2.fbx");
+	player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
+	player2->set_world(temp);
+	players.push_back(player2);
+
+	// p3 - purple
+	Model* player3 = new Model("models/green3.fbx");
+	player3->set_color(glm::vec3(1, 0, 1));
+	player3->set_world(temp);
+	players.push_back(player3);
 
 	// p4 - blue
-	Cube* cube4 = new Cube();
-	cube4->set_color(glm::vec3(0, 0, 1));
-	players.push_back(cube4);
+	Model* player4 = new Model("models/green4.fbx");
+	player4->set_color(glm::vec3(0, 0, 1));
+	player4->set_world(temp);
+	players.push_back(player4);
 
 
 	// TODO: Move to callback -- Do I need to center here...
