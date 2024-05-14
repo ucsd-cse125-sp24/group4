@@ -1,3 +1,6 @@
+#ifndef PHYSICS_WORLD_H
+#define PHYSICS_WORLD_H
+
 #include "game_object.h"
 #include "core.h"
 #include <vector>
@@ -20,3 +23,5 @@ class PhysicsWorld {
 		void step();
 		bool hasCollision();
 };
+
+#endif

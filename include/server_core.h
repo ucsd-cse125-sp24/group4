@@ -15,8 +15,6 @@
 #include "packets/server_heartbeat_packet.h"
 #include "server.h"
 #include "windows_socket.h"
-#include "input_packet.h"
-#include "game_state_packet.h"
 #include "game_state.h"
 #include "physics_world.h"
 

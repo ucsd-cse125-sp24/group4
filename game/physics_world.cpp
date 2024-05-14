@@ -57,7 +57,7 @@ void PhysicsWorld::step()
         printf("positions: <%f, %f, %f>\n", obj->position.x, obj->position.y, obj->position.z);
         obj->force = glm::vec3(0, 0, 0); // reset net force at the end
 
-        TBD: add a check for y falling below 0, and response
+        // TBD: add a check for y falling below 0, and response
     }
 
     hasCollision(); // update position and then check for collision?
@@ -81,4 +81,5 @@ bool PhysicsWorld::hasCollision() {
             point.z <= max.z
         );
     }
+    return false;
 }
