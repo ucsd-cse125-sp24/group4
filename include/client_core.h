@@ -7,12 +7,14 @@
 #include <string>
 #include <Winsock2.h>
 
-#include "server.h"
+
 #include "client.h"
-#include "windows_socket.h"
-#include "input_packet.h"
-#include "game_state_packet.h"
 #include "game_state.h"
+#include "packets/game_state_packet.h"
+#include "packets/input_packet.h"
+#include "server.h"
+#include "server_core.h"
+#include "windows_socket.h"
 
 // Include graphics
 #include "core.h"
@@ -40,7 +42,8 @@ class ClientCore
 
         bool connected; // Connection state
         Client client;  // client.conn_sock = socket,
-        GameState clientState;
+        GameState world_state;
+        ServerState server_state;
         GLFWwindow* window; // Game window
 };
 

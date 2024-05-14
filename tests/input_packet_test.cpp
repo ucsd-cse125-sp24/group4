@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cassert>
-#include "../include/input_packet.h"
+#include "../include/packets/input_packet.h"
 
 void printInputPacket(const InputPacket &packet)
 {

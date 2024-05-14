@@ -151,8 +151,3 @@ void Cube::draw(const glm::mat4& viewProjMtx, Shader* shader) {
     glBindVertexArray(0);
     glUseProgram(0);
 }
-
-void Cube::move(glm::vec3 direction) {
-	// Move the cube in the direction specified
-	model = glm::translate(model, direction);
-}

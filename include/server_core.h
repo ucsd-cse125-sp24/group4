@@ -7,8 +7,13 @@
 #include <vector>
 #include <Winsock2.h>
 
-#include "server.h"
 #include "client.h"
+#include "game_state.h"
+#include "physics_world.h"
+#include "packets/game_state_packet.h"
+#include "packets/input_packet.h"
+#include "packets/server_heartbeat_packet.h"
+#include "server.h"
 #include "windows_socket.h"
 #include "input_packet.h"
 #include "game_state_packet.h"
@@ -28,7 +33,9 @@ struct ClientData {
 
 class ServerCore {
     private:
-        std::queue<short> available_ids;
+        ServerState state;
+        std::vector<short> available_ids;
+        short ready_players;
 
     public:
         ServerCore();                   // Constructor
@@ -40,7 +47,7 @@ class ServerCore {
         bool isRunning() const;         // Check if the server is running
 
         void receive_data();            // Receive data from clients
-        void process_input(InputPacket packet, int packet_id);           // Process inputs
+        void process_input(InputPacket packet, short id);           // Process inputs
         void update_game_state();       // Update the game state
         void send_updates();            // Send updates to clients
         void accept_new_clients(int i);
