@@ -4,7 +4,8 @@ Code adapted from https://learn.microsoft.com/en-us/windows/win32/winsock/comple
 #include "../include/client.h"
 #include <windows.h>
 
-Client::Client() {
+Client::Client(const char* addr, size_t len) {
+    strncpy_s(this->addr, addr, len);
     this->connect_to_server();
 }
 
@@ -27,9 +28,9 @@ SOCKET Client::connect_to_server() {
     hints.ai_protocol = IPPROTO_TCP;
 
     // Resolve the server address and port
-    int iResult = getaddrinfo("127.0.0.1", DEFAULT_PORT, &hints, &result);
+    int iResult = getaddrinfo(this->addr, DEFAULT_PORT, &hints, &result);
     if ( iResult != 0 ) {
-        printf("getaddrinfo failed with error: %d\n", iResult);
+        printf("client getaddrinfo failed with error: %d\n", iResult);
         WSACleanup();
         return INVALID_SOCKET;
     }

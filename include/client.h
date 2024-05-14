@@ -10,11 +10,12 @@ class Client {
         char recvbuf[CLIENT_RECV_BUFLEN];
         int buflen = CLIENT_RECV_BUFLEN;
         char sendbuf[SERVER_RECV_BUFLEN];
+        char addr[16]; // max len 16: xxx.xxx.xxx.xxx\0
 
     public:
         SOCKET conn_sock;
 
-        Client();
+        Client(const char* addr = "127.0.0.1", size_t len = 10);
 
         SOCKET connect_to_server();
 

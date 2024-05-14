@@ -18,7 +18,7 @@ class Server {
         int num_connections;
 
     public:
-        Server();
+        Server(const char* addr = NULL);
 
         /*
         Get the socket for the ith client connected to this server
