@@ -10,7 +10,7 @@
 
 class Model : public Drawable{
 public:
-	Model(char* path)
+	Model(const std::string& path)
 	{
 		load_model(path);
 	}
@@ -26,7 +26,7 @@ private:
 	std::vector<Mesh> meshes;
 	std::string directory;
 
-	void load_model(std::string path);
+	void load_model(const std::string& path);
 	void process_node(aiNode* node, const aiScene* scene);
 	Mesh process_mesh(aiMesh* mesh, const aiScene* scene);
 
