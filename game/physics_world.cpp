@@ -68,8 +68,8 @@ bool PhysicsWorld::hasCollision() {
     for (PlayerObject* player : p_objects) {
         // treat center point as a collision point for now
         glm::vec3 point(0.0f, 0.0f, 0.0f);
-        glm::vec3 min = player->Cube.getMinCoords();
-        glm::vec3 max = player->Cube.getMaxCoords();
+        glm::vec3 min = player->minBound;
+        glm::vec3 max = player->maxBound;
 
         // check if cube/box colliding with the the point
         return (
