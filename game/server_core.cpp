@@ -236,7 +236,7 @@ void ServerCore::accept_new_clients(int i) {
 
     serverState.players.push_back(p_state);
 
-    PlayerObject* newPlayerObject;
+    PlayerObject* newPlayerObject = new PlayerObject();
     newPlayerObject->force = glm::vec3(0.0f, 0.0f, 0.0f);
     newPlayerObject->velocity = glm::vec3(0.0f, 0.0f, 0.0f);
     newPlayerObject->position = glm::vec3(0.0f, 0.0f, 0.0f);

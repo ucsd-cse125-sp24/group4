@@ -20,7 +20,16 @@ struct GameObject {
 };
 
 struct PlayerObject : GameObject {
-    int playerId;
+    short playerId;
+
+    glm::mat4 world;
+    glm::vec3 position;    // Position of the object in 3D space
+    glm::vec3 velocity;    // Velocity of the object
+    glm::vec3 force; // Acceleration of the object
+    float mass;            // Mass of the object
+    //Collider* collider; // bounding volume/box
+    glm::vec3 minBound; // min coords of the bounding box
+    glm::vec3 maxBound; // max coords of the bounding box
 
     void moveForward();
     void moveBackward();
