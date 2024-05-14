@@ -46,18 +46,18 @@ void PhysicsWorld::step()
 {
     float dt = 0.02f;
     for (GameObject* obj : m_objects) {
-        // obj->force += obj->mass * m_gravity; // apply a force
+        obj->force += obj->mass * m_gravity; // apply a force
 
-        // glm::vec3 ori_v = obj->velocity;
-        // obj->velocity += obj->force / obj->mass * dt;
+        glm::vec3 ori_v = obj->velocity;
+        obj->velocity += obj->force / obj->mass * dt;
 
-        // // check y >= 0
-        // obj->position += 0.5f * (ori_v + obj->velocity) * dt;
-        //obj->position = glm::vec3(0, 0, 0);
+        // check y >= 0
+        obj->position += 0.5f * (ori_v + obj->velocity) * dt;
+        obj->position = glm::vec3(0, 0, 0);
         printf("positions: <%f, %f, %f>\n", obj->position.x, obj->position.y, obj->position.z);
-        //obj->force = glm::vec3(0, 0, 0); // reset net force at the end
+        obj->force = glm::vec3(0, 0, 0); // reset net force at the end
 
-        // TBD: add a check for y falling below 0, and response
+        TBD: add a check for y falling below 0, and response
     }
 
     hasCollision(); // update position and then check for collision?
@@ -73,12 +73,12 @@ bool PhysicsWorld::hasCollision() {
 
         // check if cube/box colliding with the the point
         return (
-            point.x >= box.minX &&
-            point.x <= box.maxX &&
-            point.y >= box.minY &&
-            point.y <= box.maxY &&
-            point.z >= box.minZ &&
-            point.z <= box.maxZ
+            point.x >= min.x &&
+            point.x <= max.x &&
+            point.y >= min.y &&
+            point.y <= max.y &&
+            point.z >= min.z &&
+            point.z <= max.z
         );
     }
 }
