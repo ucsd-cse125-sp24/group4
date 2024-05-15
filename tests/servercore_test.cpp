@@ -54,7 +54,8 @@ int test_listen_accept() {
         }
     }
     for (PlayerState ps : sc.serverState.players) {
-        if (ps.world != glm::mat4(1.0f) || ps.score != 0) {
+        if (ps.world != glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f),glm::vec3(1.0f,0.0f,0.0f))
+            || ps.score != 0) {
             close_and_shutdown(&sc, client_list);
             return 1;
         }
