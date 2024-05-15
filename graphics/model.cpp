@@ -18,7 +18,7 @@ void Model::draw(const glm::mat4& viewProjMtx, Shader* shader) {
 	glUseProgram(0);
 }
 
-void Model::load_model(std::string path) {
+void Model::load_model(const std::string& path) {
 	Assimp::Importer importer;
 	
 	// Get current directory in Windows
