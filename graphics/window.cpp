@@ -164,7 +164,7 @@ void Window::display_callback(GLFWwindow* window) {
 	cam->update(players[player_id]->get_world());
 
 	for(Drawable* player : players) {
-		player->draw(glm::rotate(cam->get_view_project_mtx(), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)), shader_program);
+		player->draw(cam->get_view_project_mtx(), shader_program);
 	}
 
 

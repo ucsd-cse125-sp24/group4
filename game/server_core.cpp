@@ -223,7 +223,7 @@ void ServerCore::accept_new_clients(int i) {
     clients_data.push_back(client);
 
     PlayerState p_state;
-    p_state.world = glm::mat4(1.0f);
+    p_state.world = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f),glm::vec3(1.0f,0.0f,0.0f));
 
     p_state.score = 0;
 
