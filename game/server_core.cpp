@@ -135,36 +135,40 @@ void ServerCore::process_input(InputPacket packet, short id) {
     PlayerObject* client_player = pWorld.findPlayer(id);
 
     float SCALE = 0.05f; // TODO: Define this somewhere else. Maybe in a constants folder?
-
+    glm::vec3 dir;
+    glm::vec3 old_pos = client_player->position;
     // Process input events
     for (int event : packet.events) {
-        glm::vec3 dir;
+
         switch (event) {
         case MOVE_FORWARD:
-            //client_player->moveForward();
-            dir = glm::vec3(0.0f, 0.0f, -1.0f);
+            client_player->moveForward();
+            //dir = glm::vec3(0.0f, 0.0f, -1.0f);
             break;
         case MOVE_BACKWARD:
-            //client_player->moveBackward();
-            dir = glm::vec3(0.0f, 0.0f, 1.0f);
+            client_player->moveBackward();
+            //dir = glm::vec3(0.0f, 0.0f, 1.0f);
 			break;
         case MOVE_LEFT:
-            //client_player->moveLeft();
-			dir = glm::vec3(-1.0f, 0.0f, 0.0f);
+            client_player->moveLeft();
+			//dir = glm::vec3(-1.0f, 0.0f, 0.0f);
 			break;
         case MOVE_RIGHT:
-            //client_player->moveRight();
-            dir = glm::vec3(1.0f, 0.0f, 0.0f);
+            client_player->moveRight();
+            //dir = glm::vec3(1.0f, 0.0f, 0.0f);
             break;
         }
         client_player->minBound += dir;
         client_player->maxBound += dir;
-        pWorld.step();
         // Rotate dir by camera angle
-        dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
-
-        world = glm::translate(world, dir * SCALE);
+        
     }
+    pWorld.step();
+    dir = client_player->position - old_pos;
+    dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
+    world = glm::translate(world, dir * SCALE);
+
+    //printf("forces: <%f, %f, %f>\n", client_player->force.x, client_player->force.y, client_player->force.z);
 
     serverState.players[i].world = world;
 }

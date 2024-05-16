@@ -46,16 +46,16 @@ void PhysicsWorld::step()
 {
     float dt = 0.02f;
     for (GameObject* obj : m_objects) {
-        obj->force += obj->mass * m_gravity; // apply a force
-
+        //obj->force += obj->mass * m_gravity; // apply a force
         glm::vec3 ori_v = obj->velocity;
         obj->velocity += obj->force / obj->mass * dt;
 
         // check y >= 0
         obj->position += 0.5f * (ori_v + obj->velocity) * dt;
-        obj->position = glm::vec3(0, 0, 0);
         printf("positions: <%f, %f, %f>\n", obj->position.x, obj->position.y, obj->position.z);
         obj->force = glm::vec3(0, 0, 0); // reset net force at the end
+        //obj->velocity = glm::vec3(0, 0, 0);
+        printf("forces: <%f, %f, %f>\n", obj->force.x, obj->force.y, obj->force.z);
 
         // TBD: add a check for y falling below 0, and response
     }
