@@ -108,10 +108,10 @@ void ServerCore::receive_data()
                         InputPacket::deserialize(buf, input_packet);
                         process_input(input_packet, client->id);
                         // Print for testing
-                        printf("\nEvents: ");
-                        for (const auto &event : input_packet.events)
-                            printf("%d ", event);
-                        printf("\nCamera angle: %f\n\n", input_packet.cam_angle);
+                        //printf("\nEvents: ");
+                        //for (const auto &event : input_packet.events)
+                        //    printf("%d ", event);
+                        //printf("\nCamera angle: %f\n\n", input_packet.cam_angle);
                         break;
 
                     case VOTE:
@@ -149,9 +149,18 @@ void ServerCore::process_input(InputPacket packet, short id) {
 
     float SCALE = 0.05f; // TODO: Define this somewhere else. Maybe in a constants folder?
 
+    float sz = packet.events.size();
+    if (sz > 0) {
+        int a = 0;
+    }
+
+    SCALE /= sz;
+
     // Process input events
-    for (int event : packet.events) {
+    for (int j = 0; j < packet.events.size(); j++) {
         glm::vec3 dir;
+        int event = packet.events[j];
+
         switch (event) {
         case MOVE_FORWARD:
             dir = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -167,11 +176,37 @@ void ServerCore::process_input(InputPacket packet, short id) {
             break;
         }
 
+        
+
         // Rotate dir by camera angle
         dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
-        glm::mat4 t = glm::translate(glm::mat4(1.0), dir * SCALE);
+        glm::mat4 transform = glm::translate(glm::mat4(1.0), dir * SCALE);
 
-        world = t * world;
+        world = transform * world;
+
+        // Also turn the alien towards the direction it's moving
+
+        // TOOD: Extract into constants? Who knows
+        const float RSCALE = 0.1f;
+
+        glm::vec3 front = glm::vec3(0.0f, 1.0f, 0.0f);
+        front = serverState.players[i].world * glm::vec4(front, 0.0f);
+
+        //std::cout << "front for " << i << ": " << front.x << " " << front.y << " " << front.z << "\n";
+        // Find if DIR is to the right or left of FRONT
+
+        // Calculate the cross product of frontVector and otherVector
+        glm::vec3 crossProduct = glm::cross(front, dir);
+
+        // Check the direction of the cross product to determine left or right
+        if (crossProduct.y > 0) // Assuming y-axis is up in your coordinate system
+        {
+            // Right
+            world = glm::rotate(world, -RSCALE, glm::vec3(0.0f, 0.0f, 1.0f));
+        }
+        else {
+            world = glm::rotate(world, RSCALE, glm::vec3(0.0f, 0.0f, 1.0f));
+        }
     }
 
     serverState.players[i].world = world;
