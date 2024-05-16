@@ -169,8 +169,9 @@ void ServerCore::process_input(InputPacket packet, short id) {
 
         // Rotate dir by camera angle
         dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
+        glm::mat4 t = glm::translate(glm::mat4(1.0), dir * SCALE);
 
-        world = glm::translate(world, dir * SCALE);
+        world = t * world;
     }
 
     serverState.players[i].world = world;
@@ -251,7 +252,8 @@ void ServerCore::accept_new_clients(int i) {
     clients_data.push_back(client);
 
     PlayerState p_state;
-    p_state.world = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f),glm::vec3(1.0f,0.0f,0.0f));
+	glm::mat4 r = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    p_state.world = r * glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f),glm::vec3(1.0f,0.0f,0.0f));
 
     p_state.score = 0;
 
