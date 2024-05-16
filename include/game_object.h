@@ -26,4 +26,5 @@ struct PlayerObject : GameObject {
     void moveBackward();
     void moveLeft();
     void moveRight();
+    void move(glm::vec3 dir);
 };

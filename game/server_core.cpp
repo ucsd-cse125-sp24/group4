@@ -134,39 +134,37 @@ void ServerCore::process_input(InputPacket packet, short id) {
     }
     PlayerObject* client_player = pWorld.findPlayer(id);
 
-    float SCALE = 0.05f; // TODO: Define this somewhere else. Maybe in a constants folder?
-    glm::vec3 dir;
-    glm::vec3 old_pos = client_player->position;
+    float SCALE = 0.5f; // TODO: Define this somewhere else. Maybe in a constants folder?
     // Process input events
     for (int event : packet.events) {
-
+        glm::vec3 dir;
         switch (event) {
         case MOVE_FORWARD:
-            client_player->moveForward();
-            //dir = glm::vec3(0.0f, 0.0f, -1.0f);
+            //client_player->moveForward();
+            dir = glm::vec3(0.0f, 0.0f, -1.0f);
             break;
         case MOVE_BACKWARD:
-            client_player->moveBackward();
-            //dir = glm::vec3(0.0f, 0.0f, 1.0f);
+            //client_player->moveBackward();
+            dir = glm::vec3(0.0f, 0.0f, 1.0f);
 			break;
         case MOVE_LEFT:
-            client_player->moveLeft();
-			//dir = glm::vec3(-1.0f, 0.0f, 0.0f);
+            //client_player->moveLeft();
+			dir = glm::vec3(-1.0f, 0.0f, 0.0f);
 			break;
         case MOVE_RIGHT:
-            client_player->moveRight();
-            //dir = glm::vec3(1.0f, 0.0f, 0.0f);
+            //client_player->moveRight();
+            dir = glm::vec3(1.0f, 0.0f, 0.0f);
             break;
         }
+        dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
+        client_player->move(dir);
         client_player->minBound += dir;
         client_player->maxBound += dir;
-        // Rotate dir by camera angle
-        
+        printf("dirs: <%f, %f, %f>\n", dir.x, dir.y, dir.z);
     }
     pWorld.step();
-    dir = client_player->position - old_pos;
-    dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
-    world = glm::translate(world, dir * SCALE);
+    world = glm::translate(world, client_player->position * SCALE);
+    printf("world m %f,%f,%f\n", world[3][0], world[3][1], world[3][2]);
 
     //printf("forces: <%f, %f, %f>\n", client_player->force.x, client_player->force.y, client_player->force.z);
 
