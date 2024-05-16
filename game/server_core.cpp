@@ -140,26 +140,22 @@ void ServerCore::process_input(InputPacket packet, short id) {
         glm::vec3 dir;
         switch (event) {
         case MOVE_FORWARD:
-            //client_player->moveForward();
             dir = glm::vec3(0.0f, 0.0f, -1.0f);
             break;
         case MOVE_BACKWARD:
-            //client_player->moveBackward();
             dir = glm::vec3(0.0f, 0.0f, 1.0f);
 			break;
         case MOVE_LEFT:
-            //client_player->moveLeft();
 			dir = glm::vec3(-1.0f, 0.0f, 0.0f);
 			break;
         case MOVE_RIGHT:
-            //client_player->moveRight();
             dir = glm::vec3(1.0f, 0.0f, 0.0f);
             break;
         }
         dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
         client_player->move(dir);
-        client_player->minBound += dir;
-        client_player->maxBound += dir;
+        // client_player->minBound += dir;
+        // client_player->maxBound += dir;
         printf("dirs: <%f, %f, %f>\n", dir.x, dir.y, dir.z);
     }
     pWorld.step();
