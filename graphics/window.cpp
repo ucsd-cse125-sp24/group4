@@ -98,25 +98,25 @@ void Window::setup_scene() {
 	glm::mat4 temp = glm::translate(glm::mat4(1.0f), glm::vec3(0, 100, 0));
 
 
-	Model *player = new Model("models/green.fbx");
+	Model *player = new Model("art/models/green.fbx");
 	player->set_color(glm::vec3(0, 1, 0)); // p1 - green
 	player->set_world(temp);
 	players.push_back(player);
 
 
-	Model* player2 = new Model("models/green2.fbx");
+	Model* player2 = new Model("art/models/green2.fbx");
 	player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
 	player2->set_world(temp);
 	players.push_back(player2);
 
 	// p3 - purple
-	Model* player3 = new Model("models/green3.fbx");
+	Model* player3 = new Model("art/models/green3.fbx");
 	player3->set_color(glm::vec3(1, 0, 1));
 	player3->set_world(temp);
 	players.push_back(player3);
 
 	// p4 - blue
-	Model* player4 = new Model("models/green4.fbx");
+	Model* player4 = new Model("art/models/green4.fbx");
 	player4->set_color(glm::vec3(0, 0, 1));
 	player4->set_world(temp);
 	players.push_back(player4);

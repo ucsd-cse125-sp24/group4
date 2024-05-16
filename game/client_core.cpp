@@ -45,30 +45,57 @@ void ClientCore::shutdown()
 
 void ClientCore::run()
 {
-    while (false) { // eventually: while this->server_state == LOBBY
+    printf("Successfully joined game! Be sure to vote to start once you're ready.");
+    while (this->server_state == LOBBY) {
+        // check if player has voted or rescinded vote to start; if either, send vote packet w deets
+        // TODO: get actual input lmao
+        send_vote(); // hard-coded to just vote READY immediately
+
+        // check for progression to MAIN_LOOP
         receive_updates();
+
+        // maybe display some 'waiting for players' screen if there's time?
     }
-    while (connected) // && state == MAIN_LOOP ?
+
+    while (connected && this->server_state == MAIN_LOOP)
     {
         receive_updates();
         process_server_data();
         renderGameState();
         send_input(); // moving to bottom bc only send can shutdown
     }
+
+    while (this->server_state == END_WIN) {
+        printf("yalls won\n"); // TODO: actual win logic
+        return;
+    }
+    while (this->server_state == END_LOSE) {
+        printf("a loser is u\n"); // TODO: actual loss logic
+        break;
+    }
+}
+
+void ClientCore::send_vote() {
+    VotePacket packet;
+    packet.vote = READY; // TODO
+    size_t bufferSize = packet.calculateSize();
+    char *buffer = new char[bufferSize];
+
+    VotePacket::serialize(packet, buffer);
+    if (!client.sock_send((int)bufferSize, buffer)) {
+        shutdown();
+    }
+
+    delete[] buffer;
 }
 
 void ClientCore::send_input()
 {
-    InputPacket packet;/*
-    packet.events.push_back(0);
-    packet.events.push_back(1);*/
+    InputPacket packet;
     packet.cam_angle = Window::get_cam_angle_radians();
-    // TODO: Get events and push it into packet
     std::vector<int> tmp = Window::get_input_actions();
     for (int event : tmp)
         packet.events.push_back(event);
-
-    // TODO: Get cam_angle and push it to packet - Camera controls need to be implemented first
  
     if (glfwWindowShouldClose(window)) {
         shutdown();
