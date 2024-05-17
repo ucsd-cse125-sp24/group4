@@ -150,11 +150,12 @@ void ServerCore::process_input(InputPacket packet, short id) {
     float SCALE = 0.05f; // TODO: Define this somewhere else. Maybe in a constants folder?
 
     float sz = packet.events.size();
-    if (sz > 0) {
+    if (sz > 1) {
         int a = 0;
     }
 
     SCALE /= sz;
+    glm::vec3 turndir;
 
     // Process input events
     for (int j = 0; j < packet.events.size(); j++) {
@@ -175,7 +176,6 @@ void ServerCore::process_input(InputPacket packet, short id) {
             dir = glm::vec3(1.0f, 0.0f, 0.0f);
             break;
         }
-
         
 
         // Rotate dir by camera angle
@@ -194,18 +194,26 @@ void ServerCore::process_input(InputPacket packet, short id) {
 
         //std::cout << "front for " << i << ": " << front.x << " " << front.y << " " << front.z << "\n";
         // Find if DIR is to the right or left of FRONT
+        if (j == 0) {
+            turndir = dir;
+        }
+        else {
+            dir = turndir + dir;
+        }
 
         // Calculate the cross product of frontVector and otherVector
         glm::vec3 crossProduct = glm::cross(front, dir);
 
         // Check the direction of the cross product to determine left or right
-        if (crossProduct.y > 0) // Assuming y-axis is up in your coordinate system
-        {
-            // Right
-            world = glm::rotate(world, -RSCALE, glm::vec3(0.0f, 0.0f, 1.0f));
-        }
-        else {
-            world = glm::rotate(world, RSCALE, glm::vec3(0.0f, 0.0f, 1.0f));
+        if (sz == 1 || j == 1) {
+            if (crossProduct.y > 0) // Assuming y-axis is up in your coordinate system
+            {
+                // Right
+                world = glm::rotate(world, -RSCALE, glm::vec3(0.0f, 0.0f, 1.0f));
+            }
+            else {
+                world = glm::rotate(world, RSCALE, glm::vec3(0.0f, 0.0f, 1.0f));
+            }
         }
     }
 
