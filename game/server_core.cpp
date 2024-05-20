@@ -202,7 +202,7 @@ void ServerCore::process_input(InputPacket packet, short id) {
         // TOOD: Extract into constants? Who knows
         const float RSCALE = 0.1f;
 
-        glm::vec3 front = glm::vec3(0.0f, 1.0f, 0.0f);
+        glm::vec3 front = glm::vec3(0.0f, 0.0f, 1.0f);
         front = serverState.players[i].world * glm::vec4(front, 0.0f);
 
         //std::cout << "front for " << i << ": " << front.x << " " << front.y << " " << front.z << "\n";
