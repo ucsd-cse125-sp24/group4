@@ -147,7 +147,8 @@ void ServerCore::process_input(InputPacket packet, short id) {
         }
     }
 
-    float SCALE = 0.05f; // TODO: Define this somewhere else. Maybe in a constants folder?
+    //float SCALE = 0.05f; // TODO: Define this somewhere else. Maybe in a constants folder?
+    float SCALE = 5.0f;
 
     float sz = packet.events.size();
     if (sz > 1) {
@@ -174,6 +175,18 @@ void ServerCore::process_input(InputPacket packet, short id) {
 			break;
         case MOVE_RIGHT:
             dir = glm::vec3(1.0f, 0.0f, 0.0f);
+            break;
+        case JUMP:
+            dir = glm::vec3(0.0f, 1.0f, 0.0f);
+			glm::mat4 t = glm::translate(glm::mat4(1.0), dir * SCALE);
+			world = t * world;
+            continue;
+			break;
+        case DROP:
+			dir = glm::vec3(0.0f, -1.0f, 0.0f);
+			glm::mat4 t2 = glm::translate(glm::mat4(1.0), dir * SCALE);
+			world = t2 * world;
+			continue;
             break;
         }
         
@@ -209,10 +222,10 @@ void ServerCore::process_input(InputPacket packet, short id) {
             if (crossProduct.y > 0) // Assuming y-axis is up in your coordinate system
             {
                 // Right
-                world = glm::rotate(world, -RSCALE, glm::vec3(0.0f, 0.0f, 1.0f));
+                world = glm::rotate(world, -RSCALE, glm::vec3(0.0f, 1.0f, 0.0f));
             }
             else {
-                world = glm::rotate(world, RSCALE, glm::vec3(0.0f, 0.0f, 1.0f));
+                world = glm::rotate(world, RSCALE, glm::vec3(0.0f, 1.0f, 0.0f));
             }
         }
     }
@@ -295,8 +308,8 @@ void ServerCore::accept_new_clients(int i) {
     clients_data.push_back(client);
 
     PlayerState p_state;
-	glm::mat4 r = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    p_state.world = r * glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f),glm::vec3(1.0f,0.0f,0.0f));
+	glm::mat4 s = glm::scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f));
+    p_state.world = s;
 
     p_state.score = 0;
 

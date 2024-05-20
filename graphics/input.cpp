@@ -19,6 +19,12 @@ std::vector<int> Input::get_action() {
 	else if (keys[GLFW_KEY_D]) {
 		events.push_back(MOVE_RIGHT);
 	}
+	else if (keys[GLFW_KEY_SPACE]) {
+		events.push_back(JUMP);
+	}
+	else if (keys[GLFW_KEY_LEFT_CONTROL]) {
+		events.push_back(DROP);
+	}
 
 	return events;
 }	
