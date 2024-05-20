@@ -51,6 +51,7 @@ void PhysicsWorld::step()
         obj->velocity += obj->force / obj->mass * dt;
 
         // check y >= 0
+        obj->old_position = obj->position;
         obj->position += 0.5f * (ori_v + obj->velocity) * dt;
         printf("positions: <%f, %f, %f>\n", obj->position.x, obj->position.y, obj->position.z);
         obj->force = glm::vec3(0, 0, 0); // reset net force at the end

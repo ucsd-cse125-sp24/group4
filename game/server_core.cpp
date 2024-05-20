@@ -134,7 +134,7 @@ void ServerCore::process_input(InputPacket packet, short id) {
     }
     PlayerObject* client_player = pWorld.findPlayer(id);
 
-    float SCALE = 0.5f; // TODO: Define this somewhere else. Maybe in a constants folder?
+    float SCALE = 1.0f; // TODO: Define this somewhere else. Maybe in a constants folder?
     // Process input events
     for (int event : packet.events) {
         glm::vec3 dir;
@@ -159,7 +159,7 @@ void ServerCore::process_input(InputPacket packet, short id) {
         printf("dirs: <%f, %f, %f>\n", dir.x, dir.y, dir.z);
     }
     pWorld.step();
-    world = glm::translate(world, client_player->position * SCALE);
+    world = glm::translate(world, (client_player->position - client_player->old_position) * SCALE);
     printf("world m %f,%f,%f\n", world[3][0], world[3][1], world[3][2]);
 
     //printf("forces: <%f, %f, %f>\n", client_player->force.x, client_player->force.y, client_player->force.z);
@@ -238,6 +238,7 @@ void ServerCore::accept_new_clients(int i) {
     newPlayerObject->force = glm::vec3(0.0f, 0.0f, 0.0f);
     newPlayerObject->velocity = glm::vec3(0.0f, 0.0f, 0.0f);
     newPlayerObject->position = glm::vec3(0.0f, 0.0f, 0.0f);
+    newPlayerObject->old_position = glm::vec3(0.0f, 0.0f, 0.0f);
     newPlayerObject->mass = 10;
     newPlayerObject->playerId = client->id;
     newPlayerObject->world = p_state.world;

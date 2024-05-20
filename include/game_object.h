@@ -7,6 +7,7 @@ struct GameObject {
 
     // have a variable for type player 
     glm::mat4 world;
+    glm::vec3 old_position;
     glm::vec3 position;    // Position of the object in 3D space
     glm::vec3 velocity;    // Velocity of the object
     glm::vec3 force; // Acceleration of the object
