@@ -133,13 +133,13 @@ Mesh Model::process_mesh(aiMesh* mesh, const aiScene* scene) {
 
 	// Process material - used for textures...
 
-	min_x = min(min_x, mesh->mAABB.mMin.x);
-	min_y = min(min_y, mesh->mAABB.mMin.y);
-	min_z = min(min_z, mesh->mAABB.mMin.z);
+	min_x = ((min_x) < (mesh->mAABB.mMin.x)) ? (min_x) : (mesh->mAABB.mMin.x);
+	min_y = ((min_y) < (mesh->mAABB.mMin.y)) ? (min_y) : (mesh->mAABB.mMin.y);
+	min_z = ((min_z) < (mesh->mAABB.mMin.z)) ? (min_z) : (mesh->mAABB.mMin.z);
 
-	max_x = max(max_x, mesh->mAABB.mMax.x);
-	max_y = max(max_y, mesh->mAABB.mMax.y);
-	max_z = max(max_z, mesh->mAABB.mMax.z);
+	max_x = ((max_x) > (mesh->mAABB.mMax.x)) ? (max_x) : (mesh->mAABB.mMax.x);
+	max_y = ((max_y) > (mesh->mAABB.mMax.y)) ? (max_y) : (mesh->mAABB.mMax.y);
+	max_z = ((max_z) > (mesh->mAABB.mMax.z)) ? (max_z) : (mesh->mAABB.mMax.z);
 	
 
 	return Mesh(vertices, indices, textures);
