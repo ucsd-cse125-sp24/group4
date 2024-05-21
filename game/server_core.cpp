@@ -4,7 +4,8 @@
 
 #define TICK_MICROSECS 20000 // this gives 50 fps (fps = 1M / TICK_US)
 
-ServerCore::ServerCore() {
+ServerCore::ServerCore()
+{
     this->running = false;
     this->ready_players = 0;
     this->state = LOBBY;
@@ -19,7 +20,8 @@ ServerCore::~ServerCore()
         shutdown();
 }
 
-void ServerCore::listen() {
+void ServerCore::listen()
+{
     // get new connection and, if found, add associated client_data
     server.sock_listen();
     for (int i = int(this->clients_data.size()); i < server.get_num_clients(); i++)
@@ -31,30 +33,34 @@ void ServerCore::listen() {
     running = true; // this might be superfluous now, we'll see
 }
 
-void ServerCore::run() {
+void ServerCore::run()
+{
     running = true;
     send_heartbeat();
 
     // start once max players is reached OR all (nonzero) players are ready anyway
-    while (server.get_num_clients() < NUM_CLIENTS && 
-          (this->ready_players < server.get_num_clients() || this->ready_players < 1)) {
-            this->listen();
+    while (server.get_num_clients() < NUM_CLIENTS &&
+           (this->ready_players < server.get_num_clients() || this->ready_players < 1))
+    {
+        this->listen();
     }
     printf("All players have joined or are ready! Game beginning...\n");
     this->state = MAIN_LOOP;
     send_heartbeat();
 
-    while (isRunning()) {
+    while (isRunning())
+    {
         auto start = std::chrono::high_resolution_clock::now();
 
-        //this->listen(); // uncomment to allow joining mid-game
+        // this->listen(); // uncomment to allow joining mid-game
         receive_data();
         update_game_state();
         send_updates();
-        
+
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration_us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-        while (duration_us.count() < TICK_MICROSECS) {
+        while (duration_us.count() < TICK_MICROSECS)
+        {
             stop = std::chrono::high_resolution_clock::now();
             duration_us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
         }
@@ -66,7 +72,7 @@ void ServerCore::run() {
 
 void ServerCore::shutdown()
 {
-    for (ClientData* c : clients_data)
+    for (ClientData *c : clients_data)
         free(c);
     clients_data.clear(); // Clear the client data vector
     server.sock_shutdown();
@@ -90,7 +96,7 @@ void ServerCore::receive_data()
     VotePacket vote_packet;
     char *buf;
 
-    for (ClientData* client : clients_data)
+    for (ClientData *client : clients_data)
     {
         FD_SET(client->sock, &readFdSet);
         if (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0)
@@ -98,60 +104,66 @@ void ServerCore::receive_data()
             buf = server.sock_receive(client->sock);
             if (buf && buf[0])
             {
-                //printf("server received %s\n", buf);
+                // printf("server received %s\n", buf);
                 PacketType type = Packet::get_packet_type(buf);
-                switch(type) {
-                    // handle diff kinds of packets in diff ways depending on game state
-                    case PLAYER_INPUT:
-                        if (state != MAIN_LOOP) // only accept input during core gameplay loop
-                            return;
-                        InputPacket::deserialize(buf, input_packet);
-                        process_input(input_packet, client->id);
-                        // Print for testing
-                        //printf("\nEvents: ");
-                        //for (const auto &event : input_packet.events)
-                        //    printf("%d ", event);
-                        //printf("\nCamera angle: %f\n\n", input_packet.cam_angle);
-                        break;
+                switch (type)
+                {
+                // handle diff kinds of packets in diff ways depending on game state
+                case PLAYER_INPUT:
+                    if (state != MAIN_LOOP) // only accept input during core gameplay loop
+                        return;
+                    InputPacket::deserialize(buf, input_packet);
+                    process_input(input_packet, client->id);
+                    // Print for testing
+                    // printf("\nEvents: ");
+                    // for (const auto &event : input_packet.events)
+                    //    printf("%d ", event);
+                    // printf("\nCamera angle: %f\n\n", input_packet.cam_angle);
+                    break;
 
-                    case VOTE:
-                        if (state != LOBBY) // only accept votes while in lobby
-                            return;
-                        VotePacket::deserialize(buf, vote_packet);
-                        printf("received vote %d\n", *(buf + sizeof(Vote)));
-                        // check that vote is actually state-changing and, if it is, update readiness
-                        if (vote_packet.vote == READY && client->ready_to_start == NOT_READY)
-                            ready_players++;
-                        else if (vote_packet.vote == NOT_READY && client->ready_to_start == READY)
-                            ready_players--;
+                case VOTE:
+                    if (state != LOBBY) // only accept votes while in lobby
+                        return;
+                    VotePacket::deserialize(buf, vote_packet);
+                    printf("received vote %d\n", *(buf + sizeof(Vote)));
+                    // check that vote is actually state-changing and, if it is, update readiness
+                    if (vote_packet.vote == READY && client->ready_to_start == NOT_READY)
+                        ready_players++;
+                    else if (vote_packet.vote == NOT_READY && client->ready_to_start == READY)
+                        ready_players--;
 
-                        client->ready_to_start = vote_packet.vote;
-                        break;
+                    client->ready_to_start = vote_packet.vote;
+                    break;
 
-                    default: // shouldn't reach this
-                        printf("Error: unexpected receipt of packet type %d", type);
-                }   
+                default: // shouldn't reach this
+                    printf("Error: unexpected receipt of packet type %d", type);
+                }
             }
         }
     }
 }
 
-void ServerCore::process_input(InputPacket packet, short id) {
+void ServerCore::process_input(InputPacket packet, short id)
+{
     // Find player by id, not index (for loop kinda clunky but it works for now :p)
     glm::mat4 world = NULL;
     short i;
-    for (i = 0; i < serverState.players.size(); i++) {
-        if (clients_data[i]->id == id) { // assumes clients are ordered the same in clients_data & serverState T.T
+    for (i = 0; i < serverState.players.size(); i++)
+    {
+        if (clients_data[i]->id == id)
+        { // assumes clients are ordered the same in clients_data & serverState T.T
             world = serverState.players[i].world;
             break;
         }
     }
 
-    //float SCALE = 0.05f; // TODO: Define this somewhere else. Maybe in a constants folder?
-    float SCALE = 5.0f;
+    // float SCALE = 0.05f; // TODO: Define this somewhere else. Maybe in a constants folder?
+    // float SCALE = 5.0f;
+    float SCALE = 1.0f;
 
     float sz = packet.events.size();
-    if (sz > 1) {
+    if (sz > 1)
+    {
         int a = 0;
     }
 
@@ -159,37 +171,42 @@ void ServerCore::process_input(InputPacket packet, short id) {
     glm::vec3 turndir;
 
     // Process input events
-    for (int j = 0; j < packet.events.size(); j++) {
+    for (int j = 0; j < packet.events.size(); j++)
+    {
         glm::vec3 dir;
         int event = packet.events[j];
 
-        switch (event) {
+        switch (event)
+        {
         case MOVE_FORWARD:
             dir = glm::vec3(0.0f, 0.0f, -1.0f);
             break;
         case MOVE_BACKWARD:
             dir = glm::vec3(0.0f, 0.0f, 1.0f);
-			break;
+            break;
         case MOVE_LEFT:
-			dir = glm::vec3(-1.0f, 0.0f, 0.0f);
-			break;
+            dir = glm::vec3(-1.0f, 0.0f, 0.0f);
+            break;
         case MOVE_RIGHT:
             dir = glm::vec3(1.0f, 0.0f, 0.0f);
             break;
         case JUMP:
+        {
             dir = glm::vec3(0.0f, 1.0f, 0.0f);
-			glm::mat4 t = glm::translate(glm::mat4(1.0), dir * SCALE);
-			world = t * world;
+            glm::mat4 t = glm::translate(glm::mat4(1.0), dir * SCALE);
+            world = t * world;
             continue;
-			break;
-        case DROP:
-			dir = glm::vec3(0.0f, -1.0f, 0.0f);
-			glm::mat4 t2 = glm::translate(glm::mat4(1.0), dir * SCALE);
-			world = t2 * world;
-			continue;
             break;
         }
-        
+        case DROP:
+        {
+            dir = glm::vec3(0.0f, -1.0f, 0.0f);
+            glm::mat4 t2 = glm::translate(glm::mat4(1.0), dir * SCALE);
+            world = t2 * world;
+            continue;
+            break;
+        }
+        }
 
         // Rotate dir by camera angle
         dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
@@ -205,12 +222,14 @@ void ServerCore::process_input(InputPacket packet, short id) {
         glm::vec3 front = glm::vec3(0.0f, 0.0f, 1.0f);
         front = serverState.players[i].world * glm::vec4(front, 0.0f);
 
-        //std::cout << "front for " << i << ": " << front.x << " " << front.y << " " << front.z << "\n";
-        // Find if DIR is to the right or left of FRONT
-        if (j == 0) {
+        // std::cout << "front for " << i << ": " << front.x << " " << front.y << " " << front.z << "\n";
+        //  Find if DIR is to the right or left of FRONT
+        if (j == 0)
+        {
             turndir = dir;
         }
-        else {
+        else
+        {
             dir = turndir + dir;
         }
 
@@ -218,13 +237,15 @@ void ServerCore::process_input(InputPacket packet, short id) {
         glm::vec3 crossProduct = glm::cross(front, dir);
 
         // Check the direction of the cross product to determine left or right
-        if (sz == 1 || j == 1) {
+        if (sz == 1 || j == 1)
+        {
             if (crossProduct.y > 0) // Assuming y-axis is up in your coordinate system
             {
                 // Right
                 world = glm::rotate(world, -RSCALE, glm::vec3(0.0f, 1.0f, 0.0f));
             }
-            else {
+            else
+            {
                 world = glm::rotate(world, RSCALE, glm::vec3(0.0f, 1.0f, 0.0f));
             }
         }
@@ -233,12 +254,14 @@ void ServerCore::process_input(InputPacket packet, short id) {
     serverState.players[i].world = world;
 }
 
-void ServerCore::update_game_state() {
+void ServerCore::update_game_state()
+{
 
     // Update parts of the game that don't depend on player input.
 
     // Enemy AI etc
-    while (serverState.students.size() < 5) {
+    while (serverState.students.size() < 5)
+    {
         StudentState s_state;
 
         s_state.world = glm::mat4(1.0f); // TEMP
@@ -248,7 +271,8 @@ void ServerCore::update_game_state() {
     serverState.level = 5;
 }
 
-void ServerCore::send_heartbeat() {
+void ServerCore::send_heartbeat()
+{
     ServerHeartbeatPacket packet;
     packet.state = this->state;
 
@@ -260,7 +284,8 @@ void ServerCore::send_heartbeat() {
     delete[] buffer;
 }
 
-void ServerCore::send_updates() {
+void ServerCore::send_updates()
+{
     GameStatePacket packet;
     packet.state = serverState;
 
@@ -272,12 +297,14 @@ void ServerCore::send_updates() {
     delete[] buffer;
 }
 
-void ServerCore::send_serial(char* to_send)
+void ServerCore::send_serial(char *to_send)
 {
-    for (int i = 0; i < (int)clients_data.size(); i++) {
+    for (int i = 0; i < (int)clients_data.size(); i++)
+    {
         bool send_success = server.sock_send(clients_data[i]->sock, CLIENT_RECV_BUFLEN, to_send);
         // if client shutdown, tear down this client/player
-        if (!send_success) {
+        if (!send_success)
+        {
             this->available_ids.push_back(clients_data[i]->id); // reclaim id as available
             std::sort(this->available_ids.begin(), this->available_ids.end());
             server.close_client(clients_data[i]->sock);
@@ -289,16 +316,18 @@ void ServerCore::send_serial(char* to_send)
     }
 }
 
-void ServerCore::accept_new_clients(int i) {
+void ServerCore::accept_new_clients(int i)
+{
     SOCKET clientSock = server.get_client_sock(i);
-    ClientData* client = new ClientData;
+    ClientData *client = new ClientData;
     client->sock = clientSock;
     client->ready_to_start = NOT_READY;
     client->id = this->available_ids.front(); // assign next avail id to client
-    char* buffer = new char[sizeof(short)];
-    *((short*)buffer) = client->id + 1; // add 1 bc we can't send 0 (null); clientcore subs 1 to correct
+    char *buffer = new char[sizeof(short)];
+    *((short *)buffer) = client->id + 1; // add 1 bc we can't send 0 (null); clientcore subs 1 to correct
     bool send_success = server.sock_send(client->sock, CLIENT_RECV_BUFLEN, buffer);
-    if (!send_success) {
+    if (!send_success)
+    {
         server.close_client(clientSock); // abort conn
         free(client);
         return;
@@ -308,7 +337,7 @@ void ServerCore::accept_new_clients(int i) {
     clients_data.push_back(client);
 
     PlayerState p_state;
-	glm::mat4 s = glm::scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f));
+    glm::mat4 s = glm::scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f));
     p_state.world = s;
 
     p_state.score = 0;
