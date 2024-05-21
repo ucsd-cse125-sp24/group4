@@ -138,7 +138,7 @@ void ServerCore::receive_data()
 
 void ServerCore::process_input(InputPacket packet, short id) {
     // Find player by id, not index (for loop kinda clunky but it works for now :p)
-    glm::mat4 world = NULL;
+    glm::mat4 world;
     short i;
     for (i = 0; i < serverState.players.size(); i++) {
         if (clients_data[i]->id == id) { // assumes clients are ordered the same in clients_data & serverState T.T
