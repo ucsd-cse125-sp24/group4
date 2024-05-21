@@ -125,7 +125,8 @@ void Window::setup_scene() {
 
 	// Floor 6_empty works without rotations
 
-	Model* mp = new Model("art/models/environment/floor6_empty.fbx");
+	//Model* mp = new Model("art/models/environment/floor6_empty.fbx");
+	Model* mp = new Model("art/models/chair.fbx");
 	mp->set_color(glm::vec3(0.5, 0.5, 0.5));
 	mp->set_world(glm::mat4(1.0f));
 	map = mp;

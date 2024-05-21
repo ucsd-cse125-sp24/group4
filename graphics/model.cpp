@@ -15,11 +15,22 @@ void Model::draw(const glm::mat4& viewProjMtx, Shader* shader) {
 		meshes[i].draw(viewProjMtx, shader);
 	}
 
+	// Draw the hitbox as a wireframe
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glm::mat4 t = glm::mat4(1.0f);
+	t[3] = model[3];
+	hitbox->set_world(t);
+	hitbox->draw(viewProjMtx, shader);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+
 	glUseProgram(0);
 }
 
 void Model::load_model(const std::string& path) {
 	Assimp::Importer importer;
+
+	hitbox = new Cube();
 	
 	// Get current directory in Windows
 	// char buffer[MAX_PATH];
@@ -120,18 +131,6 @@ Mesh Model::process_mesh(aiMesh* mesh, const aiScene* scene) {
 	return Mesh(vertices, indices, textures);
 }
 
-Model::Model() {
-
-}
-
-Model* Model::clone() {
-
-	// Surely this wouldn't cause issues...
-	Model* clone = new Model();
-	clone->model = model;
-	clone->color = color;
-	clone->meshes = meshes;
-	clone->directory = directory;
-
-	return clone;
+Model::~Model() {
+	delete hitbox;
 }

@@ -15,6 +15,7 @@
 #include "packets/vote_packet.h"
 #include "server.h"
 #include "windows_socket.h"
+#include "constants.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/rotate_vector.hpp"

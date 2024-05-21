@@ -157,17 +157,13 @@ void ServerCore::process_input(InputPacket packet, short id)
         }
     }
 
-    // float SCALE = 0.05f; // TODO: Define this somewhere else. Maybe in a constants folder?
-    float SCALE = 5.0f;
-    //float SCALE = 1.0f;
-
     float sz = packet.events.size();
     if (sz > 1)
     {
         int a = 0;
     }
 
-    SCALE /= sz;
+    float scale = PLAYER_MOVEMENT_SCALE / sz;
     glm::vec3 turndir;
 
     // Process input events
@@ -193,7 +189,7 @@ void ServerCore::process_input(InputPacket packet, short id)
         case JUMP:
             {
             dir = glm::vec3(0.0f, 1.0f, 0.0f);
-            glm::mat4 t = glm::translate(glm::mat4(1.0), dir * SCALE);
+            glm::mat4 t = glm::translate(glm::mat4(1.0), dir * scale);
             world = t * world;
             continue;
             break;
@@ -201,7 +197,7 @@ void ServerCore::process_input(InputPacket packet, short id)
         case DROP:
             {
             dir = glm::vec3(0.0f, -1.0f, 0.0f);
-            glm::mat4 t2 = glm::translate(glm::mat4(1.0), dir * SCALE);
+            glm::mat4 t2 = glm::translate(glm::mat4(1.0), dir * scale);
             world = t2 * world;
             continue;
             }
@@ -209,14 +205,11 @@ void ServerCore::process_input(InputPacket packet, short id)
 
         // Rotate dir by camera angle
         dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
-        glm::mat4 transform = glm::translate(glm::mat4(1.0), dir * SCALE);
+        glm::mat4 transform = glm::translate(glm::mat4(1.0), dir * scale);
 
         world = transform * world;
 
         // Also turn the alien towards the direction it's moving
-
-        // TOOD: Extract into constants? Who knows
-        const float RSCALE = 0.1f;
 
         glm::vec3 front = glm::vec3(0.0f, 0.0f, 1.0f);
         front = serverState.players[i].world * glm::vec4(front, 0.0f);
@@ -241,11 +234,11 @@ void ServerCore::process_input(InputPacket packet, short id)
             if (crossProduct.y > 0) // Assuming y-axis is up in your coordinate system
             {
                 // Right
-                world = glm::rotate(world, -RSCALE, glm::vec3(0.0f, 1.0f, 0.0f));
+                world = glm::rotate(world, -PLAYER_ROTATION_SCALE, glm::vec3(0.0f, 1.0f, 0.0f));
             }
             else
             {
-                world = glm::rotate(world, RSCALE, glm::vec3(0.0f, 1.0f, 0.0f));
+                world = glm::rotate(world, PLAYER_ROTATION_SCALE, glm::vec3(0.0f, 1.0f, 0.0f));
             }
         }
     }
@@ -336,8 +329,7 @@ void ServerCore::accept_new_clients(int i)
     clients_data.push_back(client);
 
     PlayerState p_state;
-    glm::mat4 s = glm::scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f));
-    p_state.world = s;
+    p_state.world = glm::scale(glm::mat4(1.0f), glm::vec3(PLAYER_MODEL_SCALE, PLAYER_MODEL_SCALE, PLAYER_MODEL_SCALE));
 
     p_state.score = 0;
 
