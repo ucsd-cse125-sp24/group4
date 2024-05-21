@@ -330,7 +330,9 @@ void ServerCore::accept_new_clients(int i)
     clients_data.push_back(client);
 
     PlayerState p_state;
-    p_state.world = glm::scale(glm::mat4(1.0f), glm::vec3(PLAYER_MODEL_SCALE, PLAYER_MODEL_SCALE, PLAYER_MODEL_SCALE));
+	p_state.world = glm::scale(glm::mat4(1.0f), glm::vec3(PLAYER_MODEL_SCALE, PLAYER_MODEL_SCALE, PLAYER_MODEL_SCALE));
+    p_state.world = glm::translate(glm::mat4(1.0f), glm::vec3(1.50f * client->id, 0.0f, 0.0f)) * p_state.world;
+
 
     p_state.score = 0;
 
