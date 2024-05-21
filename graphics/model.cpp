@@ -17,12 +17,9 @@ void Model::draw(const glm::mat4& viewProjMtx, Shader* shader) {
 
 	// Draw the hitbox as a wireframe
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//glm::mat4 t = glm::mat4(1.0f);
-	//t[3] = model[3];
-	//hitbox->set_world(t);
-	//float scale = 1 / PLAYER_MODEL_SCALE;
-	//glm::mat4 t = glm::scale(model, glm::vec3(scale, scale, scale));
-	//hitbox->set_world(t);
+	glm::mat4 t = glm::scale(glm::mat4(1.0f), glm::vec3(PLAYER_MODEL_SCALE, PLAYER_MODEL_SCALE, PLAYER_MODEL_SCALE));
+	t[3] = model[3];
+	hitbox->set_world(t);
 	hitbox->draw(viewProjMtx, shader);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -76,7 +73,8 @@ void Model::load_model(const std::string& path) {
 	process_node(scene->mRootNode, scene);
 
 	// Create a hitbox for the model
-	hitbox = new Cube(glm::vec3(min_x, min_y, min_z), glm::vec3(max_x, max_y, max_z));
+	float dim = ((max_x - min_x) > (max_z - min_z)) ? (max_x - min_x) : (max_z - min_z);
+	hitbox = new Cube(glm::vec3(-dim / 2, min_y, -dim / 2), glm::vec3(dim / 2, max_y, dim / 2));
 }
 
 void Model::process_node(aiNode* node, const aiScene* scene) {
