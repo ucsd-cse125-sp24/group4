@@ -191,32 +191,20 @@ void ServerCore::process_input(InputPacket packet, short id)
             dir = glm::vec3(1.0f, 0.0f, 0.0f);
             break;
         case JUMP:
-        {
-        {
+            {
             dir = glm::vec3(0.0f, 1.0f, 0.0f);
             glm::mat4 t = glm::translate(glm::mat4(1.0), dir * SCALE);
             world = t * world;
-            glm::mat4 t = glm::translate(glm::mat4(1.0), dir * SCALE);
-            world = t * world;
             continue;
             break;
-        }
-            break;
-        }
+            }
         case DROP:
-        {
+            {
             dir = glm::vec3(0.0f, -1.0f, 0.0f);
             glm::mat4 t2 = glm::translate(glm::mat4(1.0), dir * SCALE);
             world = t2 * world;
             continue;
-        {
-            dir = glm::vec3(0.0f, -1.0f, 0.0f);
-            glm::mat4 t2 = glm::translate(glm::mat4(1.0), dir * SCALE);
-            world = t2 * world;
-            continue;
-            break;
-        }
-        }
+            }
         }
 
         // Rotate dir by camera angle
