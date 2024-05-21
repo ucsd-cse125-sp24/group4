@@ -43,7 +43,7 @@ class GameObject {
             // TBD    transform?
             return *collider;
         }
-
+        void applyFriction();
 };
 
 class PlayerObject : public GameObject {
