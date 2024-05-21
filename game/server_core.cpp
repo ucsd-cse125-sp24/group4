@@ -147,6 +147,7 @@ void ServerCore::process_input(InputPacket packet, short id)
 {
     // Find player by id, not index (for loop kinda clunky but it works for now :p)
     glm::mat4 world = glm::mat4(1.0f);
+
     short i;
     for (i = 0; i < serverState.players.size(); i++)
     {
