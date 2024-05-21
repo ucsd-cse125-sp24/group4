@@ -1,7 +1,7 @@
 #include "../include/physics/game_object.h"
 #include <cmath>
-#define step 60.0f
-#define mu 16
+#define step 30.0f
+#define mu 1.1
 
 void PlayerObject::move(glm::vec3 dir) {
     glm::vec3 move_force = dir * step;

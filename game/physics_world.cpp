@@ -44,7 +44,7 @@ PlayerObject* PhysicsWorld::findPlayer(int id) {
 
 void PhysicsWorld::step()
 {
-    float dt = 0.02f;
+    float dt = 1.0f;
     for (GameObject* obj : m_objects) {
         //obj->force += obj->mass * m_gravity; // apply a force
 
