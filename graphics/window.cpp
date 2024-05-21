@@ -10,8 +10,10 @@ Input* Window::input = nullptr;
 // Mouse
 float Window::lastX = 400, Window::lastY = 300; // TODO: change if resolution changes
 
-// TODO: Remove cubes?
+
+// Drawable objects
 std::vector<Drawable*> Window::players;
+Drawable* Window::map;
 
 short Window::player_id = 0; // 0 by default
 
@@ -121,9 +123,13 @@ void Window::setup_scene() {
 	player4->set_world(temp);
 	players.push_back(player4);
 
+	// Floor 6_empty works without rotations
 
-	// TODO: Move to callback -- Do I need to center here...
-	//cam->update(cube->get_world());
+	//Model* mp = new Model("art/models/environment/floor6_empty.fbx");
+	Model* mp = new Model("art/models/chair.fbx");
+	mp->set_color(glm::vec3(0.5, 0.5, 0.5));
+	mp->set_world(glm::mat4(1.0f));
+	map = mp;
 }
 
 void Window::clean_up() {
@@ -134,6 +140,8 @@ void Window::clean_up() {
 	for(Drawable* player : players) {
 		delete player;
 	}
+
+	delete map;
 
 	// Delete the shader program
 	delete shader_program;
@@ -159,13 +167,14 @@ void Window::display_callback(GLFWwindow* window) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// TODO: Render any objects you need to here
-	// TODO: First set the camera to the right location
-	std::cout << "I am player " << player_id << std::endl;
+	// First set the camera to the right location
 	cam->update(players[player_id]->get_world());
 
 	for(Drawable* player : players) {
 		player->draw(cam->get_view_project_mtx(), shader_program);
 	}
+
+	map->draw(cam->get_view_project_mtx(), shader_program);
 
 
 	// Gets events, including input such as keyboard and mouse or window resizing

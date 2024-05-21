@@ -5,7 +5,7 @@ Camera::Camera(glm::mat4 target) {
     fov = 45.0f;
     aspect = 1.33f;
     near_clip = 0.1f;
-    far_clip = 100.0f;
+    far_clip = 1000.0f;
 
     distance = 10.0f;
     azimuth = 0.0f;

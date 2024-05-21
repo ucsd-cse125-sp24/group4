@@ -3,6 +3,8 @@
 #include "drawable.h"
 #include "mesh.h"
 #include <vector>
+#include "cube.h"
+#include "constants.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -16,15 +18,18 @@ public:
 	}
 
 	Model();
+	~Model();
 
 	void draw(const glm::mat4& viewProjMtx, Shader* shader);
-
-	Model* clone();
 
 private:
 	// Model data
 	std::vector<Mesh> meshes;
 	std::string directory;
+	float min_x = INT_MAX, min_y = INT_MAX, min_z = INT_MAX;
+	float max_x = INT_MIN, max_y = INT_MIN, max_z = INT_MIN;
+
+	Cube* hitbox;
 
 	void load_model(const std::string& path);
 	void process_node(aiNode* node, const aiScene* scene);
