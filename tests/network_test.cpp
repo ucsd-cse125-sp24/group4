@@ -27,7 +27,7 @@ int test_connect() {
     */
 
     // set up server and listen for clients
-    Server server = Server();
+    Server server = Server("127.0.0.1");
     unsigned long threadID = 0U;
     HANDLE listen_hand = CreateThread(nullptr, 0U, &call_listen, &server, 0, &threadID);
 
@@ -61,7 +61,7 @@ int test_data_transport() {
     */
 
     // create server-client pair to use
-    Server server = Server();
+    Server server = Server("127.0.0.1");
     unsigned long threadID = 0U;
     HANDLE hand = CreateThread(nullptr, 0U, &call_listen, &server, 0, &threadID);
     std::vector<Client> client_list;

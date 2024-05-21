@@ -6,7 +6,7 @@ Code adapted from https://learn.microsoft.com/en-us/windows/win32/winsock/comple
 #include <vector>
 #include <windows.h>
 
-Server::Server() {
+Server::Server(const char* addr) {
     struct addrinfo *result = NULL, hints;
 
     WSADATA wsaData;
@@ -24,9 +24,9 @@ Server::Server() {
     hints.ai_flags = AI_PASSIVE;
 
     // Resolve the local address and port to be used by the server
-    iResult = getaddrinfo("127.0.0.1", DEFAULT_PORT, &hints, &result);
+    iResult = getaddrinfo(addr, DEFAULT_PORT, &hints, &result);
     if (iResult != 0) {
-        printf("getaddrinfo failed: %d\n", iResult);
+        printf("server getaddrinfo failed: %d\n", iResult);
         WSACleanup();
         return;
     }
