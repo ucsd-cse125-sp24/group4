@@ -11,5 +11,6 @@ enum ControlEvent {
 	MOVE_LEFT,
 	MOVE_RIGHT,
 	INTERACT,
-	JUMP
+	JUMP,
+	DROP // TEMP
 };

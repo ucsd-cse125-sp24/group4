@@ -26,7 +26,7 @@ public:
     // Polar controls
     // TODO ZOOM?
     void turn_azimuth(float angle) { azimuth -= angle; } // Also inverted
-    void turn_incline(float angle) { incline -= angle; if (incline < 0) incline = 0; if (incline > 90) incline = 90; std::cout << "incline: " << incline; } // Inverted
+    void turn_incline(float angle) { incline -= angle; if (incline < 0) incline = 0; if (incline >= 90) incline = 89.999f;  } // Inverted
 
     // Getters and setters
     void set_aspect(float a) { aspect = a; }

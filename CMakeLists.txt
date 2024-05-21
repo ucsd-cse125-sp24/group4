@@ -15,7 +15,7 @@ link_directories(lib)
 
 file(COPY include/assimp/bin/libassimp-5.dll DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-file(COPY art/models DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY art DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 file(COPY ${PROJECT_SOURCE_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -50,6 +50,8 @@ add_test(NAME ServerCoreUpdateTest COMMAND ServerCoreTests "update")
 add_test(NAME ServerCoreSendTest COMMAND ServerCoreTests "send")
 add_test(NAME ServerCoreShutdownTest COMMAND ServerCoreTests "shutdown")
 
+# // commented out the below bc of difficulties unit-testing w graphics,
+# // not sure its worth modularizing to test separately from graphics so leave like this for now
 # add_test(NAME ClientCoreInitializetTest COMMAND ClientCoreTests "initialize")
 # add_test(NAME ClientCoreReceiveTest COMMAND ClientCoreTests "receive")
 # add_test(NAME ClientCoreProcessTest COMMAND ClientCoreTests "process")
@@ -65,9 +67,12 @@ add_executable(InputPacketTest tests/input_packet_test.cpp packets/input_packet.
 
 add_executable(ServerHeartbeatPacketTest tests/server_heartbeat_packet_test.cpp packets/server_heartbeat_packet.cpp)
 
+add_executable(VotePacketTest tests/vote_packet_test.cpp packets/vote_packet.cpp)
+
 add_test(NAME GameStatePacketTest COMMAND GameStatePacketTest)
 add_test(NAME InputPacketTest COMMAND InputPacketTest)
 add_test(NAME ServerHeartbeatPacketTest COMMAND ServerHeartbeatPacketTest)
+add_test(NAME VotePacketTest COMMAND VotePacketTest)
 
 # ---- NPC movements test ----
 add_executable(NPCMovementsTest tests/npc_movements_test.cpp game/game_state.cpp)

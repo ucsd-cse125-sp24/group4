@@ -15,6 +15,6 @@ class ServerHeartbeatPacket : public Packet { // heartbeat to send to clients to
         ServerState state;
 
         size_t calculateSize() const;
-        static void serialize(const ServerHeartbeatPacket& input, char*& outData);
-        static void deserialize(const char* inData, ServerHeartbeatPacket& input);
+        static void serialize(const ServerHeartbeatPacket& hb, char*& outData);
+        static void deserialize(const char* inData, ServerHeartbeatPacket& hb);
 };
