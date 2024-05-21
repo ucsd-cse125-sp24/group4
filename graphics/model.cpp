@@ -17,9 +17,12 @@ void Model::draw(const glm::mat4& viewProjMtx, Shader* shader) {
 
 	// Draw the hitbox as a wireframe
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glm::mat4 t = glm::mat4(1.0f);
-	t[3] = model[3];
-	hitbox->set_world(t);
+	//glm::mat4 t = glm::mat4(1.0f);
+	//t[3] = model[3];
+	//hitbox->set_world(t);
+	//float scale = 1 / PLAYER_MODEL_SCALE;
+	//glm::mat4 t = glm::scale(model, glm::vec3(scale, scale, scale));
+	//hitbox->set_world(t);
 	hitbox->draw(viewProjMtx, shader);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -29,8 +32,6 @@ void Model::draw(const glm::mat4& viewProjMtx, Shader* shader) {
 
 void Model::load_model(const std::string& path) {
 	Assimp::Importer importer;
-
-	hitbox = new Cube();
 	
 	// Get current directory in Windows
 	// char buffer[MAX_PATH];
@@ -56,6 +57,7 @@ void Model::load_model(const std::string& path) {
 		aiProcess_OptimizeMeshes | // join small meshes, if possible;
 		aiProcess_PreTransformVertices | //-- fixes the transformation issue.
 		aiProcess_SplitByBoneCount | // split meshes with too many bones. Necessary for our (limited) hardware skinning shader
+		aiProcess_GenBoundingBoxes | // generate bounding boxes from meshes
 		0;
 
 	//const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -72,6 +74,9 @@ void Model::load_model(const std::string& path) {
 	directory = path.substr(0, path.find_last_of('/'));
 
 	process_node(scene->mRootNode, scene);
+
+	// Create a hitbox for the model
+	hitbox = new Cube(glm::vec3(min_x, min_y, min_z), glm::vec3(max_x, max_y, max_z));
 }
 
 void Model::process_node(aiNode* node, const aiScene* scene) {
@@ -127,6 +132,15 @@ Mesh Model::process_mesh(aiMesh* mesh, const aiScene* scene) {
 	}
 
 	// Process material - used for textures...
+
+	min_x = min(min_x, mesh->mAABB.mMin.x);
+	min_y = min(min_y, mesh->mAABB.mMin.y);
+	min_z = min(min_z, mesh->mAABB.mMin.z);
+
+	max_x = max(max_x, mesh->mAABB.mMax.x);
+	max_y = max(max_y, mesh->mAABB.mMax.y);
+	max_z = max(max_z, mesh->mAABB.mMax.z);
+	
 
 	return Mesh(vertices, indices, textures);
 }
