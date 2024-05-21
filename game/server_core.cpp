@@ -173,21 +173,26 @@ void ServerCore::process_input(InputPacket packet, short id)
     for (int j = 0; j < packet.events.size(); j++)
     {
         glm::vec3 dir;
+        glm::vec3 p_dir;
         int event = packet.events[j];
 
         switch (event)
         {
             case MOVE_FORWARD:
                 dir = glm::vec3(0.0f, 0.0f, -1.0f);
+                p_dir = glm::vec3(0.0f, 0.0f, -1.0f);
                 break;
             case MOVE_BACKWARD:
                 dir = glm::vec3(0.0f, 0.0f, 1.0f);
+                p_dir = glm::vec3(0.0f, 0.0f, -1.0f);
                 break;
             case MOVE_LEFT:
                 dir = glm::vec3(-1.0f, 0.0f, 0.0f);
+                p_dir = glm::vec3(0.0f, 0.0f, -1.0f);
                 break;
             case MOVE_RIGHT:
                 dir = glm::vec3(1.0f, 0.0f, 0.0f);
+                p_dir = glm::vec3(0.0f, 0.0f, -1.0f);
                 break;
             case JUMP:
             {
@@ -206,46 +211,43 @@ void ServerCore::process_input(InputPacket packet, short id)
             }
         }
         dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
-        client_player->move(dir);
+        client_player->move(p_dir);
         // client_player->minBound += dir;
         // client_player->maxBound += dir;
         printf("dirs: <%f, %f, %f>\n", dir.x, dir.y, dir.z);
-        // glm::mat4 transform = glm::translate(glm::mat4(1.0), dir * scale);
-
-        // world = transform * world;
 
         // Also turn the alien towards the direction it's movin g
 
-        // glm::vec3 front = glm::vec3(0.0f, 0.0f, 1.0f);
-        // front = serverState.players[i].world * glm::vec4(front, 0.0f);
+        glm::vec3 front = glm::vec3(0.0f, 0.0f, 1.0f);
+        front = serverState.players[i].world * glm::vec4(front, 0.0f);
 
-        // // std::cout << "front for " << i << ": " << front.x << " " << front.y << " " << front.z << "\n";
-        // //  Find if DIR is to the right or left of FRONT
-        // if (j == 0)
-        // {
-        //     turndir = dir;
-        // }
-        // else
-        // {
-        //     dir = turndir + dir;
-        // }
+        // std::cout << "front for " << i << ": " << front.x << " " << front.y << " " << front.z << "\n";
+        //  Find if DIR is to the right or left of FRONT
+        if (j == 0)
+        {
+            turndir = dir;
+        }
+        else
+        {
+            dir = turndir + dir;
+        }
 
-        // // Calculate the cross product of frontVector and otherVector
-        // glm::vec3 crossProduct = glm::cross(front, dir);
+        // Calculate the cross product of frontVector and otherVector
+        glm::vec3 crossProduct = glm::cross(front, dir);
 
-        // // Check the direction of the cross product to determine left or right
-        // if (sz == 1 || j == 1)
-        // {
-        //     if (crossProduct.y > 0) // Assuming y-axis is up in your coordinate system
-        //     {
-        //         // Right
-        //         world = glm::rotate(world, -PLAYER_ROTATION_SCALE, glm::vec3(0.0f, 1.0f, 0.0f));
-        //     }
-        //     else
-        //     {
-        //         world = glm::rotate(world, PLAYER_ROTATION_SCALE, glm::vec3(0.0f, 1.0f, 0.0f));
-        //     }
-        // }
+        // Check the direction of the cross product to determine left or right
+        if (sz == 1 || j == 1)
+        {
+            if (crossProduct.y > 0) // Assuming y-axis is up in your coordinate system
+            {
+                // Right
+                world = glm::rotate(world, -PLAYER_ROTATION_SCALE, glm::vec3(0.0f, 1.0f, 0.0f));
+            }
+            else
+            {
+                world = glm::rotate(world, PLAYER_ROTATION_SCALE, glm::vec3(0.0f, 1.0f, 0.0f));
+            }
+        }
     }
     pWorld.step();
     world = glm::translate(world, (client_player->getPosition() - client_player->getOldPosition() * SCALE));
