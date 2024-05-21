@@ -53,12 +53,14 @@ int test_listen_accept() {
             return 1;
         }
     }
+    int i = 0;
     for (PlayerState ps : sc.serverState.players) {
-        if (ps.world != glm::scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f))
+        if (ps.world !=  glm::translate(glm::mat4(1.0f), glm::vec3(1.5f * i, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f))
             || ps.score != 0) {
             close_and_shutdown(&sc, client_list);
             return 1;
         }
+        i++;
     }
 
     close_and_shutdown(&sc, client_list);
