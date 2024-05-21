@@ -9,14 +9,13 @@
 
 #include "client.h"
 #include "game_state.h"
-#include "physics_world.h"
+#include "physics/physics_world.h"
 #include "packets/game_state_packet.h"
 #include "packets/input_packet.h"
 #include "packets/server_heartbeat_packet.h"
 #include "server.h"
 #include "windows_socket.h"
 #include "game_state.h"
-#include "physics_world.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/rotate_vector.hpp"

@@ -234,16 +234,15 @@ void ServerCore::accept_new_clients(int i) {
 
     serverState.players.push_back(p_state);
 
-    PlayerObject* newPlayerObject = new PlayerObject();
+    Collider* c = new Collider(AABB); // TBD free this
+    PlayerObject* newPlayerObject = new PlayerObject(c); // TBD free this?
+    
     newPlayerObject->force = glm::vec3(0.0f, 0.0f, 0.0f);
     newPlayerObject->velocity = glm::vec3(0.0f, 0.0f, 0.0f);
     newPlayerObject->position = glm::vec3(0.0f, 0.0f, 0.0f);
     newPlayerObject->old_position = glm::vec3(0.0f, 0.0f, 0.0f);
     newPlayerObject->mass = 10;
     newPlayerObject->playerId = client->id;
-    newPlayerObject->world = p_state.world;
-    newPlayerObject->minBound = glm::vec3(-1, -1, -1);
-    newPlayerObject->maxBound = glm::vec3(1, 1, 1);
     
     pWorld.addObject(newPlayerObject);
     pWorld.addPlayer(newPlayerObject);

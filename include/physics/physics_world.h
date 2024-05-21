@@ -2,7 +2,7 @@
 #define PHYSICS_WORLD_H
 
 #include "game_object.h"
-#include "core.h"
+#include "../core.h"
 #include <vector>
 #include <algorithm>
 
@@ -21,7 +21,7 @@ class PhysicsWorld {
 		PlayerObject* findPlayer(int id);
 
 		void step();
-		bool hasCollision();
+		void handleCollisions();
 };
 
 #endif
