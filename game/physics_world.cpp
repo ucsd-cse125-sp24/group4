@@ -34,7 +34,7 @@ void PhysicsWorld::removePlayer (PlayerObject* player) {
 
 PlayerObject* PhysicsWorld::findPlayer(int id) {
     for (PlayerObject* player : p_objects) {
-        if (player->playerId == id) {
+        if (player->getPlayerId() == id) {
             return player;
         }
     }
@@ -73,12 +73,11 @@ void PhysicsWorld::step()
 void PhysicsWorld::handleCollisions() {
     for (unsigned int i = 0; i < p_objects.size(); i++) {
        for (unsigned int j = i + 1; j < p_objects.size(); j++) {
-            bool collision = p_objects[i].getCollider.collide(p_objects[j].getCollider());
+            // bool collision = p_objects[i]->getCollider()->collide(p_objects[j].getCollider());
 
-            if (collision) {
-                printf("Collision happened");
-            }
+            // if (collision) {
+            //     printf("Collision happened");
+            // }
        }
     }
-    return false;
 }

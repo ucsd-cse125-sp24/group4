@@ -28,7 +28,7 @@ public:
 	 *
 	 * @param translation Distance to move the collider
 	 */
-	virtual void transform(const Vector3f& translation) {}
+	virtual void transform(glm::vec3 translation) {}
 
 	// /**
 	//  * Returns the center position of the collider. Should be overriden by
@@ -37,7 +37,7 @@ public:
 	// virtual Vector3f GetCenter() const { return Vector3f(0,0,0); }
 
 	/** Basic getter */
-	int getType() const { return m_type; }
+	int getType() const { return type; }
 private:
 	int type;
 };

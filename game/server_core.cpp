@@ -159,7 +159,7 @@ void ServerCore::process_input(InputPacket packet, short id) {
         printf("dirs: <%f, %f, %f>\n", dir.x, dir.y, dir.z);
     }
     pWorld.step();
-    world = glm::translate(world, (client_player->position - client_player->old_position) * SCALE);
+    world = glm::translate(world, (client_player->getPosition() - client_player->getOldPosition() * SCALE));
     printf("world m %f,%f,%f\n", world[3][0], world[3][1], world[3][2]);
 
     //printf("forces: <%f, %f, %f>\n", client_player->force.x, client_player->force.y, client_player->force.z);
@@ -234,15 +234,15 @@ void ServerCore::accept_new_clients(int i) {
 
     serverState.players.push_back(p_state);
 
-    Collider* c = new Collider(AABB); // TBD free this
+    Collider* c = new Collider(0); // TBD free this
     PlayerObject* newPlayerObject = new PlayerObject(c); // TBD free this?
     
-    newPlayerObject->force = glm::vec3(0.0f, 0.0f, 0.0f);
-    newPlayerObject->velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-    newPlayerObject->position = glm::vec3(0.0f, 0.0f, 0.0f);
-    newPlayerObject->old_position = glm::vec3(0.0f, 0.0f, 0.0f);
-    newPlayerObject->mass = 10;
-    newPlayerObject->playerId = client->id;
+    // newPlayerObject->setForce(glm::vec3(0.0f, 0.0f, 0.0f));
+    // newPlayerObject->setVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
+    // newPlayerObject->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+    // newPlayerObject->setOldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+    // newPlayerObject->setMass(10);
+    newPlayerObject->setPlayerId(client->id);
     
     pWorld.addObject(newPlayerObject);
     pWorld.addPlayer(newPlayerObject);

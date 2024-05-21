@@ -22,10 +22,10 @@
 
 void PlayerObject::move(glm::vec3 dir) {
     glm::vec3 move_force = dir * step;
-    set_force(force + move_force);
+    setForce(force + move_force);
 }
 
-void PlayerObject::simulate(float dt) {
+void GameObject::simulate(float dt) {
     glm::vec3 ori_v = velocity;
     velocity += force / mass * dt;
 

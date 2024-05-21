@@ -44,15 +44,20 @@ class GameObject {
             return *collider;
         }
 
-}
+};
 
-class PlayerObject : GameObject {
+class PlayerObject : public GameObject {
     private: 
         short playerId;
 
     public:
+
+        PlayerObject(Collider* collider) :
+            GameObject(collider) {}
         void move(glm::vec3 dir);
-}
+        void setPlayerId(short id) { playerId = id; }
+        short getPlayerId() { return playerId; }
+};
 
 
 // struct GameObject {
