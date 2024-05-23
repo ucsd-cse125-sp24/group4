@@ -42,6 +42,7 @@ int test_listen_accept() {
     WaitForSingleObject(hand, 1000);
     
     if (!sc.isRunning() || sc.clients_data.size() != NUM_TEST_CLIENTS || sc.serverState.players.size() != NUM_TEST_CLIENTS) {
+        printf("wrong player count\n");
         close_and_shutdown(&sc, client_list);
         return 1;
     }
@@ -56,6 +57,7 @@ int test_listen_accept() {
     for (PlayerState ps : sc.serverState.players) {
         if (ps.world != glm::scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f))
             || ps.score != 0) {
+            printf("wrong world\n");
             close_and_shutdown(&sc, client_list);
             return 1;
         }

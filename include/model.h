@@ -62,8 +62,8 @@ private:
 	// Model data
 	std::vector<Mesh> meshes;
 	std::string directory;
-	float min_x = INT_MAX, min_y = INT_MAX, min_z = INT_MAX;
-	float max_x = INT_MIN, max_y = INT_MIN, max_z = INT_MIN;
+	float min_x = FLT_MAX, min_y = FLT_MAX, min_z = FLT_MAX;
+	float max_x = FLT_MIN, max_y = FLT_MIN, max_z = FLT_MIN;
 
 	Cube *hitbox;
 

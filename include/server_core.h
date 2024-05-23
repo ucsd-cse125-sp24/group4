@@ -9,18 +9,16 @@
 
 #include "client.h"
 #include "game_state.h"
+#include "inih/INIReader.h"
 #include "packets/game_state_packet.h"
 #include "packets/input_packet.h"
 #include "packets/server_heartbeat_packet.h"
 #include "packets/vote_packet.h"
 #include "server.h"
 #include "windows_socket.h"
-#include "constants.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/rotate_vector.hpp"
-
-#define NUM_CLIENTS 2
 
 struct ClientData {
     SOCKET sock;
@@ -31,6 +29,7 @@ struct ClientData {
 
 class ServerCore {
     private:
+        INIReader reader;                   // Configuration reader
         std::vector<short> available_ids;
 
     public:
