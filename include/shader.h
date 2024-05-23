@@ -4,7 +4,9 @@
 // https://learnopengl.com/Getting-started/Shaders
 
 #include "glad/glad.h"
+#include "../include/glm/gtc/type_ptr.hpp"
 
+#include <glm/glm.hpp>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -30,6 +32,7 @@ public:
     void set_float(const std::string& name, float value) const;
     void set_vec3(const std::string& name, const float* value   ) const;
     void set_mat4(const std::string& name, const float* value) const;
+    void set_mat4_array(const std::string& name, const glm::mat4* matrices, unsigned int count) const;
 
 private:
     // utility function for checking shader compilation/linking errors.

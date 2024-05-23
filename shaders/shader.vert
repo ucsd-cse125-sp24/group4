@@ -1,23 +1,29 @@
 #version 330 core
-// NOTE: Do NOT use any version older than 330! Bad things will happen!
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec3 normal;
+layout(location = 2) in vec2 texCoords;
+layout(location = 3) in ivec4 boneIndices;
+layout(location = 4) in vec4 boneWeights;
 
-layout (location = 0) in vec3 position;
-layout (location = 1) in vec3 normal;
-
-// Uniform variables
 uniform mat4 viewProj;
 uniform mat4 model;
+uniform mat4 boneMatrices[100]; // An array to store bone matrices
 
-// Outputs of the vertex shader are the inputs of the same name of the fragment shader.
-// The default output, gl_Position, should be assigned something. 
 out vec3 fragNormal;
+out vec2 fragTexCoords;
 
+void main() {
+    mat4 boneTransform = 
+        boneMatrices[boneIndices[0]] * boneWeights[0] +
+        boneMatrices[boneIndices[1]] * boneWeights[1] +
+        boneMatrices[boneIndices[2]] * boneWeights[2] +
+        boneMatrices[boneIndices[3]] * boneWeights[3];
 
-void main()
-{
-    // OpenGL maintains the D matrix so you only need to multiply by P, V (aka C inverse), and M
-    gl_Position = viewProj * model * vec4(position, 1.0);
+    vec4 pos = boneTransform * vec4(position, 1.0);
+    gl_Position = viewProj * model * pos;
 
-    // for shading
-	fragNormal = vec3(model * vec4(normal, 0));
+    mat3 normalMatrix = mat3(transpose(inverse(model * boneTransform)));
+    fragNormal = normalize(normalMatrix * normal);
+
+    fragTexCoords = texCoords; // Pass texture coordinates to fragment shader
 }

@@ -154,8 +154,8 @@ void Cube::draw(const glm::mat4& viewProjMtx, Shader* shader) {
 }
 
 void Cube::print_world() {
-	std::cout << "Cube world matrix: " << std::endl;
-	for (int i = 0; i < 4; i++) {
-		std::cout << model[i][0] << " " << model[i][1] << " " << model[i][2] << " " << model[i][3] << std::endl;
-	}
+	// std::cout << "Cube world matrix: " << std::endl;
+	// for (int i = 0; i < 4; i++) {
+	// 	std::cout << model[i][0] << " " << model[i][1] << " " << model[i][2] << " " << model[i][3] << std::endl;
+	// }
 }

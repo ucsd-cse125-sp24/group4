@@ -21,8 +21,9 @@ private:
 
 public:
 	void update(int key, int action);
-	// Returns a VECTOR OF EVENTS (uses an ENUM) to be passed to the server
-	std::vector<int> get_action();
+    bool isKeyPressed(int key) const;
+    // Returns a VECTOR OF EVENTS (uses an ENUM) to be passed to the server
+    std::vector<int> get_action();
 
 
 };
