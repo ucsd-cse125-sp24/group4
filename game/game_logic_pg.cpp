@@ -1,9 +1,8 @@
 #include "../include/server.h"
 #include "../include/client.h"
 #include "../include/server_core.h"
-#include <windows.h>
 #include <iostream>
-
+#include <windows.h>
 
 int main() {
     ServerCore serverCore = ServerCore();
