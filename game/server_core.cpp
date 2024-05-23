@@ -179,27 +179,21 @@ void ServerCore::process_input(InputPacket packet, short id)
         switch (event)
         {
             case MOVE_FORWARD:
-                dir = glm::vec3(0.0f, 0.0f, -1.0f);
-                p_dir = glm::vec3(0.0f, 0.0f, -1.0f);
+                dir = glm::vec3(0.0f, 0.0f, -1.0f); 
                 break;
             case MOVE_BACKWARD:
                 dir = glm::vec3(0.0f, 0.0f, 1.0f);
-                p_dir = glm::vec3(0.0f, 0.0f, -1.0f);
                 break;
             case MOVE_LEFT:
                 dir = glm::vec3(-1.0f, 0.0f, 0.0f);
-                p_dir = glm::vec3(0.0f, 0.0f, -1.0f);
                 break;
             case MOVE_RIGHT:
                 dir = glm::vec3(1.0f, 0.0f, 0.0f);
-                p_dir = glm::vec3(0.0f, 0.0f, -1.0f);
                 break;
             case JUMP:
             {
-                dir = glm::vec3(0.0f, 1.0f, 0.0f);
-                glm::mat4 t = glm::translate(glm::mat4(1.0), dir * scale);
-                world = t * world;
-                continue;
+                if(client_player->getPosition().y == 0)
+                    client_player->jump();
                 break;
             }
             case DROP:
@@ -211,12 +205,13 @@ void ServerCore::process_input(InputPacket packet, short id)
             }
         }
         dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
-        client_player->move(p_dir);
+        client_player->move(dir);
+        
         // client_player->minBound += dir;
         // client_player->maxBound += dir;
         printf("dirs: <%f, %f, %f>\n", dir.x, dir.y, dir.z);
 
-        // Also turn the alien towards the direction it's movin g
+        // Also turn the alien towards the direction it's moving
 
         glm::vec3 front = glm::vec3(0.0f, 0.0f, 1.0f);
         front = serverState.players[i].world * glm::vec4(front, 0.0f);
@@ -231,7 +226,7 @@ void ServerCore::process_input(InputPacket packet, short id)
         {
             dir = turndir + dir;
         }
-
+        
         // Calculate the cross product of frontVector and otherVector
         glm::vec3 crossProduct = glm::cross(front, dir);
 
@@ -248,10 +243,11 @@ void ServerCore::process_input(InputPacket packet, short id)
                 world = glm::rotate(world, PLAYER_ROTATION_SCALE, glm::vec3(0.0f, 1.0f, 0.0f));
             }
         }
+        
     }
     pWorld.step();
     world = glm::translate(world, (client_player->getPosition() - client_player->getOldPosition() * SCALE));
-    printf("world m %f,%f,%f\n", world[3][0], world[3][1], world[3][2]);
+    //printf("world m %f,%f,%f\n", world[3][0], world[3][1], world[3][2]);
 
     //printf("forces: <%f, %f, %f>\n", client_player->force.x, client_player->force.y, client_player->force.z);
 

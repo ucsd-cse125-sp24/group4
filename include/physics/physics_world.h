@@ -10,7 +10,6 @@ class PhysicsWorld {
 	private:
 		std::vector<GameObject*> m_objects;
 		std::vector<PlayerObject*> p_objects;
-		glm::vec3 m_gravity = glm::vec3(0, -9.81f, 0);
 	
 	public:
 		void addObject (GameObject* object);

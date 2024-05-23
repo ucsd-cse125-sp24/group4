@@ -44,6 +44,7 @@ class GameObject {
             return *collider;
         }
         void applyFriction();
+        void applyGravity();
 };
 
 class PlayerObject : public GameObject {
@@ -57,6 +58,7 @@ class PlayerObject : public GameObject {
         void move(glm::vec3 dir);
         void setPlayerId(short id) { playerId = id; }
         short getPlayerId() { return playerId; }
+        void jump();
 };
 
 
