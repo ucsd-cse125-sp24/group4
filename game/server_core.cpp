@@ -177,7 +177,7 @@ void ServerCore::process_input(InputPacket packet, short id)
     for (int j = 0; j < num_events; j++)
     {
         int event = packet.events[j];
-
+        bool jumping = false;
         switch (event)
         {
             case MOVE_FORWARD:
@@ -198,6 +198,7 @@ void ServerCore::process_input(InputPacket packet, short id)
                 break;
             case JUMP:
             {
+                jumping = true;
                 if(client_player->getPosition().y == 0)
                     client_player->jump();
                 break;
@@ -219,7 +220,8 @@ void ServerCore::process_input(InputPacket packet, short id)
         // Also turn the alien towards the direction the camera's facing
         glm::vec3 front = glm::vec3(0.0f, 0.0f, 1.0f);
         front = serverState.players[i].world * glm::vec4(front, 0.0f);
-
+        if (jumping) 
+            continue;
         // std::cout << "front for " << i << ": " << front.x << " " << front.y << " " << front.z << "\n";
         //  Find if DIR is to the right or left of FRONT
         if (j == 0)
@@ -235,19 +237,15 @@ void ServerCore::process_input(InputPacket packet, short id)
         glm::vec3 crossProduct = glm::cross(front, dir);
 
         // Check the direction of the cross product to determine left or right
-        if (true) // what does # of events or curr event # have to do w this?
+        if (crossProduct.y > 0) // Assuming y-axis is up in your coordinate system
         {
-            if (crossProduct.y > 0) // Assuming y-axis is up in your coordinate system
-            {
-                // Right
-                world = glm::rotate(world, float(-reader.GetReal("graphics", "player_rotation_scale", 0.1)), glm::vec3(0.0f, 1.0f, 0.0f));
-            }
-            else
-            {
-                world = glm::rotate(world, float(reader.GetReal("graphics", "player_rotation_scale", 0.1)), glm::vec3(0.0f, 1.0f, 0.0f));
-            }
+            // Right
+            world = glm::rotate(world, float(-reader.GetReal("graphics", "player_rotation_scale", 0.1)), glm::vec3(0.0f, 1.0f, 0.0f));
         }
-        
+        else
+        {
+            world = glm::rotate(world, float(reader.GetReal("graphics", "player_rotation_scale", 0.1)), glm::vec3(0.0f, 1.0f, 0.0f));
+        }
     }
     pWorld.step();
     world = glm::translate(world, (client_player->getPosition() - client_player->getOldPosition()) * SCALE);
