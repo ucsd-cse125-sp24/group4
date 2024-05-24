@@ -3,8 +3,8 @@
 #define step 30.0f
 #define mu 1.1
 
-void PlayerObject::move(glm::vec3 dir) {
-    glm::vec3 move_force = dir * step;
+void PlayerObject::move() {
+    glm::vec3 move_force = glm::vec3(0.0f, 0.0f, -step);
     setForce(force + move_force);
 }
 

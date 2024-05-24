@@ -55,7 +55,7 @@ class PlayerObject : public GameObject {
 
         PlayerObject(Collider* collider) :
             GameObject(collider) {}
-        void move(glm::vec3 dir);
+        void move();
         void setPlayerId(short id) { playerId = id; }
         short getPlayerId() { return playerId; }
         void jump();

@@ -173,25 +173,28 @@ void ServerCore::process_input(InputPacket packet, short id)
     glm::vec3 turndir;
 
     // Process input events
+    glm::vec3 dir = glm::vec3(0.0f, 0.0f, -1.0f);
     for (int j = 0; j < num_events; j++)
     {
-        glm::vec3 dir;
-        glm::vec3 p_dir;
         int event = packet.events[j];
 
         switch (event)
         {
             case MOVE_FORWARD:
                 dir = glm::vec3(0.0f, 0.0f, -1.0f);
+                client_player->move();
                 break;
             case MOVE_BACKWARD:
                 dir = glm::vec3(0.0f, 0.0f, 1.0f);
+                client_player->move();
                 break;
             case MOVE_LEFT:
                 dir = glm::vec3(-1.0f, 0.0f, 0.0f);
+                client_player->move();
                 break;
             case MOVE_RIGHT:
                 dir = glm::vec3(1.0f, 0.0f, 0.0f);
+                client_player->move();
                 break;
             case JUMP:
             {
@@ -208,7 +211,6 @@ void ServerCore::process_input(InputPacket packet, short id)
             }
         }
         dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
-        client_player->move(dir);
         
         // client_player->minBound += dir;
         // client_player->maxBound += dir;
@@ -231,11 +233,9 @@ void ServerCore::process_input(InputPacket packet, short id)
         
         // Calculate the cross product of frontVector and otherVector
         glm::vec3 crossProduct = glm::cross(front, dir);
-        pWorld.step();
-        world = glm::translate(world, (client_player->getPosition() - client_player->getOldPosition()) * SCALE);
 
         // Check the direction of the cross product to determine left or right
-        if (event == MOVE_FORWARD) // what does # of events or curr event # have to do w this?
+        if (true) // what does # of events or curr event # have to do w this?
         {
             if (crossProduct.y > 0) // Assuming y-axis is up in your coordinate system
             {
@@ -249,7 +249,8 @@ void ServerCore::process_input(InputPacket packet, short id)
         }
         
     }
-    
+    pWorld.step();
+    world = glm::translate(world, (client_player->getPosition() - client_player->getOldPosition()) * SCALE);
     //printf("world m %f,%f,%f\n", world[3][0], world[3][1], world[3][2]);
 
     //printf("forces: <%f, %f, %f>\n", client_player->force.x, client_player->force.y, client_player->force.z);
