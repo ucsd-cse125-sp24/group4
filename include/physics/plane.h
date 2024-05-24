@@ -6,11 +6,12 @@
  * Represents an infinitely large plane that can be used as
  * a collider.
  */
-class Plane
+class Plane : public Collider
 {
 public:
 
 	Plane(glm::vec3 n, float d) :
+		Collider(Collider::PLANE),
 		normal(n),
 		distance(d) {}
 
@@ -18,7 +19,7 @@ public:
 	 * Creates an equivalent plane with a normal at unit length and distance
 	 * adjusted accordingly.
 	 */
-	Plane normalized() const;
+	Plane normalized();
 
 	bool collideAABB(AABB& other);
 

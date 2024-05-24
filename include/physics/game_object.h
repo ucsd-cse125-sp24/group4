@@ -2,6 +2,7 @@
 
 #include "../core.h"
 #include "collider.h"
+#include "aabb.h"
 
 class GameObject {
     protected:
@@ -59,6 +60,8 @@ class PlayerObject : public GameObject {
         void setPlayerId(short id) { playerId = id; }
         short getPlayerId() { return playerId; }
         void jump();
+
+        void makeCollider();
 };
 
 

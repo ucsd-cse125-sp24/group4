@@ -17,6 +17,9 @@ public:
 	Collider(int type) :
 		type(type) {}
 	
+	Collider() {}
+
+	virtual ~Collider() {}
 	/**
 	 * Check if one collider intersects another
 	 */
