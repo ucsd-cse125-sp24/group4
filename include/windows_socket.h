@@ -18,7 +18,6 @@ Specifically, "Getting started with Winsock" and "Initializing Winsock"
 #include <iphlpapi.h>
 #include <stdio.h>
 
-#define DEFAULT_PORT "140"
 #define DEFAULT_BUFLEN 512
 #define CLIENT_RECV_BUFLEN 1024
 #define SERVER_RECV_BUFLEN 64

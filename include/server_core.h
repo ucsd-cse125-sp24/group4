@@ -10,12 +10,14 @@
 #include "client.h"
 #include "game_state.h"
 #include "inih/INIReader.h"
+#include "physics/physics_world.h"
 #include "packets/game_state_packet.h"
 #include "packets/input_packet.h"
 #include "packets/server_heartbeat_packet.h"
 #include "packets/vote_packet.h"
 #include "server.h"
 #include "windows_socket.h"
+#include "game_state.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/rotate_vector.hpp"
@@ -56,6 +58,7 @@ class ServerCore {
         Server server;
         std::vector<ClientData*> clients_data;
         GameState serverState;
+        PhysicsWorld pWorld;
 };
 
 #endif
