@@ -6,7 +6,7 @@
 #include "model.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "../include/glm/gtx/string_cast.hpp"
-#include <algorithm>  
+#include <algorithm>
 
 #ifdef min
 #undef min
@@ -29,11 +29,11 @@ void Model::draw(const glm::mat4 &viewProjMtx, Shader *shader)
     // }
 
     std::vector<glm::mat4> boneMatrices(skeleton.bones.size());
-    std::cout << "size: " << skeleton.bones.size() << std::endl;
+    // std::cout << "size: " << skeleton.bones.size() << std::endl;
     for (size_t i = 0; i < skeleton.bones.size(); ++i)
     {
         boneMatrices[i] = skeleton.bones[i].finalTransformation;
-        // std::cout<<glm::to_string(boneMatrices[i])<<std::endl;
+        // std::cout << "Bone Matrix [" << i << "]:\n" << glm::to_string(boneMatrices[i]) << std::endl;
     }
     shader->set_mat4_array("boneMatrices", boneMatrices.data(), boneMatrices.size());
 
@@ -67,10 +67,10 @@ void Model::load_model(const std::string &path)
     // std::cout << "Current directory: " << current_dir << std::endl;
 
     unsigned int processFlags =
-        aiProcess_CalcTangentSpace | // calculate tangents and bitangents if possible
-        aiProcess_JoinIdenticalVertices |    // join identical vertices/ optimize indexing
+        aiProcess_CalcTangentSpace |      // calculate tangents and bitangents if possible
+        aiProcess_JoinIdenticalVertices | // join identical vertices/ optimize indexing
         // aiProcess_ValidateDataStructure |    // perform a full validation of the loader's output
-        aiProcess_Triangulate | // Ensure all verticies are triangulated (each 3 vertices are triangle)
+        aiProcess_Triangulate |              // Ensure all verticies are triangulated (each 3 vertices are triangle)
         aiProcess_ConvertToLeftHanded |      // convert everything to D3D left handed space (by default right-handed, for OpenGL)
         aiProcess_SortByPType |              // ?
         aiProcess_ImproveCacheLocality |     // improve the cache locality of the output vertices
@@ -122,18 +122,18 @@ void Model::loadAnimationFromPath(AnimationState state, const std::string &path)
 
     Assimp::Importer importer;
 
-    unsigned int processFlags =
-        aiProcess_Triangulate |
-        aiProcess_LimitBoneWeights |
-        aiProcess_GenSmoothNormals |
-        aiProcess_JoinIdenticalVertices |
-        aiProcess_ImproveCacheLocality |
-        aiProcess_RemoveRedundantMaterials |
-        aiProcess_SplitLargeMeshes |
-        aiProcess_FindInvalidData |
-        aiProcess_ValidateDataStructure | 0;
+    // unsigned int processFlags =
+    //     aiProcess_Triangulate |
+    //     aiProcess_LimitBoneWeights |
+    //     aiProcess_GenSmoothNormals |
+    //     aiProcess_JoinIdenticalVertices |
+    //     aiProcess_ImproveCacheLocality |
+    //     aiProcess_RemoveRedundantMaterials |
+    //     aiProcess_SplitLargeMeshes |
+    //     aiProcess_FindInvalidData |
+    //     aiProcess_ValidateDataStructure | 0;
 
-    const aiScene *scene = importer.ReadFile(path, processFlags);
+    const aiScene *scene = importer.ReadFile(path, aiProcess_LimitBoneWeights | aiProcess_Triangulate);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
@@ -168,6 +168,13 @@ void Model::loadAnimationFromPath(AnimationState state, const std::string &path)
             aiNodeAnim *ai_channel = ai_anim->mChannels[j];
             std::string boneName = ai_channel->mNodeName.C_Str();
 
+            int boneIndex = skeleton.getBoneIndex(boneName);
+            // if (boneIndex == -1)
+            // {
+            //     // Bone not found, add it with identity matrix as offset
+            //     glm::mat4 boneOffset = glm::mat4(1.0f);
+            //     boneIndex = skeleton.addBone(boneName, boneOffset);
+            // }
             AnimationNode node;
             node.name = boneName;
 
@@ -225,7 +232,6 @@ Mesh Model::process_mesh(aiMesh *mesh, const aiScene *scene, const glm::mat4 &tr
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     std::vector<Texture> textures;
-    std::vector<BoneData> bones(mesh->mNumVertices);
 
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
@@ -245,9 +251,6 @@ Mesh Model::process_mesh(aiMesh *mesh, const aiScene *scene, const glm::mat4 &tr
         //}
         // else
         vertex.texCoords = glm::vec2(0.0f, 0.0f);
-
-        // vertex.boneIndices = glm::ivec4(0); // Initialize with default bone index
-        // vertex.boneWeights = glm::vec4(0.0f);
 
         vertices.push_back(vertex);
 
@@ -269,31 +272,52 @@ Mesh Model::process_mesh(aiMesh *mesh, const aiScene *scene, const glm::mat4 &tr
 
     std::cout << "Processing mesh with " << mesh->mNumBones << " bones." << std::endl;
 
-    for (unsigned int j = 0; j < mesh->mNumBones; j++)
+    if (mesh->HasBones())
     {
-        aiBone *bone = mesh->mBones[j];
-        std::string boneName(bone->mName.data);
-        glm::mat4 boneOffset = aiMatrixToGlm(bone->mOffsetMatrix);
-        int boneIndex;
-        if (skeleton.boneMapping.find(boneName) == skeleton.boneMapping.end())
+        for (unsigned int i = 0; i < mesh->mNumBones; i++)
         {
-            boneIndex = skeleton.addBone(boneName, boneOffset);
-        }
-        else
-        {
-            boneIndex = skeleton.getBoneIndex(boneName);
-        }
+            aiBone *bone = mesh->mBones[i];
+            std::string boneName = bone->mName.C_Str();
+            int boneIndex = 0;
 
-        for (unsigned int k = 0; k < bone->mNumWeights; k++)
-        {
-            unsigned int vertexID = bone->mWeights[k].mVertexId;
-            float weight = bone->mWeights[k].mWeight;
+            if (skeleton.boneMapping.find(boneName) == skeleton.boneMapping.end())
+            {
+                glm::mat4 boneOffset = aiMatrixToGlm(bone->mOffsetMatrix);
+                boneIndex = skeleton.addBone(boneName, boneOffset);
+            }
+            else
+            {
+                boneIndex = skeleton.getBoneIndex(boneName);
+            }
 
-            // Add the bone data to the vertex
-            bones[vertexID].addBoneData(boneIndex, weight);
+            for (unsigned int j = 0; j < bone->mNumWeights; j++)
+            {
+                aiVertexWeight weight = bone->mWeights[j];
+                unsigned int vertexID = weight.mVertexId;
+                float w = weight.mWeight;
+
+                Vertex &vertex = vertices[vertexID];
+
+                vertex.addBoneData(boneIndex, w);
+            }
         }
     }
-    return Mesh(vertices, indices, textures, bones);
+
+    for (auto &vertex : vertices)
+    {
+        float totalWeight = vertex.boneWeights[0] + vertex.boneWeights[1] + vertex.boneWeights[2] + vertex.boneWeights[3];
+        if (totalWeight > 0)
+        {
+            vertex.boneWeights[0] /= totalWeight;
+            vertex.boneWeights[1] /= totalWeight;
+            vertex.boneWeights[2] /= totalWeight;
+            vertex.boneWeights[3] /= totalWeight;
+        }
+    }
+
+    Mesh hi(vertices, indices, textures);
+    // hi.printVertexBoneData(vertices);
+    return hi;
 }
 
 glm::vec3 Model::interpolatePosition(float time, const AnimationNode &node)
@@ -404,13 +428,13 @@ void Model::updateAnimations(float deltaTime, AnimationState currentState)
         if (boneIndex != -1)
         {
             skeleton.bones[boneIndex].finalTransformation = skeleton.globalInverseTransform * boneTransform * skeleton.bones[boneIndex].boneOffset;
-            std::cout << "Bone: " << node.name << " Index: " << boneIndex << std::endl;
-            std::cout << "Interpolated Position: " << glm::to_string(interpolatedPosition) << std::endl;
-            std::cout << "Interpolated Rotation: " << glm::to_string(interpolatedRotation) << std::endl;
-            std::cout << "Interpolated Scale: " << glm::to_string(interpolatedScale) << std::endl;
-            std::cout << "Bone Offset Matrix: " << glm::to_string(skeleton.bones[boneIndex].boneOffset) << std::endl;
+            // std::cout << "Bone: " << node.name << " Index: " << boneIndex << std::endl;
+            // std::cout << "Interpolated Position: " << glm::to_string(interpolatedPosition) << std::endl;
+            // std::cout << "Interpolated Rotation: " << glm::to_string(interpolatedRotation) << std::endl;
+            // std::cout << "Interpolated Scale: " << glm::to_string(interpolatedScale) << std::endl;
+            // std::cout << "Bone Offset Matrix: " << glm::to_string(skeleton.bones[boneIndex].boneOffset) << std::endl;
 
-            std::cout << "Final Transformation Matrix: " << glm::to_string(skeleton.bones[boneIndex].finalTransformation) << std::endl;
+            // std::cout << "Final Transformation Matrix: " << glm::to_string(skeleton.bones[boneIndex].finalTransformation) << std::endl;
         }
         else
         {

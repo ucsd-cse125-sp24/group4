@@ -152,7 +152,8 @@ AnimationState Window::getAnimationState(Input *input)
 	// else {
 	//     return AnimationState::Idle;
 	// }
-	return AnimationState::Walking;
+	// return AnimationState::Idle; 
+	return AnimationState::Walking; // just one state rn
 	
 }
 

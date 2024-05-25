@@ -10,7 +10,6 @@ uniform mat4 model;
 uniform mat4 boneMatrices[100]; // An array to store bone matrices
 
 out vec3 fragNormal;
-out vec2 fragTexCoords;
 
 void main() {
     mat4 boneTransform = 
@@ -19,11 +18,11 @@ void main() {
         boneMatrices[boneIndices[2]] * boneWeights[2] +
         boneMatrices[boneIndices[3]] * boneWeights[3];
 
-    vec4 pos = boneTransform * vec4(position, 1.0);
+    vec4 pos = boneTransform * vec4(position, 1.0f);
+    pos.xyz*=100;
+    vec4 norm = boneTransform * vec4(normal, 0.0f);
+
+    fragNormal = mat3(transpose(inverse(model))) * vec3(norm); 
     gl_Position = viewProj * model * pos;
 
-    mat3 normalMatrix = mat3(transpose(inverse(model * boneTransform)));
-    fragNormal = normalize(normalMatrix * normal);
-
-    fragTexCoords = texCoords;
 }
