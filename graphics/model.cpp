@@ -82,9 +82,8 @@ void Model::load_model(const std::string &path)
         aiProcess_FindInstances |            // search for instanced meshes and remove them by references to one master
         aiProcess_LimitBoneWeights |         // limit bone weights to 4 per vertex
         aiProcess_OptimizeMeshes |           // join small meshes, if possible;
-        // aiProcess_PreTransformVertices |     //-- fixes the transformation issue.
-        aiProcess_SplitByBoneCount | // split meshes with too many bones. Necessary for our (limited) hardware skinning shader
-        aiProcess_GenBoundingBoxes | // generate bounding boxes from meshes
+        aiProcess_SplitByBoneCount |         // split meshes with too many bones. Necessary for our (limited) hardware skinning shader
+        aiProcess_GenBoundingBoxes |         // generate bounding boxes from meshes
         0;
 
     // const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -106,7 +105,6 @@ void Model::load_model(const std::string &path)
 
     // Create a hitbox for the model
     hitbox = new Cube(glm::vec3(min_x, min_y, min_z), glm::vec3(max_x, max_y, max_z));
-    std::cout << "Expected meshes: " << scene->mNumMeshes << ", Loaded meshes: " << meshes.size() << std::endl;
 }
 
 void Model::loadAnimations(const std::map<AnimationState, std::string> &animationPath)
@@ -142,18 +140,9 @@ void Model::loadAnimationFromPath(AnimationState state, const std::string &path)
     }
 
     glm::mat4 globalInverse = glm::inverse(aiMatrixToGlm(scene->mRootNode->mTransformation));
-    if (glm::determinant(globalInverse) == 0)
-    {
-        std::cerr << "Invalid global inverse transform matrix." << std::endl;
-    }
-    else
-    {
-        skeleton.setGlobalInverseTransform(globalInverse);
-    }
 
-    std::cout << "Global Inverse Transform: " << glm::to_string(globalInverse) << std::endl;
+    skeleton.setGlobalInverseTransform(globalInverse);
 
-    std::cout << "Number of animations found: " << scene->mNumAnimations << std::endl;
     if (scene->mNumAnimations > 0)
     {
 
@@ -269,8 +258,6 @@ Mesh Model::process_mesh(aiMesh *mesh, const aiScene *scene, const glm::mat4 &tr
         for (unsigned int j = 0; j < face.mNumIndices; j++)
             indices.push_back(face.mIndices[j]);
     }
-
-    std::cout << "Processing mesh with " << mesh->mNumBones << " bones." << std::endl;
 
     if (mesh->HasBones())
     {

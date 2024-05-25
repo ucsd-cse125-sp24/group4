@@ -31,5 +31,4 @@ int Skeleton::addBone(const std::string& name, const glm::mat4& offsetMatrix) {
 
 void Skeleton::setGlobalInverseTransform(const glm::mat4& globalInv) {
     globalInverseTransform = globalInv;
-    std::cout << "Global Inverse Transform: " << glm::to_string(globalInverseTransform) << std::endl;
 }
