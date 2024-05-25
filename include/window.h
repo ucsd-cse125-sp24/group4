@@ -22,6 +22,7 @@ public:
 	// Helper objects
 	static Input* input;
 	static Shader* shader_program;
+	static Shader* shader_anim_program;
 
 	static short player_id;
 	// Objects to draw - TODO

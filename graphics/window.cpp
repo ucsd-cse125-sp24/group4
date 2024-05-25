@@ -6,6 +6,7 @@ int Window::width;
 int Window::height;
 const char* Window::window_title = "Graphics Client";
 Shader* Window::shader_program = nullptr;
+Shader* Window::shader_anim_program = nullptr;
 Input* Window::input = nullptr;
 
 // Mouse
@@ -65,6 +66,7 @@ GLFWwindow* Window::create_window(int width, int height) {
 	// Shader program - maybe move somewhere else?
 	// Initialize shader
 	shader_program = new Shader("shaders/shader.vert", "shaders/shader.frag");
+	shader_anim_program = new Shader("shaders/shader_anim.vert", "shaders/shader.frag");
 	// Initialize input
 	input = new Input();
 
@@ -175,6 +177,7 @@ void Window::clean_up() {
 
 	// Delete the shader program
 	delete shader_program;
+	delete shader_anim_program;
 
 }
 
@@ -208,7 +211,7 @@ void Window::display_callback(GLFWwindow* window) {
     AnimationState currentState = getAnimationState(input);
 
     for (Drawable* player : players) {
-        player->draw(cam->get_view_project_mtx(), shader_program);
+        player->draw(cam->get_view_project_mtx(), shader_anim_program);
         Model* model = dynamic_cast<Model*>(player);
         if (model) {
             //std::cout << "Updating animations for model\n";

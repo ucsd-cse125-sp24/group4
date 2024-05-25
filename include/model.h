@@ -11,6 +11,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+
 enum class AnimationState
 {
 	Idle,
@@ -73,8 +74,8 @@ private:
 	glm::mat4 aiMatrixToGlm(const aiMatrix4x4 &from);
 	glm::quat aiQuaternionToGlm(const aiQuaternion &aiQuat);
 	glm::vec3 aiVectorToGlm(const aiVector3D &aiVec);
-	void process_node(aiNode *node, const aiScene *scene);
-	Mesh process_mesh(aiMesh *mesh, const aiScene *scene);
+    void process_node(aiNode *node, const aiScene *scene, const glm::mat4 &parentTransform);
+    Mesh process_mesh(aiMesh *mesh, const aiScene *scene, const glm::mat4& transform);
 
 	glm::vec3 interpolatePosition(float time, const AnimationNode &node);
 
