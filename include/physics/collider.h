@@ -2,45 +2,58 @@
 
 #include "../core.h"
 
+#define PLAYER_LENGTH 0.73
+#define PLAYER_WIDTH 0.55
+#define PLAYER_HEIGHT 0.9
 
 class Collider {
 public:
+    virtual ~Collider() {}
 
-	// types of colliders
-	enum
-	{
-		AABB,
-		PLANE,
-	};
+    // function for collision detection
+    virtual bool collide(Collider& other) = 0;
 
+    // function for setting bounding box based on position
+    virtual void setBoundingBox(const glm::vec3& position) = 0;
 
-	Collider(int type) :
-		type(type) {}
-	
-	Collider() {}
+	// functions for handling collisions
+	virtual glm::vec3 getCollisionNormal(Collider& other) const = 0;
+    // virtual float getPenetrationDepth(Collider& other) const = 0; do we need this??
 
-	virtual ~Collider() {}
-	/**
-	 * Check if one collider intersects another
-	 */
-	bool collide(Collider& other);
+	glm::vec3 minExtents;
+    glm::vec3 maxExtents;
+};
 
-	/**
-	 * Moves the entire collider by translation distance. Should be overriden
-	 * by subclasses.
-	 *
-	 * @param translation Distance to move the collider
-	 */
-	virtual void transform(glm::vec3 translation) {}
+class AABB : public Collider {
+public:
 
-	// /**
-	//  * Returns the center position of the collider. Should be overriden by
-	//  * subclasses.
-	//  */
-	// virtual Vector3f GetCenter() const { return Vector3f(0,0,0); }
+	// constructor with default parameters
+    AABB(glm::vec3 min = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 max = glm::vec3(1.0f, 1.0f, 1.0f)) :
+        minExtents(min),
+        maxExtents(max) {}
 
-	/** Basic getter */
-	int getType() const { return type; }
-private:
-	int type;
+    // constructor that takes position
+    AABB(const glm::vec3& position) {
+        setBoundingBox(position);
+    }
+
+    bool collide(Collider& other) override;
+    void setBoundingBox(const glm::vec3& position) override;
+
+    bool collidingAABB(AABB& other);
+
+    glm::vec3 getMinExtents() const { return minExtents; }
+    glm::vec3 getMaxExtents() const { return maxExtents; }
+
+	glm::vec3 getCollisionNormal(Collider& other) const override;
+    // float getPenetrationDepth(Collider& other) const override;
+
+    glm::vec3 minExtents;
+    glm::vec3 maxExtents;
+};
+
+class Plane : public Collider {
+public:
+    bool collide(Collider& other) override;  // To be implemented in collider.cpp
+    void setBoundingBox(const glm::vec3& position) override;  // To be implemented in collider.cpp
 };

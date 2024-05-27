@@ -347,7 +347,7 @@ void ServerCore::accept_new_clients(int i)
 
     serverState.players.push_back(p_state);
 
-    Collider* c = new Collider(0); // TBD free this
+    AABB* c = new AABB(); // TBD free this
     PlayerObject* newPlayerObject = new PlayerObject(c); // TBD free this?
     
     // newPlayerObject->setForce(glm::vec3(0.0f, 0.0f, 0.0f));

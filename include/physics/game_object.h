@@ -2,7 +2,6 @@
 
 #include "../core.h"
 #include "collider.h"
-#include "aabb.h"
 
 class GameObject {
     protected:
@@ -46,6 +45,10 @@ class GameObject {
         }
         void applyFriction();
         void applyGravity();
+
+        void applyForce(const glm::vec3& force) {
+            this->force += force;
+        }
 };
 
 class PlayerObject : public GameObject {
@@ -54,7 +57,7 @@ class PlayerObject : public GameObject {
 
     public:
 
-        PlayerObject(Collider* collider) :
+        PlayerObject(AABB* collider) :
             GameObject(collider) {}
         void move();
         void setPlayerId(short id) { playerId = id; }

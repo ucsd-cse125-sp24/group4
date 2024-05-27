@@ -9,7 +9,8 @@ file(GLOB PACKET_SOURCES packets/*)
 
 add_library(client OBJECT networking/client.cpp)
 add_library(server OBJECT networking/server.cpp)
-add_library(physics OBJECT "${PROJECT_SOURCE_DIR}/game/physics_world.cpp" "${PROJECT_SOURCE_DIR}/game/player_object.cpp")
+# add_library(physics OBJECT "${PROJECT_SOURCE_DIR}/physics_engine/physics_world.cpp" "${PROJECT_SOURCE_DIR}/physics_engine/player_object.cpp" "${PROJECT_SOURCE_DIR}/physics_engine/collider.cpp")
+add_library(physics OBJECT "${PROJECT_SOURCE_DIR}/game/physics_world.cpp" "${PROJECT_SOURCE_DIR}/game/player_object.cpp" "${PROJECT_SOURCE_DIR}/game/collider.cpp")
 
 link_directories(lib)
 

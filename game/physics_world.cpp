@@ -1,4 +1,5 @@
 #include "../include/physics/physics_world.h"
+#define COLLISION_FORCE_FACTOR 1.0f
 
 void PhysicsWorld::addObject (GameObject* object) { 
     m_objects.push_back(object);
@@ -71,13 +72,35 @@ void PhysicsWorld::step()
 }
 
 void PhysicsWorld::handleCollisions() {
+    // Loop through each combination of distinct pairs of objects
     for (unsigned int i = 0; i < p_objects.size(); i++) {
-       for (unsigned int j = i + 1; j < p_objects.size(); j++) {
-            // bool collision = p_objects[i]->getCollider()->collide(p_objects[j].getCollider());
+        for (unsigned int j = i + 1; j < p_objects.size(); j++) {
+            // Check if either object pointer is null
+            if (!p_objects[i] || !p_objects[j]) {
+                std::cout << "Error: Null player object detected." << std::endl;
+                continue;
+            }
 
-            // if (collision) {
-            //     printf("Collision happened");
-            // }
-       }
+            // Get the colliders
+            Collider& collider1 = p_objects[i]->getCollider();
+            Collider& collider2 = p_objects[j]->getCollider();
+
+            // Check for collision using references
+            bool collision = collider1.collide(collider2);
+            printf("bbox %f, %f, %f \n", collider1.maxExtents[0], collider1.maxExtents[1], collider1.maxExtents[2]);
+            printf("bbox %f, %f, %f \n\n", collider2.maxExtents[0], collider2.maxExtents[1], collider2.maxExtents[2]);
+            if (collision) {
+                std::cout << "Collision happened between object " << i << " and object " << j << std::endl;
+
+                // glm::vec3 collision_dir = collider1.getCollisionNormal(collider2);
+                // glm::vec3 collision_force = collision_dir * COLLISION_FORCE_FACTOR; // later use penetrationDepth ?
+
+                // p_objects[i]->applyForce(-collision_force);
+                // p_objects[j]->applyForce(collision_force);
+
+            }
+
+        }
     }
 }
+
