@@ -6,6 +6,8 @@
 void PlayerObject::move() {
     glm::vec3 move_force = glm::vec3(0.0f, 0.0f, -step);
     setForce(force + move_force);
+    glm::vec3 norm_force = glm::vec3(0.0f, 0.0f, force.z/abs(force.z) * step);
+    setForce(norm_force);
 }
 
 void GameObject::applyFriction() {
@@ -26,6 +28,7 @@ void PlayerObject::jump() {
 }
 
 void GameObject::simulate(float dt) {
+    printf("forces: <%f, %f, %f>\n", force.x, force.y, force.z);
     applyFriction();
     applyGravity();
     glm::vec3 ori_v = velocity;
@@ -42,9 +45,9 @@ void GameObject::simulate(float dt) {
         velocity.y = 0;
     }
     
-    printf("forces: <%f, %f, %f>\n", force.x, force.y, force.z);
-    printf("velocity: <%f, %f, %f>\n", velocity.x, velocity.y, velocity.z);
-    printf("positions: <%f, %f, %f>\n\n", position.x, position.y, position.z);
+   
+    // printf("velocity: <%f, %f, %f>\n", velocity.x, velocity.y, velocity.z);
+    // printf("positions: <%f, %f, %f>\n\n", position.x, position.y, position.z);
 
     collider->setBoundingBox(position); // update the bbox based on updated position
 
