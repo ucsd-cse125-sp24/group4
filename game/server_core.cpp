@@ -6,9 +6,14 @@
 
 ServerCore::ServerCore()
 {
+    reader = INIReader("../config.ini");
+    if (reader.ParseError() != 0) {
+        std::cout << "Can't load 'config.ini'\n";
+    }
+
     this->running = false;
     this->ready_players = 0;
-    this->state = LOBBY;
+    this->state = ServerState(reader.GetInteger("debug", "start_state", 1));
     for (short i = 0; i < MAX_CLIENTS; i++) // set up available ids to include [0, n)
         this->available_ids.push_back(i);
     std::sort(this->available_ids.begin(), this->available_ids.end());
@@ -39,7 +44,7 @@ void ServerCore::run()
     send_heartbeat();
 
     // start once max players is reached OR all (nonzero) players are ready anyway
-    while (server.get_num_clients() < NUM_CLIENTS &&
+    while (server.get_num_clients() < reader.GetInteger("debug", "expected_clients", 4) &&
            (this->ready_players < server.get_num_clients() || this->ready_players < 1))
     {
         this->listen();
@@ -52,7 +57,8 @@ void ServerCore::run()
     {
         auto start = std::chrono::high_resolution_clock::now();
 
-        // this->listen(); // uncomment to allow joining mid-game
+        if (reader.GetBoolean("debug", "accept_midgame", 0))
+            this->listen(); // join mid-game
         receive_data();
         update_game_state();
         send_updates();
@@ -158,13 +164,13 @@ void ServerCore::process_input(InputPacket packet, short id)
         }
     }
 
-    float sz = packet.events.size();
+    size_t sz = size_t(packet.events.size());
     if (sz > 1)
     {
         int a = 0;
     }
 
-    float scale = PLAYER_MOVEMENT_SCALE / sz;
+    float scale = float(reader.GetReal("graphics", "player_movement_scale", 4.0)) / sz;
     glm::vec3 turndir;
 
     // Process input events
@@ -235,11 +241,11 @@ void ServerCore::process_input(InputPacket packet, short id)
             if (crossProduct.y > 0) // Assuming y-axis is up in your coordinate system
             {
                 // Right
-                world = glm::rotate(world, -PLAYER_ROTATION_SCALE, glm::vec3(0.0f, 1.0f, 0.0f));
+                world = glm::rotate(world, float(-reader.GetReal("graphics", "player_rotation_scale", 0.1)), glm::vec3(0.0f, 1.0f, 0.0f));
             }
             else
             {
-                world = glm::rotate(world, PLAYER_ROTATION_SCALE, glm::vec3(0.0f, 1.0f, 0.0f));
+                world = glm::rotate(world, float(reader.GetReal("graphics", "player_rotation_scale", 0.1)), glm::vec3(0.0f, 1.0f, 0.0f));
             }
         }
     }
@@ -330,9 +336,11 @@ void ServerCore::accept_new_clients(int i)
     clients_data.push_back(client);
 
     PlayerState p_state;
-	p_state.world = glm::scale(glm::mat4(1.0f), glm::vec3(PLAYER_MODEL_SCALE, PLAYER_MODEL_SCALE, PLAYER_MODEL_SCALE));
-    p_state.world = glm::translate(glm::mat4(1.0f), glm::vec3(1.50f * client->id, 0.0f, 0.0f)) * p_state.world;
 
+    p_state.world = glm::scale(glm::mat4(1.0f), glm::vec3(reader.GetReal("graphics", "player_model_scale", 0.01),
+                                                          reader.GetReal("graphics", "player_model_scale", 0.01),
+                                                          reader.GetReal("graphics", "player_model_scale", 0.01)));
+    p_state.world = glm::translate(glm::mat4(1.0f), glm::vec3(1.50f * client->id, 0.0f, 0.0f)) * p_state.world;
 
     p_state.score = 0;
 
