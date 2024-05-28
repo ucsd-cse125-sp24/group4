@@ -1,7 +1,7 @@
 #include "../include/physics/game_object.h"
 #include <cmath>
 #define step 30.0f
-#define mu 1.1
+#define mu 1.4f
 
 void PlayerObject::move() {
     glm::vec3 move_force = glm::vec3(0.0f, 0.0f, -step);
@@ -30,7 +30,7 @@ void GameObject::simulate(float dt) {
     applyGravity();
     glm::vec3 ori_v = velocity;
     velocity += force / mass * dt;
-    glm::vec3 worldVelocity = glm::vec3(playerWorld * glm::vec4(velocity, 0.0f));
+    worldVelocity = glm::vec3(playerWorld * glm::vec4(velocity, 0.0f));
     old_position = position;
     position += worldVelocity * dt;
     // check y >= 0

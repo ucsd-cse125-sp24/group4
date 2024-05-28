@@ -8,7 +8,8 @@ class GameObject {
         // glm::mat4 world;
         glm::vec3 old_position;
         glm::vec3 position;     // Position of the object in 3D space
-        glm::vec3 velocity;    
+        glm::vec3 velocity; 
+        glm::vec3 worldVelocity;   
         glm::vec3 force;        // Acceleration of the object
         float mass;             // Mass of the object
         Collider* collider;
@@ -31,6 +32,7 @@ class GameObject {
         void setOldPosition(glm::vec3 pos) { old_position = pos; }
         void setForce(glm::vec3 f) { force = f; }
         void setVelocity(glm::vec3 vel) { velocity = vel; }
+        void setWorldVelocity(glm::vec3 vel) { worldVelocity = vel; }
         void setMass(float m) { mass = m; }
         void setCollider(Collider* col) { collider = col; }
         void setPlayerWorld(glm::mat4 world){ playerWorld = world; }
