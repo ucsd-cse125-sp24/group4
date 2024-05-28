@@ -98,11 +98,11 @@ void PhysicsWorld::handleCollisions() {
 
                 //p_objects[i]->applyForce(-collision_force);
                 //p_objects[j]->applyForce(collision_force);
-
-                p_objects[i]->setVelocity(-collision_dir * 30.0f);
-                p_objects[j]->setVelocity(collision_dir * 15.0f);
+                p_objects[i]->setForce(glm::vec3(0, 0, 0));
+                p_objects[j]->setForce(glm::vec3(0, 0, 0));
+                p_objects[i]->setVelocity(-collision_dir * 20.0f);
+                p_objects[j]->setVelocity(collision_dir * 20.0f);
             }
-
         }
     }
 }
