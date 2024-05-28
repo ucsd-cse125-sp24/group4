@@ -30,9 +30,12 @@ void GameObject::simulate(float dt) {
     applyGravity();
     glm::vec3 ori_v = velocity;
     velocity += force / mass * dt;
-    // check y >= 0
+    glm::vec3 worldVelocity = glm::vec3(playerWorld * glm::vec4(velocity, 0.0f));
     old_position = position;
-    position += 0.5f * (ori_v + velocity) * dt;
+    position += worldVelocity * dt;
+    // check y >= 0
+    // old_position = position;
+    // position += 0.5f * (ori_v + velocity) * dt;
 
     if (position.y < 0) {
         position.y = 0;

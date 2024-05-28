@@ -13,6 +13,7 @@ class GameObject {
         float mass;             // Mass of the object
         Collider* collider;
 
+        glm::mat4 playerWorld;
     public:
 
         GameObject(Collider* collider) :
@@ -32,7 +33,8 @@ class GameObject {
         void setVelocity(glm::vec3 vel) { velocity = vel; }
         void setMass(float m) { mass = m; }
         void setCollider(Collider* col) { collider = col; }
-        
+        void setPlayerWorld(glm::mat4 world){ playerWorld = world; }
+        glm::mat4 getPlayerWorld() { return playerWorld; }
 
         glm::vec3 getPosition() { return position; }
         glm::vec3 getOldPosition() { return old_position; }
@@ -54,6 +56,7 @@ class GameObject {
 class PlayerObject : public GameObject {
     private: 
         short playerId;
+        
 
     public:
 

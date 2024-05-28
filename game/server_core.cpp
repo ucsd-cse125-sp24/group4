@@ -248,8 +248,11 @@ void ServerCore::process_input(InputPacket packet, short id)
         }
     }
     pWorld.step();
-    world = glm::translate(world, (client_player->getPosition() - client_player->getOldPosition()) * SCALE);
-    //printf("world m %f,%f,%f\n", world[3][0], world[3][1], world[3][2]);
+    client_player->setPlayerWorld(world);
+    SCALE = 1;
+    // world = glm::translate(world, (client_player->getPosition() - client_player->getOldPosition()) * SCALE);
+    // printf("world m %f,%f,%f\n", world[3][0], world[3][1], world[3][2]);
+    world[3] = glm::vec4(client_player->getPosition(), 1.0f);
 
     //printf("forces: <%f, %f, %f>\n", client_player->force.x, client_player->force.y, client_player->force.z);
 

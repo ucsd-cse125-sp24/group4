@@ -92,11 +92,11 @@ void PhysicsWorld::handleCollisions() {
             if (collision) {
                 std::cout << "Collision happened between object " << i << " and object " << j << std::endl;
 
-                // glm::vec3 collision_dir = collider1.getCollisionNormal(collider2);
-                // glm::vec3 collision_force = collision_dir * COLLISION_FORCE_FACTOR; // later use penetrationDepth ?
+                glm::vec3 collision_dir = collider1.getCollisionNormal(collider2);
+                glm::vec3 collision_force = collision_dir * COLLISION_FORCE_FACTOR; // later use penetrationDepth ?
 
-                // p_objects[i]->applyForce(-collision_force);
-                // p_objects[j]->applyForce(collision_force);
+                p_objects[i]->applyForce(-collision_force);
+                p_objects[j]->applyForce(collision_force);
 
             }
 
