@@ -16,13 +16,11 @@ struct BoneInfo {
 
 class Skeleton {
 public:
-    glm::mat4 globalInverseTransform;   // Transforms from model space to world space
     std::map<std::string, int> boneMapping; // Maps bone names to their index
     std::vector<BoneInfo> bones;        // Vector containing information for each bone
 
     int getBoneIndex(const std::string& name) const;
     int addBone(const std::string& name, const glm::mat4& offsetMatrix);
-    void setGlobalInverseTransform(const glm::mat4& globalInv);
 };
 
 #endif // SKELETON_H

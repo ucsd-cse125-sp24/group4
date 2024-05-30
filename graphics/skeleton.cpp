@@ -18,17 +18,13 @@ int Skeleton::getBoneIndex(const std::string& name) const {
 
 int Skeleton::addBone(const std::string& name, const glm::mat4& offsetMatrix) {
     int index = getBoneIndex(name);
+
     if (index == -1) { // Bone not found, add new
         index = bones.size();
         bones.push_back(BoneInfo());
         bones[index].boneOffset = offsetMatrix;
         boneMapping[name] = index;
-        //std::cout << "Bone added: " << name << " with index " << index << " and offset matrix: " << glm::to_string(offsetMatrix) << std::endl;
         return index;
     }
     return index;
-}
-
-void Skeleton::setGlobalInverseTransform(const glm::mat4& globalInv) {
-    globalInverseTransform = globalInv;
 }

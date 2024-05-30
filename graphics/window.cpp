@@ -219,9 +219,6 @@ void Window::display_callback(GLFWwindow* window) {
             model->updateAnimations(deltaTime, currentState);
         }
     }
-	
-//std::cout << "Delta Time: " << deltaTime << std::endl;
-//std::cout << "Time Since Start: " << lastFrameTime << std::endl;
 
 
 	map->draw(cam->get_view_project_mtx(), shader_program);

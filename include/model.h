@@ -11,7 +11,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-
 enum class AnimationState
 {
 	Idle,
@@ -23,17 +22,14 @@ enum class AnimationState
 struct AnimationNode
 {
 	std::string name;
+	bool hasBone;
+	glm::mat4 transformation;
+	glm::mat4 boneTrans;
+	int parentIndex;
+
 	std::vector<std::pair<float, glm::vec3>> positions;
 	std::vector<std::pair<float, glm::quat>> rotations;
 	std::vector<std::pair<float, glm::vec3>> scales;
-};
-
-struct Animation
-{
-	std::string name;
-	float duration;
-	float ticksPerSecond;
-	std::map<std::string, AnimationNode> channels;
 };
 
 class Model : public Drawable
@@ -58,8 +54,12 @@ public:
 	void updateAnimations(float deltaTime, AnimationState currentState);
 
 private:
+	float ticks;
+	float duration = 0;
+	glm::mat4 globalInverse;
+
 	Skeleton skeleton;
-	std::map<AnimationState, Animation> animations;
+	std::map<AnimationState, std::vector<AnimationNode>> animations;
 	// Model data
 	std::vector<Mesh> meshes;
 	std::string directory;
@@ -69,21 +69,16 @@ private:
 	Cube *hitbox;
 
 	void load_model(const std::string &path);
-	
-	void loadAnimationFromPath(AnimationState state, const std::string &path);
+
+	void process_node(aiNode *node, const aiScene *scene, const glm::mat4 &parentTransform);
+	Mesh process_mesh(aiMesh *mesh, const aiScene *scene, const glm::mat4 &transform);
+
+	glm::mat4 interpolatePosition(float time, const AnimationNode &node);
+	glm::mat4 interpolateRotation(float time, const AnimationNode &node);
+	glm::mat4 interpolateScale(float time, const AnimationNode &node);
 	glm::mat4 aiMatrixToGlm(const aiMatrix4x4 &from);
 	glm::quat aiQuaternionToGlm(const aiQuaternion &aiQuat);
 	glm::vec3 aiVectorToGlm(const aiVector3D &aiVec);
-    void process_node(aiNode *node, const aiScene *scene, const glm::mat4 &parentTransform);
-    Mesh process_mesh(aiMesh *mesh, const aiScene *scene, const glm::mat4& transform);
-
-	glm::vec3 interpolatePosition(float time, const AnimationNode &node);
-
-	glm::quat interpolateRotation(float time, const AnimationNode &node);
-
-	glm::vec3 interpolateScale(float time, const AnimationNode &node);
-
-	
 
 	// Skip textures for now
 

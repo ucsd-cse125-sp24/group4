@@ -11,6 +11,7 @@
 #ifdef min
 #undef min
 #endif
+#include <stack>
 #ifdef max
 #undef max
 #endif
@@ -23,17 +24,11 @@ void Model::draw(const glm::mat4 &viewProjMtx, Shader *shader)
     shader->set_mat4("viewProj", (float *)&viewProjMtx);
     shader->set_vec3("DiffuseColor", &color[0]);
 
-    // std::cout << "Global Inverse Transform: " << glm::to_string(skeleton.globalInverseTransform) << std::endl;
-    // for (const auto& bone : skeleton.bones) {
-    //     std::cout << "Bone Offset: " << glm::to_string(bone.boneOffset) << std::endl;
-    // }
-
     std::vector<glm::mat4> boneMatrices(skeleton.bones.size());
-    // std::cout << "size: " << skeleton.bones.size() << std::endl;
+
     for (size_t i = 0; i < skeleton.bones.size(); ++i)
     {
         boneMatrices[i] = skeleton.bones[i].finalTransformation;
-        // std::cout << "Bone Matrix [" << i << "]:\n" << glm::to_string(boneMatrices[i]) << std::endl;
     }
     shader->set_mat4_array("boneMatrices", boneMatrices.data(), boneMatrices.size());
 
@@ -60,38 +55,7 @@ void Model::load_model(const std::string &path)
 {
     Assimp::Importer importer;
 
-    // Get current directory in Windows
-    // char buffer[MAX_PATH];
-    // GetCurrentDirectory(MAX_PATH, buffer);
-    // std::string current_dir(buffer);
-    // std::cout << "Current directory: " << current_dir << std::endl;
-
-    unsigned int processFlags =
-        aiProcess_CalcTangentSpace |      // calculate tangents and bitangents if possible
-        aiProcess_JoinIdenticalVertices | // join identical vertices/ optimize indexing
-        // aiProcess_ValidateDataStructure |    // perform a full validation of the loader's output
-        aiProcess_Triangulate |              // Ensure all verticies are triangulated (each 3 vertices are triangle)
-        aiProcess_ConvertToLeftHanded |      // convert everything to D3D left handed space (by default right-handed, for OpenGL)
-        aiProcess_SortByPType |              // ?
-        aiProcess_ImproveCacheLocality |     // improve the cache locality of the output vertices
-        aiProcess_RemoveRedundantMaterials | // remove redundant materials
-        aiProcess_FindDegenerates |          // remove degenerated polygons from the import
-        aiProcess_FindInvalidData |          // detect invalid model data, such as invalid normal vectors
-        aiProcess_GenUVCoords |              // convert spherical, cylindrical, box and planar mapping to proper UVs
-        aiProcess_TransformUVCoords |        // preprocess UV transformations (scaling, translation ...)
-        aiProcess_FindInstances |            // search for instanced meshes and remove them by references to one master
-        aiProcess_LimitBoneWeights |         // limit bone weights to 4 per vertex
-        aiProcess_OptimizeMeshes |           // join small meshes, if possible;
-        aiProcess_SplitByBoneCount |         // split meshes with too many bones. Necessary for our (limited) hardware skinning shader
-        aiProcess_GenBoundingBoxes |         // generate bounding boxes from meshes
-        0;
-
-    // const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
-    const aiScene *scene = importer.ReadFile(path, processFlags);
-
-    /*
-     * Useful options: aiProcess_GenNormals, aiProcess_SplitLargeMeshes, aiProcess_OptimizeMeshes
-     */
+    const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
@@ -111,91 +75,110 @@ void Model::loadAnimations(const std::map<AnimationState, std::string> &animatio
 {
     for (const auto &pair : animationPath)
     {
-        loadAnimationFromPath(pair.first, pair.second);
-    }
-}
+        AnimationState state = pair.first;
+        const std::string path = pair.second;
 
-void Model::loadAnimationFromPath(AnimationState state, const std::string &path)
-{
+        Assimp::Importer importer;
 
-    Assimp::Importer importer;
+        const aiScene *scene = importer.ReadFile(path, aiProcess_LimitBoneWeights | aiProcess_Triangulate);
 
-    // unsigned int processFlags =
-    //     aiProcess_Triangulate |
-    //     aiProcess_LimitBoneWeights |
-    //     aiProcess_GenSmoothNormals |
-    //     aiProcess_JoinIdenticalVertices |
-    //     aiProcess_ImproveCacheLocality |
-    //     aiProcess_RemoveRedundantMaterials |
-    //     aiProcess_SplitLargeMeshes |
-    //     aiProcess_FindInvalidData |
-    //     aiProcess_ValidateDataStructure | 0;
-
-    const aiScene *scene = importer.ReadFile(path, aiProcess_LimitBoneWeights | aiProcess_Triangulate);
-
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-    {
-        std::cerr << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
-        return;
-    }
-
-    glm::mat4 globalInverse = glm::inverse(aiMatrixToGlm(scene->mRootNode->mTransformation));
-
-    skeleton.setGlobalInverseTransform(globalInverse);
-
-    if (scene->mNumAnimations > 0)
-    {
-
-        aiAnimation *ai_anim = scene->mAnimations[0];
-        Animation anim;
-        anim.name = ai_anim->mName.C_Str();
-        anim.duration = ai_anim->mDuration;
-        anim.ticksPerSecond = ai_anim->mTicksPerSecond != 0 ? ai_anim->mTicksPerSecond : 25.0f;
-
-        for (unsigned int j = 0; j < ai_anim->mNumChannels; j++)
+        if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         {
-            aiNodeAnim *ai_channel = ai_anim->mChannels[j];
-            std::string boneName = ai_channel->mNodeName.C_Str();
-
-            int boneIndex = skeleton.getBoneIndex(boneName);
-            // if (boneIndex == -1)
-            // {
-            //     // Bone not found, add it with identity matrix as offset
-            //     glm::mat4 boneOffset = glm::mat4(1.0f);
-            //     boneIndex = skeleton.addBone(boneName, boneOffset);
-            // }
-            AnimationNode node;
-            node.name = boneName;
-
-            for (unsigned int k = 0; k < ai_channel->mNumPositionKeys; k++)
-            {
-                aiVector3D pos = ai_channel->mPositionKeys[k].mValue;
-                float timeStamp = ai_channel->mPositionKeys[k].mTime;
-                node.positions.push_back(std::make_pair(timeStamp, aiVectorToGlm(pos)));
-            }
-
-            for (unsigned int k = 0; k < ai_channel->mNumRotationKeys; k++)
-            {
-                aiQuaternion rot = ai_channel->mRotationKeys[k].mValue;
-                float timeStamp = ai_channel->mRotationKeys[k].mTime;
-                node.rotations.push_back(std::make_pair(timeStamp, aiQuaternionToGlm(rot)));
-            }
-
-            for (unsigned int k = 0; k < ai_channel->mNumScalingKeys; k++)
-            {
-                aiVector3D scale = ai_channel->mScalingKeys[k].mValue;
-                float timeStamp = ai_channel->mScalingKeys[k].mTime;
-                node.scales.push_back(std::make_pair(timeStamp, aiVectorToGlm(scale)));
-            }
-
-            anim.channels[node.name] = node;
+            std::cerr << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
+            return;
         }
 
-        animations[state] = anim;
-    }
-    else
-    {
-        std::cerr << "No animations found in the file." << std::endl;
+        globalInverse = glm::inverse(aiMatrixToGlm(scene->mRootNode->mTransformation));
+
+        struct Node
+        {
+            aiNode *src = nullptr;
+            int parentIndex = -1;
+
+            Node(aiNode *src, int parentIndex) : src(src), parentIndex(parentIndex) {}
+        };
+
+        std::vector<AnimationNode> aniNodes;
+        std::map<std::string, int> nodeNames;
+        std::stack<Node> nodeStack;
+
+        nodeStack.push(Node{scene->mRootNode, -1});
+
+        while (!nodeStack.empty())
+        {
+            Node currentNode = std::move(nodeStack.top());
+            nodeStack.pop();
+
+            AnimationNode aniNode;
+            aniNode.parentIndex = currentNode.parentIndex;
+
+            aniNode.transformation = aiMatrixToGlm(currentNode.src->mTransformation);
+            aniNode.hasBone = false;
+            aniNode.name = std::string(currentNode.src->mName.data);
+
+            assert(currentNode.parentIndex < static_cast<int>(aniNodes.size()));
+
+            aniNodes.push_back(aniNode);
+
+            nodeNames[aniNode.name] = static_cast<int>(aniNodes.size() - 1);
+
+            int parentIndex = static_cast<int>(aniNodes.size() - 1);
+
+            for (unsigned int i = 0; i < currentNode.src->mNumChildren; i++)
+            {
+                nodeStack.push(Node{currentNode.src->mChildren[i], parentIndex});
+            }
+        }
+
+        if (scene->mNumAnimations > 0)
+        {
+
+            aiAnimation *ai_anim = scene->mAnimations[0];
+
+            duration = ai_anim->mDuration;
+            ticks = ai_anim->mTicksPerSecond != 0 ? ai_anim->mTicksPerSecond : 25.0f;
+
+            std::vector<AnimationNode> nodes = aniNodes;
+            animations[state] = nodes;
+
+            for (unsigned int j = 0; j < ai_anim->mNumChannels; j++)
+            {
+                aiNodeAnim *ai_channel = ai_anim->mChannels[j];
+                std::string boneName = ai_channel->mNodeName.C_Str();
+
+                int boneIndex = skeleton.getBoneIndex(boneName);
+
+                if (nodeNames.find(boneName) != nodeNames.end())
+                {
+
+                    AnimationNode node = aniNodes[nodeNames[boneName]];
+                    node.hasBone = true;
+
+                    for (unsigned int k = 0; k < ai_channel->mNumPositionKeys; k++)
+                    {
+                        aiVector3D pos = ai_channel->mPositionKeys[k].mValue;
+                        float timeStamp = ai_channel->mPositionKeys[k].mTime;
+                        node.positions.push_back(std::make_pair(timeStamp, aiVectorToGlm(pos)));
+                    }
+
+                    for (unsigned int k = 0; k < ai_channel->mNumRotationKeys; k++)
+                    {
+                        aiQuaternion rot = ai_channel->mRotationKeys[k].mValue;
+                        float timeStamp = ai_channel->mRotationKeys[k].mTime;
+                        node.rotations.push_back(std::make_pair(timeStamp, aiQuaternionToGlm(rot)));
+                    }
+
+                    for (unsigned int k = 0; k < ai_channel->mNumScalingKeys; k++)
+                    {
+                        aiVector3D scale = ai_channel->mScalingKeys[k].mValue;
+                        float timeStamp = ai_channel->mScalingKeys[k].mTime;
+                        node.scales.push_back(std::make_pair(timeStamp, aiVectorToGlm(scale)));
+                    }
+
+                    animations[state][nodeNames[boneName]] = node;
+                }
+            }
+        }
     }
 }
 
@@ -225,20 +208,11 @@ Mesh Model::process_mesh(aiMesh *mesh, const aiScene *scene, const glm::mat4 &tr
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
         Vertex vertex;
+
         glm::vec4 pos = transform * glm::vec4(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z, 1.0);
         vertex.position = glm::vec3(pos);
         glm::vec3 norm = glm::mat3(transform) * glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
         vertex.normal = norm;
-
-        // Skip the textures for now
-        // if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
-        //{
-        //	glm::vec2 vec;
-        //	vec.x = mesh->mTextureCoords[0][i].x;
-        //	vec.y = mesh->mTextureCoords[0][i].y;
-        //	vertex.texCoords = vec;
-        //}
-        // else
         vertex.texCoords = glm::vec2(0.0f, 0.0f);
 
         vertices.push_back(vertex);
@@ -290,28 +264,62 @@ Mesh Model::process_mesh(aiMesh *mesh, const aiScene *scene, const glm::mat4 &tr
         }
     }
 
-    for (auto &vertex : vertices)
-    {
-        float totalWeight = vertex.boneWeights[0] + vertex.boneWeights[1] + vertex.boneWeights[2] + vertex.boneWeights[3];
-        if (totalWeight > 0)
-        {
-            vertex.boneWeights[0] /= totalWeight;
-            vertex.boneWeights[1] /= totalWeight;
-            vertex.boneWeights[2] /= totalWeight;
-            vertex.boneWeights[3] /= totalWeight;
-        }
-    }
-
-    Mesh hi(vertices, indices, textures);
-    // hi.printVertexBoneData(vertices);
-    return hi;
+    return Mesh(vertices, indices, textures);
 }
 
-glm::vec3 Model::interpolatePosition(float time, const AnimationNode &node)
+void Model::updateAnimations(float deltaTime, AnimationState currentState)
+{
+
+    if (animations.find(currentState) == animations.end())
+    {
+        return;
+    }
+
+    static float timeSinceStart = 0.0f;
+    timeSinceStart += deltaTime;
+    float ticksPerSecond = ticks != 0 ? ticks : 25.0f;
+    float timeInTicks = timeSinceStart * ticksPerSecond;
+    float animationTime = fmod(timeInTicks, duration);
+
+    for (int i = 0; i < animations[currentState].size(); i++)
+    {
+        AnimationNode &node = animations[currentState][i];
+
+        glm::mat4 localTransform = node.transformation;
+
+        if (node.hasBone)
+        {
+            glm::mat4 posMatrix = interpolatePosition(animationTime, node);
+            glm::mat4 rotMatrix = interpolateRotation(animationTime, node);
+            glm::mat4 scaleMatrix = interpolateScale(animationTime, node);
+
+            localTransform = posMatrix * rotMatrix * scaleMatrix;
+        }
+
+        glm::mat4 globalTransform = glm::mat4(1.0f);
+        if (node.parentIndex != -1)
+        {
+            AnimationNode &parent = animations[currentState][node.parentIndex];
+            globalTransform = parent.boneTrans;
+        }
+
+        globalTransform = globalTransform * localTransform;
+        node.boneTrans = globalTransform;
+
+        int boneIndex = skeleton.getBoneIndex(node.name);
+
+        if (boneIndex != -1)
+        {
+            skeleton.bones[boneIndex].finalTransformation = globalInverse * globalTransform * skeleton.bones[boneIndex].boneOffset;
+        }
+    }
+}
+
+glm::mat4 Model::interpolatePosition(float time, const AnimationNode &node)
 {
     if (node.positions.size() == 1)
     {
-        return node.positions[0].second;
+        return glm::translate(glm::mat4(1.0f), node.positions[0].second);
     }
     int p0Index = -1, p1Index = -1;
     for (size_t i = 0; i < node.positions.size() - 1; i++)
@@ -325,19 +333,20 @@ glm::vec3 Model::interpolatePosition(float time, const AnimationNode &node)
     }
     if (p0Index == -1)
     {
-        return node.positions[0].second;
+        return glm::translate(glm::mat4(1.0f), node.positions[0].second);
     }
     float startTime = node.positions[p0Index].first;
     float endTime = node.positions[p1Index].first;
     float factor = (time - startTime) / (endTime - startTime);
-    return glm::mix(node.positions[p0Index].second, node.positions[p1Index].second, factor);
+    glm::vec3 interpolatedPosition = glm::mix(node.positions[p0Index].second, node.positions[p1Index].second, factor);
+    return glm::translate(glm::mat4(1.0f), interpolatedPosition);
 }
 
-glm::quat Model::interpolateRotation(float time, const AnimationNode &node)
+glm::mat4 Model::interpolateRotation(float time, const AnimationNode &node)
 {
     if (node.rotations.size() == 1)
     {
-        return node.rotations[0].second;
+        return glm::mat4_cast(node.rotations[0].second);
     }
     int r0Index = -1, r1Index = -1;
     for (size_t i = 0; i < node.rotations.size() - 1; i++)
@@ -351,19 +360,20 @@ glm::quat Model::interpolateRotation(float time, const AnimationNode &node)
     }
     if (r0Index == -1)
     {
-        return node.rotations[0].second;
+        return glm::mat4_cast(node.rotations[0].second);
     }
     float startTime = node.rotations[r0Index].first;
     float endTime = node.rotations[r1Index].first;
     float factor = (time - startTime) / (endTime - startTime);
-    return glm::slerp(node.rotations[r0Index].second, node.rotations[r1Index].second, factor);
+    glm::quat interpolatedRotation = glm::slerp(node.rotations[r0Index].second, node.rotations[r1Index].second, factor);
+    return glm::mat4_cast(interpolatedRotation);
 }
 
-glm::vec3 Model::interpolateScale(float time, const AnimationNode &node)
+glm::mat4 Model::interpolateScale(float time, const AnimationNode &node)
 {
     if (node.scales.size() == 1)
     {
-        return node.scales[0].second;
+        return glm::scale(glm::mat4(1.0f), node.scales[0].second);
     }
     int s0Index = -1, s1Index = -1;
     for (size_t i = 0; i < node.scales.size() - 1; i++)
@@ -377,57 +387,13 @@ glm::vec3 Model::interpolateScale(float time, const AnimationNode &node)
     }
     if (s0Index == -1)
     {
-        return node.scales[0].second;
+        return glm::scale(glm::mat4(1.0f), node.scales[0].second);
     }
     float startTime = node.scales[s0Index].first;
     float endTime = node.scales[s1Index].first;
     float factor = (time - startTime) / (endTime - startTime);
-    return glm::mix(node.scales[s0Index].second, node.scales[s1Index].second, factor);
-}
-
-void Model::updateAnimations(float deltaTime, AnimationState currentState)
-{
-    if (animations.find(currentState) == animations.end())
-        return;
-
-    Animation &anim = animations[currentState];
-    static float timeSinceStart = 0.0f;
-    timeSinceStart += deltaTime;
-    float ticksPerSecond = anim.ticksPerSecond != 0 ? anim.ticksPerSecond : 25.0f;
-    float timeInTicks = timeSinceStart * ticksPerSecond;
-    float animationTime = fmod(timeInTicks, anim.duration);
-    // std::cout << "Updating animation for state: " << static_cast<int>(currentState) << std::endl;
-    // std::cout << "Animation Time: " << animationTime << " / Duration: " << anim.duration << std::endl;
-
-    for (auto &channel : anim.channels)
-    {
-        const AnimationNode &node = channel.second;
-        glm::vec3 interpolatedPosition = interpolatePosition(animationTime, node);
-        glm::quat interpolatedRotation = interpolateRotation(animationTime, node);
-        glm::vec3 interpolatedScale = interpolateScale(animationTime, node);
-
-        glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), interpolatedPosition);
-        glm::mat4 rotationMatrix = glm::mat4_cast(interpolatedRotation);
-        glm::mat4 scalingMatrix = glm::scale(glm::mat4(1.0f), interpolatedScale);
-        glm::mat4 boneTransform = translationMatrix * rotationMatrix * scalingMatrix;
-
-        int boneIndex = skeleton.getBoneIndex(node.name);
-        if (boneIndex != -1)
-        {
-            skeleton.bones[boneIndex].finalTransformation = skeleton.globalInverseTransform * boneTransform * skeleton.bones[boneIndex].boneOffset;
-            // std::cout << "Bone: " << node.name << " Index: " << boneIndex << std::endl;
-            // std::cout << "Interpolated Position: " << glm::to_string(interpolatedPosition) << std::endl;
-            // std::cout << "Interpolated Rotation: " << glm::to_string(interpolatedRotation) << std::endl;
-            // std::cout << "Interpolated Scale: " << glm::to_string(interpolatedScale) << std::endl;
-            // std::cout << "Bone Offset Matrix: " << glm::to_string(skeleton.bones[boneIndex].boneOffset) << std::endl;
-
-            // std::cout << "Final Transformation Matrix: " << glm::to_string(skeleton.bones[boneIndex].finalTransformation) << std::endl;
-        }
-        else
-        {
-            // std::cerr << "Bone not found: " << node.name << std::endl;
-        }
-    }
+    glm::vec3 interpolatedScale = glm::mix(node.scales[s0Index].second, node.scales[s1Index].second, factor);
+    return glm::scale(glm::mat4(1.0f), interpolatedScale);
 }
 
 glm::mat4 Model::aiMatrixToGlm(const aiMatrix4x4 &from)

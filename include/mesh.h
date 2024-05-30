@@ -34,7 +34,6 @@ struct Texture
 	std::string type;
 };
 
-
 class Mesh
 {
 public:
@@ -54,24 +53,6 @@ public:
 	}
 
 	void draw(const glm::mat4 &viewProjMtx, Shader *shader);
-
-	void printVertexBoneData(const std::vector<Vertex>& vertices) {
-    int vertexCount = 0;
-    for (const auto& vertex : vertices) {
-        std::cout << "Vertex " << vertexCount << ":\n";
-        std::cout << "  Bone Indices: (" 
-                  << vertex.boneIndices[0] << ", " 
-                  << vertex.boneIndices[1] << ", " 
-                  << vertex.boneIndices[2] << ", " 
-                  << vertex.boneIndices[3] << ")\n";
-        std::cout << "  Bone Weights: (" 
-                  << vertex.boneWeights[0] << ", " 
-                  << vertex.boneWeights[1] << ", " 
-                  << vertex.boneWeights[2] << ", " 
-                  << vertex.boneWeights[3] << ")\n";
-        ++vertexCount;
-    }
-}
 
 private:
 	// Render data

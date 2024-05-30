@@ -19,7 +19,6 @@ void main() {
         boneMatrices[boneIndices[3]] * boneWeights[3];
 
     vec4 pos = boneTransform * vec4(position, 1.0f);
-    pos.xyz*=100;
     vec4 norm = boneTransform * vec4(normal, 0.0f);
 
     fragNormal = mat3(transpose(inverse(model))) * vec3(norm); 
