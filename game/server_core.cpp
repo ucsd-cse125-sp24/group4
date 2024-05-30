@@ -361,7 +361,7 @@ void ServerCore::accept_new_clients(int i)
     newPlayerObject->setPlayerId(client->id);
     newPlayerObject->makeCollider();
     
-    pWorld.addObject(newPlayerObject);
+    // pWorld.addObject(newPlayerObject);
     pWorld.addPlayer(newPlayerObject);
 
     printf("added new client data\n");

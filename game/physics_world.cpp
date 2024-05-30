@@ -46,25 +46,12 @@ PlayerObject* PhysicsWorld::findPlayer(int id) {
 void PhysicsWorld::step()
 {
     float dt = 1.0f;
-    for (GameObject* obj : m_objects) {
-        //obj->force += obj->mass * m_gravity; // apply a force
-
-
-        // glm::vec3 ori_v = obj->velocity;
-        // obj->velocity += obj->force / obj->mass * dt;
-
-        // // check y >= 0
-        // obj->old_position = obj->position;
-        // obj->position += 0.5f * (ori_v + obj->velocity) * dt;
-        // printf("positions: <%f, %f, %f>\n", obj->position.x, obj->position.y, obj->position.z);
-        // obj->force = glm::vec3(0, 0, 0); // reset net force at the end
-        // //obj->velocity = glm::vec3(0, 0, 0);
-        // printf("forces: <%f, %f, %f>\n", obj->force.x, obj->force.y, obj->force.z);
+    for (PlayerObject* obj : p_objects) {
 
         if (obj != nullptr) {
-            obj->simulate(dt);
+            obj->simulate_player(dt);
         }
-        // TODO: add a check for y falling below 0, and response
+
     }
 
     handleCollisions(); // update position and then check for collision?
@@ -113,6 +100,12 @@ void PhysicsWorld::handleCollisions() {
                 p_objects[i]->setForce(glm::vec3(0.0));
                 p_objects[j]->setForce(glm::vec3(0.0));
             }
+        }
+    }
+
+    // collision between player and game objects
+    for (unsigned int i = 0; i < p_objects.size(); i++) {
+        for (unsigned int j = i + 1; j < p_objects.size(); j++) {
         }
     }
 }
