@@ -104,7 +104,7 @@ void Window::setup_scene()
 
 	std::map<AnimationState, std::string> animationPath = {
 		{AnimationState::Idle, "art/models/character/green_alien_wbone.fbx"},
-		{AnimationState::Walking, "art/models/animation/walking/alien_walking.fbx"}};
+		{AnimationState::Walking, "art/models/animation/walking/alien_walking_no_color.fbx"}};
 
 	glm::mat4 temp = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
 

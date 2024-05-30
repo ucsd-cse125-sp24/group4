@@ -23,6 +23,10 @@ class GameObject {
             force(glm::vec3(0.0f)),
             mass(10.0),
             collider(collider) {}
+
+        virtual ~GameObject() {
+            delete collider;
+        }
         // update position of the object based on forces for delta time tick
         void simulate(float dt);
 
@@ -61,6 +65,8 @@ class PlayerObject : public GameObject {
 
         PlayerObject(AABB* collider) :
             GameObject(collider) {}
+
+        virtual ~PlayerObject() override {}
         void move();
         void setPlayerId(short id) { playerId = id; }
         short getPlayerId() { return playerId; }

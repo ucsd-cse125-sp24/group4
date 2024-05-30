@@ -81,6 +81,7 @@ void ServerCore::shutdown()
     for (ClientData *c : clients_data)
         free(c);
     clients_data.clear(); // Clear the client data vector
+    pWorld.cleanup();
     server.sock_shutdown();
     running = false;
 }

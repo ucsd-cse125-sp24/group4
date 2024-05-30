@@ -21,6 +21,8 @@ class PhysicsWorld {
 
 		void step();
 		void handleCollisions();
+
+		void cleanup();
 };
 
 #endif
