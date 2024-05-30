@@ -322,8 +322,9 @@ void ServerCore::accept_new_clients(int i)
     client->sock = clientSock;
     client->ready_to_start = NOT_READY;
     client->id = this->available_ids.front(); // assign next avail id to client
-    char *buffer = new char[sizeof(short)];
-    *((short *)buffer) = client->id + 1; // add 1 bc we can't send 0 (null); clientcore subs 1 to correct
+    char *buffer = new char[CLIENT_RECV_BUFLEN];
+    const char send_id = char(client->id + 1); // add 1 bc we can't send 0 (null); clientcore subs 1 to correct
+    strncpy_s(buffer, CLIENT_RECV_BUFLEN, &send_id, 16);
     bool send_success = server.sock_send(client->sock, CLIENT_RECV_BUFLEN, buffer);
     if (!send_success)
     {
