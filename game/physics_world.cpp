@@ -87,8 +87,8 @@ void PhysicsWorld::handleCollisions() {
 
             // Check for collision using references
             bool collision = collider1.collide(collider2);
-            printf("bbox %f, %f, %f \n", collider1.maxExtents[0], collider1.maxExtents[1], collider1.maxExtents[2]);
-            printf("bbox %f, %f, %f \n\n", collider2.maxExtents[0], collider2.maxExtents[1], collider2.maxExtents[2]);
+            //printf("bbox %f, %f, %f \n", collider1.maxExtents[0], collider1.maxExtents[1], collider1.maxExtents[2]);
+            //printf("bbox %f, %f, %f \n\n", collider2.maxExtents[0], collider2.maxExtents[1], collider2.maxExtents[2]);
             if (collision) {
                 std::cout << "Collision happened between object " << i << " and object " << j << std::endl;
 
@@ -98,10 +98,20 @@ void PhysicsWorld::handleCollisions() {
 
                 //p_objects[i]->applyForce(-collision_force);
                 //p_objects[j]->applyForce(collision_force);
-                p_objects[i]->setForce(glm::vec3(0, 0, 0));
-                p_objects[j]->setForce(glm::vec3(0, 0, 0));
+                // p_objects[i]->applyForce(-collision_force);
+                // p_objects[j]->applyForce(collision_force);
                 p_objects[i]->setVelocity(-collision_dir * 20.0f);
                 p_objects[j]->setVelocity(collision_dir * 20.0f);
+                if (p_objects[i]->getPosition() != p_objects[j]->getPosition()) {
+                    p_objects[i]->setPosition(p_objects[i]->getOldPosition() - collision_dir * 0.5f);
+                    p_objects[j]->setPosition(p_objects[j]->getOldPosition() + collision_dir * 0.5f);
+                }
+                else {
+                    p_objects[i]->setPosition(p_objects[i]->getPosition() + 1.0f);
+                    p_objects[j]->setPosition(p_objects[j]->getPosition());
+                }
+                p_objects[i]->setForce(glm::vec3(0.0));
+                p_objects[j]->setForce(glm::vec3(0.0));
             }
         }
     }

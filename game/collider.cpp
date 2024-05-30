@@ -14,9 +14,9 @@ bool AABB::collidingAABB(AABB& other) {
     glm::vec3 b_min = other.getMinExtents();
     glm::vec3 b_max = other.getMaxExtents();
 
-    if (a_max[0] != 0 || a_max[1] != 0 || a_max[2] != 0){
-        printf("BBOX of collider IS NOT ZERO %f %f %f\n\n\n",a_max[0],a_max[1],a_max[2] );
-    }
+    // if (a_max[0] != 0 || a_max[1] != 0 || a_max[2] != 0){
+    //     printf("BBOX of collider IS NOT ZERO %f %f %f\n\n\n",a_max[0],a_max[1],a_max[2] );
+    // }
 
     return (
         a_min.x <= b_max.x &&
