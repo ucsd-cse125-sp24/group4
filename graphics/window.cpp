@@ -108,34 +108,34 @@ void Window::setup_scene()
 
 	glm::mat4 temp = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
 
-	//Model *player = new Model("art/models/green.fbx", animationPath);
-	//Model *player = new Model("art/models/green.fbx");
-	Model *player = new Model("art/models/character/green_alien_wbone.fbx", animationPath);
+	Model *player = new Model("art/models/green.fbx", animationPath);
+	// Model *player = new Model("art/models/green.fbx");
+	// Model *player = new Model("art/models/character/green_alien_wbone.fbx", animationPath);
 	player->set_color(glm::vec3(0, 1, 0)); // p1 - green
 	player->set_world(temp);
 	players.push_back(player);
 
-	//Model *player2 = new Model("art/models/character/green_alien_wbone.fbx", animationPath);
-	//player2->set_color(glm::vec3(1, 0, 0)); // p1 - green
-	//player2->set_world(temp);
-	//players.push_back(player2);
-
-	// Model *player2 = new Model("art/models/green2.fbx", animationPath);
-	// player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
+	// Model *player2 = new Model("art/models/character/green_alien_wbone.fbx", animationPath);
+	// player2->set_color(glm::vec3(1, 0, 0)); // p1 - green
 	// player2->set_world(temp);
 	// players.push_back(player2);
 
-	// // p3 - purple
-	// Model *player3 = new Model("art/models/green3.fbx", animationPath);
-	// player3->set_color(glm::vec3(1, 0, 1));
-	// player3->set_world(temp);
-	// players.push_back(player3);
+	Model *player2 = new Model("art/models/green2.fbx", animationPath);
+	player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
+	player2->set_world(temp);
+	players.push_back(player2);
 
-	// // p4 - blue
-	// Model *player4 = new Model("art/models/green4.fbx", animationPath);
-	// player4->set_color(glm::vec3(0, 0, 1));
-	// player4->set_world(temp);
-	// players.push_back(player4);
+	// p3 - purple
+	Model *player3 = new Model("art/models/green3.fbx", animationPath);
+	player3->set_color(glm::vec3(1, 0, 1));
+	player3->set_world(temp);
+	players.push_back(player3);
+
+	// p4 - blue
+	Model *player4 = new Model("art/models/green4.fbx", animationPath);
+	player4->set_color(glm::vec3(0, 0, 1));
+	player4->set_world(temp);
+	players.push_back(player4);
 
 	// Floor 6_empty works without rotations
 
