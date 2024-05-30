@@ -1,15 +1,17 @@
 #include "../include/window.h"
 #include <iostream>
+#include "window.h"
 
 int Window::width;
 int Window::height;
 const char* Window::window_title = "Graphics Client";
 Shader* Window::shader_program = nullptr;
+Shader* Window::shader_anim_program = nullptr;
 Input* Window::input = nullptr;
 
 // Mouse
 float Window::lastX = 400, Window::lastY = 300; // TODO: change if resolution changes
-
+float Window::lastFrameTime = 0.0f;
 
 // Drawable objects
 std::vector<Drawable*> Window::players;
@@ -64,6 +66,7 @@ GLFWwindow* Window::create_window(int width, int height) {
 	// Shader program - maybe move somewhere else?
 	// Initialize shader
 	shader_program = new Shader("shaders/shader.vert", "shaders/shader.frag");
+	shader_anim_program = new Shader("shaders/shader_anim.vert", "shaders/shader.frag");
 	// Initialize input
 	input = new Input();
 
@@ -93,43 +96,74 @@ void Window::setup_callbacks(GLFWwindow* window) {
 
 }
 
-void Window::setup_scene() {
+void Window::setup_scene()
+{
 	// Populate players
-	// 
+	//
 	// unused player models sent into space
+
+	std::map<AnimationState, std::string> animationPath = {
+		{AnimationState::Idle, "art/models/character/green_alien_wbone.fbx"},
+		{AnimationState::Walking, "art/models/animation/walking/alien_walking.fbx"}};
+
 	glm::mat4 temp = glm::translate(glm::mat4(1.0f), glm::vec3(0, 100, 0));
 
-
-	Model *player = new Model("art/models/green.fbx");
+	//Model *player = new Model("art/models/green.fbx", animationPath);
+	//Model *player = new Model("art/models/green.fbx");
+	Model *player = new Model("art/models/character/green_alien_wbone.fbx", animationPath);
 	player->set_color(glm::vec3(0, 1, 0)); // p1 - green
 	player->set_world(temp);
 	players.push_back(player);
 
+	
 
-	Model* player2 = new Model("art/models/green2.fbx");
-	player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
-	player2->set_world(temp);
-	players.push_back(player2);
+	// Model *player2 = new Model("art/models/green2.fbx", animationPath);
+	// player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
+	// player2->set_world(temp);
+	// players.push_back(player2);
 
-	// p3 - purple
-	Model* player3 = new Model("art/models/green3.fbx");
-	player3->set_color(glm::vec3(1, 0, 1));
-	player3->set_world(temp);
-	players.push_back(player3);
+	// // p3 - purple
+	// Model *player3 = new Model("art/models/green3.fbx", animationPath);
+	// player3->set_color(glm::vec3(1, 0, 1));
+	// player3->set_world(temp);
+	// players.push_back(player3);
 
-	// p4 - blue
-	Model* player4 = new Model("art/models/green4.fbx");
-	player4->set_color(glm::vec3(0, 0, 1));
-	player4->set_world(temp);
-	players.push_back(player4);
+	// // p4 - blue
+	// Model *player4 = new Model("art/models/green4.fbx", animationPath);
+	// player4->set_color(glm::vec3(0, 0, 1));
+	// player4->set_world(temp);
+	// players.push_back(player4);
 
 	// Floor 6_empty works without rotations
 
-	//Model* mp = new Model("art/models/environment/floor6_empty.fbx");
-	Model* mp = new Model("art/models/chair.fbx");
+	// Model* mp = new Model("art/models/environment/floor6_empty.fbx");
+	Model *mp = new Model("art/models/chair.fbx");
 	mp->set_color(glm::vec3(0.5, 0.5, 0.5));
 	mp->set_world(glm::mat4(1.0f));
 	map = mp;
+
+}
+
+AnimationState Window::getAnimationState(Input *input)
+{
+	if (input->isKeyPressed(GLFW_KEY_W) || input->isKeyPressed(GLFW_KEY_S) || input->isKeyPressed(GLFW_KEY_A) || input->isKeyPressed(GLFW_KEY_D))
+	{
+		return AnimationState::Walking;
+	}
+	// else {
+	//     return AnimationState::Idle;
+	// }
+	// return AnimationState::Idle; 
+	return AnimationState::Idle; 
+	
+}
+
+float ::Window::calculateDeltaTime()
+{
+	float currentFrameTime = glfwGetTime();
+	float deltaTime = currentFrameTime - lastFrameTime;
+	lastFrameTime = currentFrameTime;
+	return deltaTime;
 }
 
 void Window::clean_up() {
@@ -145,6 +179,7 @@ void Window::clean_up() {
 
 	// Delete the shader program
 	delete shader_program;
+	delete shader_anim_program;
 
 }
 
@@ -170,9 +205,22 @@ void Window::display_callback(GLFWwindow* window) {
 	// First set the camera to the right location
 	cam->update(players[player_id]->get_world());
 
-	for(Drawable* player : players) {
-		player->draw(cam->get_view_project_mtx(), shader_program);
-	}
+	// for(Drawable* player : players) {
+	// 	player->draw(cam->get_view_project_mtx(), shader_program);
+	// }
+
+	float deltaTime = calculateDeltaTime(); 
+    AnimationState currentState = getAnimationState(input);
+
+    for (Drawable* player : players) {
+        player->draw(cam->get_view_project_mtx(), shader_anim_program);
+        Model* model = dynamic_cast<Model*>(player);
+        if (model) {
+            //std::cout << "Updating animations for model\n";
+            model->updateAnimations(deltaTime, currentState);
+        }
+    }
+
 
 	map->draw(cam->get_view_project_mtx(), shader_program);
 
@@ -236,10 +284,27 @@ float Window::get_cam_angle_radians() {
 	return glm::radians(angle);
 }
 
-void Window::update_state(GameState& state) {
+void Window::update_state(GameState &state)
+{
 	// player positions
-	for(int i = 0; i < state.players.size(); i++) {
+	for (int i = 0; i < state.players.size(); i++)
+	{
 		players[i]->set_world(state.players[i].world);
 	}
+
+	// float deltaTime = calculateDeltaTime();
+	
+	// AnimationState currentState = getAnimationState(input);
+	
+
+	// for (auto &player : players)
+	// {
+	// 	Model *model = dynamic_cast<Model *>(player);
+	// 	if (model)
+	// 	{
+	// 		model->updateAnimations(deltaTime, currentState);
+	// 	}
+	// }
+
 	// TODO: Update other fields - student, etc
 }

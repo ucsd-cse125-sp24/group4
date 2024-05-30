@@ -1,7 +1,16 @@
 #include "../include/input.h"
+#include "input.h"
 
 void Input::update(int key, int action) {
 	keys[key] = action;
+}
+
+bool Input::isKeyPressed(int key) const {
+    auto it = keys.find(key);
+    if (it != keys.end() && it->second == GLFW_PRESS) {
+        return true;
+    }
+    return false;
 }
 
 std::vector<int> Input::get_action() {
