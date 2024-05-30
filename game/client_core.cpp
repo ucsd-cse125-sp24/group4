@@ -79,7 +79,7 @@ void ClientCore::send_vote() {
     VotePacket packet;
     packet.vote = READY; // TODO
     size_t bufferSize = packet.calculateSize();
-    char *buffer = new char[bufferSize];
+    char *buffer = new char[SERVER_RECV_BUFLEN];
 
     VotePacket::serialize(packet, buffer);
     if (!client.sock_send((int)bufferSize, buffer)) {
@@ -103,7 +103,7 @@ void ClientCore::send_input()
     }
 
     size_t bufferSize = packet.calculateSize();
-    char *buffer = new char[bufferSize];
+    char *buffer = new char[SERVER_RECV_BUFLEN];
 
     InputPacket::serialize(packet, buffer);
     if (!client.sock_send((int)bufferSize, buffer)) {

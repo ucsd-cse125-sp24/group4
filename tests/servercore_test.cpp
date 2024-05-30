@@ -86,7 +86,7 @@ int test_receive() {
     packet.events.push_back(1);
     packet.cam_angle = 2.0f;
     size_t bufferSize = packet.calculateSize();
-    char* buf = new char[bufferSize];
+    char* buf = new char[SERVER_RECV_BUFLEN];
     InputPacket::serialize(packet, buf);
     
     for (Client c : client_list) {
@@ -107,7 +107,7 @@ int test_receive() {
     VotePacket vote;
     vote.vote = READY;
     bufferSize = vote.calculateSize();
-    buf = new char[bufferSize];
+    buf = new char[SERVER_RECV_BUFLEN];
     VotePacket::serialize(vote, buf);
     for (Client c : client_list) {
         c.sock_send(SERVER_RECV_BUFLEN, buf);

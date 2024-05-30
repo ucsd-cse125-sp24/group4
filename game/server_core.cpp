@@ -276,7 +276,7 @@ void ServerCore::send_heartbeat()
     packet.state = this->state;
 
     size_t bufferSize = packet.calculateSize();
-    char *buffer = new char[bufferSize];
+    char *buffer = new char[CLIENT_RECV_BUFLEN];
     ServerHeartbeatPacket::serialize(packet, buffer);
 
     this->send_serial(buffer);
@@ -289,7 +289,7 @@ void ServerCore::send_updates()
     packet.state = serverState;
 
     size_t bufferSize = packet.calculateSize();
-    char *buffer = new char[bufferSize];
+    char *buffer = new char[CLIENT_RECV_BUFLEN];
     GameStatePacket::serialize(packet, buffer);
 
     this->send_serial(buffer);
