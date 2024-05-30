@@ -22,6 +22,7 @@ public:
 	// Helper objects
 	static Input* input;
 	static Shader* shader_program;
+	static Shader* shader_anim_program;
 
 	static short player_id;
 	// Objects to draw - TODO
@@ -34,6 +35,7 @@ public:
 	// For tracking the mouse
 	static float lastX;
 	static float lastY;
+	static float lastFrameTime;
 
 
 	// INITIALIZATION ----------------------------------------------------------
@@ -41,7 +43,9 @@ public:
 	static void setup_callbacks(GLFWwindow* window);
 	static void setup_scene();
 
-	// DESTRUCTOR
+    static AnimationState getAnimationState(Input *input);
+
+    // DESTRUCTOR
 	static void clean_up();
 	
 	// TODO callbacks
@@ -56,4 +60,5 @@ public:
 	static float get_cam_angle_radians();
 
 	static void update_state(GameState& state);
+    static float calculateDeltaTime();
 };
