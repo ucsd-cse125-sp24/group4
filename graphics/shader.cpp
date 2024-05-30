@@ -93,6 +93,11 @@ void Shader::set_mat4(const std::string& name, const float* value) const
 	glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, value);
 }
 
+void Shader::set_mat4_array(const std::string& name, const glm::mat4* matrices, unsigned int count) const {
+    GLuint location = glGetUniformLocation(ID, name.c_str());
+    glUniformMatrix4fv(location, count, GL_FALSE, glm::value_ptr(matrices[0]));
+}
+
 // utility function for checking shader compilation/linking errors.
 void Shader::check_compile_errors(unsigned int shader, std::string type)
 {

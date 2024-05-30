@@ -13,13 +13,14 @@ int main()
 
     for (Vote to_check : votes) {
         vote.vote = to_check;
+        VotePacket::serialize(vote, buffer); 
+
+        VotePacket result;
+        VotePacket::deserialize(buffer, result);
+
+        assert(vote.vote == result.vote);
     }
-    VotePacket::serialize(vote, buffer); 
-
-    VotePacket result;
-    VotePacket::deserialize(buffer, result);
-
-    assert(vote.vote == result.vote);
+    free(buffer);
 
     return 0;
 }

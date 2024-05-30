@@ -1,6 +1,7 @@
 #include "../include/mesh.h"
 
 void Mesh::setupMesh() {
+
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
@@ -24,6 +25,15 @@ void Mesh::setupMesh() {
 	// Vertex texture coordinates
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords));
+
+       // Vertex bone indices (integer vector of bone IDs)
+    glEnableVertexAttribArray(3);
+    glVertexAttribIPointer(3, 4, GL_INT, sizeof(Vertex), (void*)offsetof(Vertex, boneIndices));
+
+    // Vertex bone weights (vector of weights corresponding to the bone IDs)
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, boneWeights));
+
 	
 	glBindVertexArray(0);	
 }
@@ -40,4 +50,10 @@ void Mesh::draw(const glm::mat4& viewProjMtx, Shader* shader) {
 	glDrawElements(GL_TRIANGLES, GLsizei(indices.size()), GL_UNSIGNED_INT, 0);
 
 	glBindVertexArray(0);
+
+	// Draw the hitbox
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	hitbox->draw(viewProjMtx, shader);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

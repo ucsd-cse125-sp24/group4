@@ -14,7 +14,6 @@ class GameObject {
         float mass;             // Mass of the object
         Collider* collider;
 
-        glm::mat4 playerWorld;
     public:
 
         GameObject(Collider* collider) :
@@ -35,8 +34,6 @@ class GameObject {
         void setWorldVelocity(glm::vec3 vel) { worldVelocity = vel; }
         void setMass(float m) { mass = m; }
         void setCollider(Collider* col) { collider = col; }
-        void setPlayerWorld(glm::mat4 world){ playerWorld = world; }
-        glm::mat4 getPlayerWorld() { return playerWorld; }
 
         glm::vec3 getPosition() { return position; }
         glm::vec3 getOldPosition() { return old_position; }
@@ -49,16 +46,16 @@ class GameObject {
         }
         void applyFriction();
         void applyGravity();
-
         void applyForce(const glm::vec3& force) {
             this->force += force;
         }
+        void makeCollider();
 };
 
 class PlayerObject : public GameObject {
     private: 
         short playerId;
-        
+        glm::mat4 playerWorld;
 
     public:
 
@@ -67,33 +64,9 @@ class PlayerObject : public GameObject {
         void move();
         void setPlayerId(short id) { playerId = id; }
         short getPlayerId() { return playerId; }
+        void setPlayerWorld(glm::mat4 world){ playerWorld = world; }
+        glm::mat4 getPlayerWorld() { return playerWorld; }
         void jump();
-
+        void simulate_player(float dt);
         void makeCollider();
 };
-
-
-// struct GameObject {
-
-//     // have a variable for type player 
-//     glm::mat4 world;
-//     glm::vec3 old_position;
-//     glm::vec3 position;    // Position of the object in 3D space
-//     glm::vec3 velocity;    // Velocity of the object
-//     glm::vec3 force; // Acceleration of the object
-//     float mass;            // Mass of the object
-//     //Collider* collider; // bounding volume/box
-
-//     // Constructor to initialize properties
-//     //GameObject(glm::vec3 pos, glm::vec3 vel, glm::vec3 acc, float m, Collider* c);
-// };
-
-// struct PlayerObject : GameObject {
-//     short playerId;
-
-//     void moveForward();
-//     void moveBackward();
-//     void moveLeft();
-//     void moveRight();
-//     void move(glm::vec3 dir);
-// };

@@ -135,9 +135,10 @@ Cube::~Cube() {
 void Cube::draw(const glm::mat4& viewProjMtx, Shader* shader) {
     // Activate the shader program
     //shader->activate();
+    //std::cout << "Drawing cube" << std::endl;
 
     // get the locations and send the uniforms to the shader
-    print_world();
+    //print_world();
     shader->set_mat4("viewProj", (float*)&viewProjMtx);
     //shader->set_mat4("model", (float*)&model);
     shader->set_vec3("DiffuseColor", &color[0]);
@@ -154,8 +155,8 @@ void Cube::draw(const glm::mat4& viewProjMtx, Shader* shader) {
 }
 
 void Cube::print_world() {
-	std::cout << "Cube world matrix: " << std::endl;
-	for (int i = 0; i < 4; i++) {
-		std::cout << model[i][0] << " " << model[i][1] << " " << model[i][2] << " " << model[i][3] << std::endl;
-	}
+	 std::cout << "Cube world matrix: " << std::endl;
+	 for (int i = 0; i < 4; i++) {
+	 	std::cout << model[i][0] << " " << model[i][1] << " " << model[i][2] << " " << model[i][3] << std::endl;
+	 }
 }

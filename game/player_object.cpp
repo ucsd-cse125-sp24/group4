@@ -27,7 +27,7 @@ void PlayerObject::jump() {
     velocity.y = 30.0f;
 }
 
-void GameObject::simulate(float dt) {
+void PlayerObject::simulate_player(float dt) {
     
     applyFriction();
     applyGravity();
@@ -55,6 +55,18 @@ void GameObject::simulate(float dt) {
 }
 
 void PlayerObject::makeCollider() {
+
+    float minX = position.x - PLAYER_WIDTH / 2.0;
+    float minY = position.y - PLAYER_LENGTH / 2.0;
+    float minZ = position.z;
+    float maxX = position.x + PLAYER_WIDTH / 2.0;
+    float maxY = position.y + PLAYER_LENGTH / 2.0;
+    float maxZ = position.z + PLAYER_HEIGHT;
+
+    collider = new AABB(glm::vec3(minX, minY, minZ), glm::vec3(maxX, maxY, maxZ));
+}
+
+void GameObject::makeCollider() {
 
     float minX = position.x - PLAYER_WIDTH / 2.0;
     float minY = position.y - PLAYER_LENGTH / 2.0;
