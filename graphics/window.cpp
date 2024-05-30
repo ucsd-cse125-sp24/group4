@@ -103,13 +103,14 @@ void Window::setup_scene()
 	// unused player models sent into space
 
 	std::map<AnimationState, std::string> animationPath = {
+		{AnimationState::Idle, "art/models/character/green_alien_wbone.fbx"},
 		{AnimationState::Walking, "art/models/animation/walking/alien_walking.fbx"}};
 
 	glm::mat4 temp = glm::translate(glm::mat4(1.0f), glm::vec3(0, 100, 0));
 
 	//Model *player = new Model("art/models/green.fbx", animationPath);
 	//Model *player = new Model("art/models/green.fbx");
-	Model *player = new Model("art/models/animation/walking/alien_walking.fbx", animationPath);
+	Model *player = new Model("art/models/character/green_alien_wbone.fbx", animationPath);
 	player->set_color(glm::vec3(0, 1, 0)); // p1 - green
 	player->set_world(temp);
 	players.push_back(player);
@@ -153,7 +154,7 @@ AnimationState Window::getAnimationState(Input *input)
 	//     return AnimationState::Idle;
 	// }
 	// return AnimationState::Idle; 
-	return AnimationState::Walking; // just one state rn
+	return AnimationState::Idle; 
 	
 }
 
