@@ -3,6 +3,7 @@
 #include "drawable.h"
 #include <vector>
 #include <iostream>
+#include "cube.h"
 
 struct Vertex
 {
@@ -37,6 +38,7 @@ struct Texture
 class Mesh
 {
 public:
+	Cube* hitbox;
 	// mesh data
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;

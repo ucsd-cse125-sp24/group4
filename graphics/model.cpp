@@ -35,16 +35,12 @@ void Model::draw(const glm::mat4 &viewProjMtx, Shader *shader)
     for (unsigned int i = 0; i < meshes.size(); i++)
     {
         meshes[i].draw(viewProjMtx, shader);
+		shader->set_vec3("DiffuseColor", &color[0]);
+
     }
 
     // Draw the hitbox as a wireframe
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    // glm::mat4 t = glm::mat4(1.0f);
-    // t[3] = model[3];
-    // hitbox->set_world(t);
-    // float scale = 1 / PLAYER_MODEL_SCALE;
-    // glm::mat4 t = glm::scale(model, glm::vec3(scale, scale, scale));
-    // hitbox->set_world(t);
     hitbox->draw(viewProjMtx, shader);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -263,8 +259,11 @@ Mesh Model::process_mesh(aiMesh *mesh, const aiScene *scene, const glm::mat4 &tr
             }
         }
     }
+	Mesh m = Mesh(vertices, indices, textures);
+	m.hitbox = new Cube(glm::vec3(mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z), glm::vec3(mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z));
+	m.hitbox->set_color(glm::vec3(1.0f, 0.0f, 0.0f));
 
-    return Mesh(vertices, indices, textures);
+    return m;
 }
 
 void Model::updateAnimations(float deltaTime, AnimationState currentState)
@@ -431,4 +430,9 @@ glm::vec3 Model::aiVectorToGlm(const aiVector3D &aiVec)
 Model::~Model()
 {
     delete hitbox;
+
+	for (Mesh m : meshes) {
+		//delete m;
+		delete m.hitbox;
+	}
 }

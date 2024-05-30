@@ -115,10 +115,10 @@ void Window::setup_scene()
 	player->set_world(temp);
 	players.push_back(player);
 
-	Model *player2 = new Model("art/models/character/green_alien_wbone.fbx", animationPath);
-	player2->set_color(glm::vec3(1, 0, 0)); // p1 - green
-	player2->set_world(temp);
-	players.push_back(player2);
+	//Model *player2 = new Model("art/models/character/green_alien_wbone.fbx", animationPath);
+	//player2->set_color(glm::vec3(1, 0, 0)); // p1 - green
+	//player2->set_world(temp);
+	//players.push_back(player2);
 
 	// Model *player2 = new Model("art/models/green2.fbx", animationPath);
 	// player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
@@ -139,8 +139,8 @@ void Window::setup_scene()
 
 	// Floor 6_empty works without rotations
 
-	//Model* mp = new Model("art/models/environment/floor6_empty.fbx");
-	Model *mp = new Model("art/models/chair.fbx");
+	Model* mp = new Model("art/models/chair.fbx");
+	//Model* mp = new Model("art/models/environment/floor2.fbx");
 	mp->set_color(glm::vec3(0.5, 0.5, 0.5));
 	mp->set_world(glm::mat4(1.0f));
 	map = mp;
