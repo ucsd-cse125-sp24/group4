@@ -106,7 +106,7 @@ void Window::setup_scene()
 		{AnimationState::Idle, "art/models/character/green_alien_wbone.fbx"},
 		{AnimationState::Walking, "art/models/animation/walking/alien_walking.fbx"}};
 
-	glm::mat4 temp = glm::translate(glm::mat4(1.0f), glm::vec3(0, 100, 0));
+	glm::mat4 temp = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
 
 	//Model *player = new Model("art/models/green.fbx", animationPath);
 	//Model *player = new Model("art/models/green.fbx");
@@ -139,8 +139,8 @@ void Window::setup_scene()
 
 	// Floor 6_empty works without rotations
 
-	Model* mp = new Model("art/models/environment/floor6_empty.fbx");
-	//Model *mp = new Model("art/models/chair.fbx");
+	//Model* mp = new Model("art/models/environment/floor6_empty.fbx");
+	Model *mp = new Model("art/models/chair.fbx");
 	mp->set_color(glm::vec3(0.5, 0.5, 0.5));
 	mp->set_world(glm::mat4(1.0f));
 	map = mp;
@@ -213,12 +213,13 @@ void Window::display_callback(GLFWwindow* window) {
 	// }
 
 	float deltaTime = calculateDeltaTime(); 
-    AnimationState currentState = getAnimationState(input);
+   
 
     for (Drawable* player : players) {
         player->draw(cam->get_view_project_mtx(), shader_anim_program);
         Model* model = dynamic_cast<Model*>(player);
         if (model) {
+			AnimationState currentState = getAnimationState(input);
             //std::cout << "Updating animations for model\n";
             model->updateAnimations(deltaTime, currentState);
         }
