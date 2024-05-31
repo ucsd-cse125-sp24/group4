@@ -204,10 +204,6 @@ void Window::display_callback(GLFWwindow *window)
 	// First set the camera to the right location
 	cam->update(players[player_id]->get_world());
 
-	// for(Drawable* player : players) {
-	// 	player->draw(cam->get_view_project_mtx(), shader_program);
-	// }
-
 	float deltaTime = calculateDeltaTime();
 	
 
@@ -217,7 +213,6 @@ void Window::display_callback(GLFWwindow *window)
 		Model *model = dynamic_cast<Model *>(player);
 		if (model)
 		{
-			// std::cout << "Updating animations for model\n";
 			AnimationState currentState = getAnimationState(input);
 			if (currentState != AnimationState::Idle)
 			{
