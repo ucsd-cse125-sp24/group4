@@ -209,7 +209,7 @@ void Window::display_callback(GLFWwindow *window)
 	// }
 
 	float deltaTime = calculateDeltaTime();
-	AnimationState currentState = getAnimationState(input);
+	
 
 	for (Drawable *player : players)
 	{
@@ -218,7 +218,8 @@ void Window::display_callback(GLFWwindow *window)
 		if (model)
 		{
 			// std::cout << "Updating animations for model\n";
-			if (getAnimationState(input) != AnimationState::Idle)
+			AnimationState currentState = getAnimationState(input);
+			if (currentState != AnimationState::Idle)
 			{
 				model->updateAnimations(deltaTime, currentState);
 			}
