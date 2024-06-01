@@ -84,6 +84,15 @@
         "semaphore": "cpp",
         "stop_token": "cpp",
         "thread": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "chrono": "cpp",
+        "charconv": "cpp",
+        "unordered_set": "cpp",
+        "format": "cpp",
+        "span": "cpp",
+        "variant": "cpp",
+        "xtree": "cpp",
+        "queue": "cpp",
+        "ranges": "cpp"
     }
 }
