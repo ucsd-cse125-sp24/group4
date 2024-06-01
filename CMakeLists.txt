@@ -9,6 +9,8 @@ file(GLOB PACKET_SOURCES packets/*)
 
 add_library(client OBJECT networking/client.cpp)
 add_library(server OBJECT networking/server.cpp)
+# add_library(physics OBJECT "${PROJECT_SOURCE_DIR}/physics_engine/physics_world.cpp" "${PROJECT_SOURCE_DIR}/physics_engine/player_object.cpp" "${PROJECT_SOURCE_DIR}/physics_engine/collider.cpp")
+add_library(physics OBJECT "${PROJECT_SOURCE_DIR}/game/physics_world.cpp" "${PROJECT_SOURCE_DIR}/game/player_object.cpp" "${PROJECT_SOURCE_DIR}/game/collider.cpp")
 
 link_directories(lib)
 
@@ -16,9 +18,11 @@ file(COPY include/assimp/bin/libassimp-5.dll DESTINATION ${CMAKE_CURRENT_BINARY_
 file(COPY shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY art DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
+file(COPY ${PROJECT_SOURCE_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 add_executable(server_core game/game_logic_pg.cpp game/server_core.cpp ${PACKET_SOURCES})
 target_include_directories(server_core PRIVATE include)
-target_link_libraries(server_core PRIVATE server client ws2_32)
+target_link_libraries(server_core PRIVATE server client physics ws2_32)
 
 add_executable(client_core game/game_logic_client.cpp game/client_core.cpp ${PACKET_SOURCES} ${GRAPHICS_SOURCES})
 target_include_directories(client_core PRIVATE include include/assimp/include)
@@ -36,7 +40,7 @@ add_test(NAME NetworkDataTransportTest COMMAND NetworkUnitTests "data_transport"
 
 # ---- Core tests ----
 add_executable(ServerCoreTests tests/servercore_test.cpp game/server_core.cpp ${PACKET_SOURCES})
-target_link_libraries(ServerCoreTests PRIVATE server client ws2_32)
+target_link_libraries(ServerCoreTests PRIVATE physics server client ws2_32)
 
 #add_executable(ClientCoreTests tests/clientcore_test.cpp game/client_core.cpp ${PACKET_SOURCES} ${GRAPHICS_SOURCES})
 #target_link_libraries(ClientCoreTests PRIVATE server client ws2_32 glfw3)

@@ -12,6 +12,11 @@ protected:
 
 public:
 	virtual void draw(const glm::mat4& viewProjMtx, Shader* shader) = 0;
+	virtual void debug_draw(const glm::mat4& viewProjMtx, Shader* shader)
+	{
+		// nothing by default
+		//std::cout << "Default debug\n";
+;	}
 
 	// Getters and setters
 	glm::mat4 get_world() { return model; }

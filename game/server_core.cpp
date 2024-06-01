@@ -81,6 +81,7 @@ void ServerCore::shutdown()
     for (ClientData *c : clients_data)
         free(c);
     clients_data.clear(); // Clear the client data vector
+    pWorld.cleanup();
     server.sock_shutdown();
     running = false;
 }
@@ -163,64 +164,78 @@ void ServerCore::process_input(InputPacket packet, short id)
             break;
         }
     }
+    PlayerObject* client_player = pWorld.findPlayer(id);
 
-    size_t sz = size_t(packet.events.size());
-    if (sz > 1)
-    {
-        int a = 0;
-    }
+    int num_events = int(packet.events.size());
 
-    float scale = float(reader.GetReal("graphics", "player_movement_scale", 4.0)) / sz;
+    // why does scale depend on # of events?
+    float scale = float(reader.GetReal("graphics", "player_movement_scale", 4.0)) / num_events;
     glm::vec3 turndir;
 
     // Process input events
-    for (int j = 0; j < packet.events.size(); j++)
+    glm::vec3 dir = glm::vec3(0.0f, 0.0f, -1.0f);
+    for (int j = 0; j < num_events; j++)
     {
-        glm::vec3 dir;
         int event = packet.events[j];
-
+        bool jumping = false;
         switch (event)
         {
-        case MOVE_FORWARD:
-            dir = glm::vec3(0.0f, 0.0f, -1.0f);
-            break;
-        case MOVE_BACKWARD:
-            dir = glm::vec3(0.0f, 0.0f, 1.0f);
-            break;
-        case MOVE_LEFT:
-            dir = glm::vec3(-1.0f, 0.0f, 0.0f);
-            break;
-        case MOVE_RIGHT:
-            dir = glm::vec3(1.0f, 0.0f, 0.0f);
-            break;
-        case JUMP:
+            case MOVE_FORWARD:
+                dir = glm::vec3(0.0f, 0.0f, -1.0f);
+                client_player->move();
+                break;
+            case MOVE_BACKWARD:
+                dir = glm::vec3(0.0f, 0.0f, 1.0f);
+                client_player->move();
+                break;
+            case MOVE_LEFT:
+                dir = glm::vec3(-1.0f, 0.0f, 0.0f);
+                client_player->move();
+                break;
+            case MOVE_RIGHT:
+                dir = glm::vec3(1.0f, 0.0f, 0.0f);
+                client_player->move();
+                break;
+            case JUMP:
             {
-            dir = glm::vec3(0.0f, 1.0f, 0.0f);
-            glm::mat4 t = glm::translate(glm::mat4(1.0), dir * scale);
-            world = t * world;
-            continue;
-            break;
+                jumping = true;
+                if(client_player->getPosition().y == 0)
+                    client_player->jump();
+                break;
             }
-        case DROP:
+            case INTERACT:
             {
-            dir = glm::vec3(0.0f, -1.0f, 0.0f);
-            glm::mat4 t2 = glm::translate(glm::mat4(1.0), dir * scale);
-            world = t2 * world;
-            continue;
+                // Check if ready?
+                float player_x = client_player->getPosition().x;
+                float player_z = client_player->getPosition().z;
+
+                if (player_x <= -270.0f && player_x >= -290.0f && player_z <= -90.0f && player_z >= -110.0f) {
+                    printf("This player is ready!\n");
+                    client_player->makeReady();
+                }
+
+                continue;
             }
         }
 
-        // Rotate dir by camera angle
+        float player_x = client_player->getPosition().x;
+        float player_z = client_player->getPosition().z;
+
+        if (!(player_x <= -270.0f && player_x >= -290.0f && player_z <= -90.0f && player_z >= -110.0f)) {
+            client_player->makeUnready();
+        }
+
         dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
-        glm::mat4 transform = glm::translate(glm::mat4(1.0), dir * scale);
+        
+        // client_player->minBound += dir;
+        // client_player->maxBound += dir;
+        // printf("dirs: <%f, %f, %f>\n", dir.x, dir.y, dir.z);
 
-        world = transform * world;
-
-        // Also turn the alien towards the direction it's moving
-
+        // Also turn the alien towards the direction the camera's facing
         glm::vec3 front = glm::vec3(0.0f, 0.0f, 1.0f);
         front = serverState.players[i].world * glm::vec4(front, 0.0f);
-
+        if (jumping) 
+            continue;
         // std::cout << "front for " << i << ": " << front.x << " " << front.y << " " << front.z << "\n";
         //  Find if DIR is to the right or left of FRONT
         if (j == 0)
@@ -231,32 +246,49 @@ void ServerCore::process_input(InputPacket packet, short id)
         {
             dir = turndir + dir;
         }
-
+        
         // Calculate the cross product of frontVector and otherVector
         glm::vec3 crossProduct = glm::cross(front, dir);
 
         // Check the direction of the cross product to determine left or right
-        if (sz == 1 || j == 1)
+        if (crossProduct.y > 0) // Assuming y-axis is up in your coordinate system
         {
-            if (crossProduct.y > 0) // Assuming y-axis is up in your coordinate system
-            {
-                // Right
-                world = glm::rotate(world, float(-reader.GetReal("graphics", "player_rotation_scale", 0.1)), glm::vec3(0.0f, 1.0f, 0.0f));
-            }
-            else
-            {
-                world = glm::rotate(world, float(reader.GetReal("graphics", "player_rotation_scale", 0.1)), glm::vec3(0.0f, 1.0f, 0.0f));
-            }
+            // Right
+            world = glm::rotate(world, float(-reader.GetReal("graphics", "player_rotation_scale", 0.1)), glm::vec3(0.0f, 1.0f, 0.0f));
+        }
+        else
+        {
+            world = glm::rotate(world, float(reader.GetReal("graphics", "player_rotation_scale", 0.1)), glm::vec3(0.0f, 1.0f, 0.0f));
         }
     }
+    pWorld.step();
+    client_player->setPlayerWorld(world);
+
+    // world = glm::translate(world, (client_player->getPosition() - client_player->getOldPosition()) * SCALE);
+    // printf("world m %f,%f,%f\n", world[3][0], world[3][1], world[3][2]);
+    world[3] = glm::vec4(client_player->getPosition(), 1.0f);
+
+    //printf("forces: <%f, %f, %f>\n", client_player->force.x, client_player->force.y, client_player->force.z);
 
     serverState.players[i].world = world;
 }
 
 void ServerCore::update_game_state()
 {
-
+    int win = 1;
     // Update parts of the game that don't depend on player input.
+    for (int i = 0; i < serverState.players.size(); i++)
+    {
+        PlayerObject* client_player = pWorld.findPlayer(i);
+        if (client_player->getReady() == 0) {
+            win = 0;
+            break;
+        }
+    }
+    if (win) {
+        this->state = END_WIN;
+        send_heartbeat();
+    }
 
     // Enemy AI etc
     while (serverState.students.size() < 5)
@@ -344,6 +376,15 @@ void ServerCore::accept_new_clients(int i)
     p_state.score = 0;
 
     serverState.players.push_back(p_state);
+
+    AABB* c = new AABB(); 
+    PlayerObject* newPlayerObject = new PlayerObject(c); 
+
+    newPlayerObject->setPlayerId(client->id);
+    newPlayerObject->makeCollider();
+    
+    pWorld.addObject(newPlayerObject);
+    pWorld.addPlayer(newPlayerObject);
 
     printf("added new client data\n");
 }

@@ -85,6 +85,13 @@
         "stop_token": "cpp",
         "thread": "cpp",
         "cinttypes": "cpp",
+<<<<<<< HEAD
+        "charconv": "cpp",
+        "chrono": "cpp",
+        "format": "cpp",
+        "span": "cpp",
+        "variant": "cpp"
+=======
         "chrono": "cpp",
         "charconv": "cpp",
         "unordered_set": "cpp",
@@ -94,5 +101,6 @@
         "xtree": "cpp",
         "queue": "cpp",
         "ranges": "cpp"
+>>>>>>> origin/main
     }
 }
