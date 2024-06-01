@@ -203,11 +203,17 @@ void ServerCore::process_input(InputPacket packet, short id)
                     client_player->jump();
                 break;
             }
-            case DROP:
+            case INTERACT:
             {
-                dir = glm::vec3(0.0f, -1.0f, 0.0f);
-                glm::mat4 t2 = glm::translate(glm::mat4(1.0), dir * scale);
-                world = t2 * world;
+                // Check if ready?
+                float player_x = client_player->getPosition().x;
+                float player_z = client_player->getPosition().z;
+
+                if (player_x <= -270.0f && player_x >= -290.0f && player_z <= -90.0f && player_z >= -110.0f) {
+                    printf("This player is ready!\n");
+                    client_player->makeReady();
+                }
+
                 continue;
             }
         }
@@ -215,7 +221,7 @@ void ServerCore::process_input(InputPacket packet, short id)
         
         // client_player->minBound += dir;
         // client_player->maxBound += dir;
-        printf("dirs: <%f, %f, %f>\n", dir.x, dir.y, dir.z);
+        // printf("dirs: <%f, %f, %f>\n", dir.x, dir.y, dir.z);
 
         // Also turn the alien towards the direction the camera's facing
         glm::vec3 front = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -261,8 +267,20 @@ void ServerCore::process_input(InputPacket packet, short id)
 
 void ServerCore::update_game_state()
 {
-
+    int win = 1;
     // Update parts of the game that don't depend on player input.
+    for (int i = 0; i < serverState.players.size(); i++)
+    {
+        PlayerObject* client_player = pWorld.findPlayer(i);
+        if (client_player->getReady() == 0) {
+            win = 0;
+            break;
+        }
+    }
+    if (win) {
+        this->state = END_WIN;
+        send_heartbeat();
+    }
 
     // Enemy AI etc
     while (serverState.students.size() < 5)
