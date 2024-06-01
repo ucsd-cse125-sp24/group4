@@ -2,6 +2,7 @@
 Code adapted from https://learn.microsoft.com/en-us/windows/win32/winsock/complete-client-code
 */
 #include "../include/client.h"
+#include "../include/inih/INIReader.h"
 #include <windows.h>
 
 Client::Client(const char* addr, size_t len) {
@@ -10,6 +11,11 @@ Client::Client(const char* addr, size_t len) {
 }
 
 SOCKET Client::connect_to_server() {
+    INIReader reader("../config.ini");
+    if (reader.ParseError() != 0) {
+        printf("Can't load 'config.ini'\n");
+    }
+    
     struct addrinfo* result = NULL, *ptr = NULL, hints;
     this->conn_sock = INVALID_SOCKET;
 
@@ -28,7 +34,8 @@ SOCKET Client::connect_to_server() {
     hints.ai_protocol = IPPROTO_TCP;
 
     // Resolve the server address and port
-    int iResult = getaddrinfo(this->addr, DEFAULT_PORT, &hints, &result);
+    int iResult = getaddrinfo(reader.Get("netwroking", "address", "127.0.0.1").c_str(),
+                              reader.Get("netwroking", "port", "140").c_str(), &hints, &result);
     if ( iResult != 0 ) {
         printf("client getaddrinfo failed with error: %d\n", iResult);
         WSACleanup();

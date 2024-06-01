@@ -53,7 +53,8 @@ void ClientCore::run()
         std::cout << "Can't load 'config.ini'\n";
     }
 
-    PlaySound(reader.Get("audio", "background_music", NULL).c_str(), GetModuleHandle(NULL), SND_LOOP | SND_ASYNC);
+    PlaySound((LPCSTR)"../audio/sneaky_background.wav", GetModuleHandle(NULL), SND_LOOP | SND_ASYNC);
+    
     printf("Successfully joined game! Be sure to vote to start once you're ready.");
     while (this->server_state == LOBBY) {
         // check if player has voted or rescinded vote to start; if either, send vote packet w deets

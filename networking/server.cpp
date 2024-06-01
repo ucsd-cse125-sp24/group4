@@ -1,12 +1,18 @@
 /*
 Code adapted from https://learn.microsoft.com/en-us/windows/win32/winsock/complete-server-code
 */
+#include "../include/inih/INIReader.h"
 #include "../include/server.h"
 #include <algorithm>
 #include <vector>
 #include <windows.h>
 
 Server::Server(const char* addr) {
+    INIReader reader("../config.ini");
+    if (reader.ParseError() != 0) {
+        printf("Can't load 'config.ini'\n");
+    }
+
     struct addrinfo *result = NULL, hints;
 
     WSADATA wsaData;
@@ -24,7 +30,7 @@ Server::Server(const char* addr) {
     hints.ai_flags = AI_PASSIVE;
 
     // Resolve the local address and port to be used by the server
-    iResult = getaddrinfo(addr, DEFAULT_PORT, &hints, &result);
+    iResult = getaddrinfo(addr, reader.Get("netwroking", "port", "140").c_str(), &hints, &result);
     if (iResult != 0) {
         printf("server getaddrinfo failed: %d\n", iResult);
         WSACleanup();
