@@ -229,7 +229,7 @@ void Window::display_callback(GLFWwindow *window)
 	for(Drawable* student : students) {
 		student->draw(cam->get_view_project_mtx(), shader_program);
 	}
-	
+
 	map->draw(cam->get_view_project_mtx(), shader_program);
 	
 
@@ -308,21 +308,9 @@ void Window::update_state(GameState &state)
 		players[i]->set_world(state.players[i].world);
 	}
 
-	// float deltaTime = calculateDeltaTime();
-
-	// AnimationState currentState = getAnimationState(input);
-
-	// for (auto &player : players)
-	// {
-	// 	Model *model = dynamic_cast<Model *>(player);
-	// 	if (model)
-	// 	{
-	// 		model->updateAnimations(deltaTime, currentState);
-	// 	}
-	// }
-
 	// TODO: Update other fields - student, etc
-	for(int i = 0; i < state.students.size(); i++) {
-		students[i]->set_world(state.students[i].world);
-	}
+	
+	// for(int i = 0; i < state.students.size(); i++) {
+	// 	students[i]->set_world(state.students[i].world);
+	// }
 }

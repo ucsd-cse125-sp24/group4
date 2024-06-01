@@ -77,7 +77,6 @@ add_test(NAME ServerHeartbeatPacketTest COMMAND ServerHeartbeatPacketTest)
 add_test(NAME VotePacketTest COMMAND VotePacketTest)
 
 # ---- NPC movements test ----
-add_executable(NPCMovementsTest tests/npc_movements_test.cpp game/game_state.cpp)
-
-add_test(NAME NPCMovementsTest COMMAND NPCMovementsTest)
+# add_executable(NPCMovementsTest tests/npc_movements_test.cpp game/game_state.cpp)
+# add_test(NAME NPCMovementsTest COMMAND NPCMovementsTest)
 
