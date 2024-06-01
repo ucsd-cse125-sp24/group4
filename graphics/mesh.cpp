@@ -50,10 +50,4 @@ void Mesh::draw(const glm::mat4& viewProjMtx, Shader* shader) {
 	glDrawElements(GL_TRIANGLES, GLsizei(indices.size()), GL_UNSIGNED_INT, 0);
 
 	glBindVertexArray(0);
-
-	// Draw the hitbox
-
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	hitbox->draw(viewProjMtx, shader);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

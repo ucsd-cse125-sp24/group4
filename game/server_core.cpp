@@ -369,8 +369,8 @@ void ServerCore::accept_new_clients(int i)
 
     serverState.players.push_back(p_state);
 
-    AABB* c = new AABB(); // TBD free this
-    PlayerObject* newPlayerObject = new PlayerObject(c); // TBD free this?
+    AABB* c = new AABB(); 
+    PlayerObject* newPlayerObject = new PlayerObject(c); 
 
     newPlayerObject->setPlayerId(client->id);
     newPlayerObject->makeCollider();

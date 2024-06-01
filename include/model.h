@@ -49,7 +49,8 @@ public:
 	Model();
 	~Model();
 
-	void draw(const glm::mat4 &viewProjMtx, Shader *shader);
+	void draw(const glm::mat4 &viewProjMtx, Shader *shader) override;
+	void debug_draw(const glm::mat4& viewProjMtx, Shader* shader);
 	void loadAnimations(const std::map<AnimationState, std::string> &animationPath);
 	void updateAnimations(float deltaTime, AnimationState currentState);
 
