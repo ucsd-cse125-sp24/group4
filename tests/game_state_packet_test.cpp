@@ -84,6 +84,7 @@ int main() {
 
     std::cout << "Deserialized Data:" << std::endl;
     printGameStatePacket(deserializedPacket);
+    free(buffer);
 
     if (compareGameStatePackets(originalPacket, deserializedPacket)) {
         std::cout << "Test passed: Serialized and deserialized data match." << std::endl;

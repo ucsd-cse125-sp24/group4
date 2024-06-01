@@ -20,7 +20,7 @@ void close_and_shutdown(ServerCore* sc, std::vector<Client> client_list) {
 
 int test_listen_accept() {
     ServerCore sc;
-    if (sc.isRunning()) {
+    if (sc.isRunning() || sc.ready_players != 0 || sc.state != LOBBY) {
         sc.shutdown();
         return 1;
     }
@@ -42,6 +42,7 @@ int test_listen_accept() {
     WaitForSingleObject(hand, 1000);
     
     if (!sc.isRunning() || sc.clients_data.size() != NUM_TEST_CLIENTS || sc.serverState.players.size() != NUM_TEST_CLIENTS) {
+        printf("wrong player count\n");
         close_and_shutdown(&sc, client_list);
         return 1;
     }
@@ -54,7 +55,9 @@ int test_listen_accept() {
         }
     }
     for (PlayerState ps : sc.serverState.players) {
-        if (ps.world != glm::mat4(1.0f) || ps.score != 0) {
+        if (ps.world != glm::scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f))
+            || ps.score != 0) {
+            printf("wrong world\n");
             close_and_shutdown(&sc, client_list);
             return 1;
         }
@@ -77,26 +80,44 @@ int test_receive() {
     }
     WaitForSingleObject(hand, 1000);
     
-    // make each client send some data
+    // make each client send input
     InputPacket packet;
     packet.events.push_back(0);
     packet.events.push_back(1);
     packet.cam_angle = 2.0f;
     size_t bufferSize = packet.calculateSize();
-    char* buf = new char[bufferSize];;
+    char* buf = new char[SERVER_RECV_BUFLEN];
     InputPacket::serialize(packet, buf);
     
     for (Client c : client_list) {
-        c.sock_send((int)bufferSize, buf);
+        c.sock_send(SERVER_RECV_BUFLEN, buf);
     }
-    delete[] buf;
 
     // confirm receipt from each client
+    sc.state = MAIN_LOOP;
     sc.receive_data();
+    delete[] buf;
     for (PlayerState ps : sc.serverState.players) {
         // TODO: test serverstate's players' worlds all align with sent data
+        // i.e., check that process_input did its job (idk how tho so maybe let it be)
         printf("hi :>");
     }
+
+    // make each client send vote
+    VotePacket vote;
+    vote.vote = READY;
+    bufferSize = vote.calculateSize();
+    buf = new char[SERVER_RECV_BUFLEN];
+    VotePacket::serialize(vote, buf);
+    for (Client c : client_list) {
+        c.sock_send(SERVER_RECV_BUFLEN, buf);
+    }
+
+    // confirm receipt from each client
+    sc.state = LOBBY;
+    sc.receive_data();
+    delete[] buf;
+    assert(sc.ready_players == client_list.size());
 
     close_and_shutdown(&sc, client_list);
     return 0;
@@ -122,7 +143,7 @@ int test_send() {
     }
     WaitForSingleObject(hand, 1000);
 
-    // send data to all clients
+    // send gamestate to all clients
     sc.send_updates();
     
     GameStatePacket packet;
@@ -130,7 +151,7 @@ int test_send() {
     // confirm receipt from server
     for (Client c : client_list) {
         buf = c.sock_receive();
-        if (!buf || !buf[0]) {
+        if (!buf || !buf[0] || Packet::get_packet_type(buf) != GAME_STATE) {
             close_and_shutdown(&sc, client_list);
             return 1;
         }
@@ -153,6 +174,23 @@ int test_send() {
                     close_and_shutdown(&sc, client_list);
                     return 1;
                 }
+        }
+    }
+
+    // send heartbeat to all clients
+    sc.send_heartbeat();
+    ServerHeartbeatPacket hb;
+    // confirm receipt
+    for (Client c : client_list) {
+        buf = c.sock_receive();
+        if (!buf || !buf[0] || Packet::get_packet_type(buf) != SERVER_HEARTBEAT) {
+            close_and_shutdown(&sc, client_list);
+            return 1;
+        }
+        ServerHeartbeatPacket::deserialize(buf, hb);
+        if (hb.state != LOBBY) {
+            close_and_shutdown(&sc, client_list);
+            return 1;
         }
     }
 

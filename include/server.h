@@ -11,14 +11,14 @@ Module to run the game server
 class Server {
     private:
         SOCKET listen_sock;
-        char sendbuf[DEFAULT_BUFLEN];
-        char recvbuf[DEFAULT_BUFLEN];
-        int buflen = DEFAULT_BUFLEN;
+        char sendbuf[CLIENT_RECV_BUFLEN];
+        char recvbuf[SERVER_RECV_BUFLEN];
+        int buflen = SERVER_RECV_BUFLEN;
         std::vector<SOCKET> connections;
         int num_connections;
 
     public:
-        Server();
+        Server(const char* addr = NULL);
 
         /*
         Get the socket for the ith client connected to this server

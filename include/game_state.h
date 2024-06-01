@@ -43,7 +43,6 @@ struct GameState {
     int level;
     
     void updateScores();
-    void movePlayer(int playerId, int event, float orientation);
     void moveStudent(StudentState& student, std::vector<PlayerState> players, const float stepSize, const float totalDistance);
 
 };

@@ -1,12 +1,18 @@
 /*
 Code adapted from https://learn.microsoft.com/en-us/windows/win32/winsock/complete-server-code
 */
+#include "../include/inih/INIReader.h"
 #include "../include/server.h"
 #include <algorithm>
 #include <vector>
 #include <windows.h>
 
-Server::Server() {
+Server::Server(const char* addr) {
+    INIReader reader("../config.ini");
+    if (reader.ParseError() != 0) {
+        printf("Can't load 'config.ini'\n");
+    }
+
     struct addrinfo *result = NULL, hints;
 
     WSADATA wsaData;
@@ -24,9 +30,9 @@ Server::Server() {
     hints.ai_flags = AI_PASSIVE;
 
     // Resolve the local address and port to be used by the server
-    iResult = getaddrinfo("127.0.0.1", DEFAULT_PORT, &hints, &result);
+    iResult = getaddrinfo(addr, reader.Get("netwroking", "port", "140").c_str(), &hints, &result);
     if (iResult != 0) {
-        printf("getaddrinfo failed: %d\n", iResult);
+        printf("server getaddrinfo failed: %d\n", iResult);
         WSACleanup();
         return;
     }
@@ -97,14 +103,14 @@ bool Server::sock_send(SOCKET client_conn, int length, const char* data) {
                                         client_conn), this->connections.end());
         return false;
     }
-    printf("Bytes sent from server: %d\n", iSendResult);
+    //printf("Bytes sent from server: %d\n", iSendResult);
     return true;
 }
 
 char* Server::sock_receive(SOCKET client_conn) {
     int iResult = recv(client_conn, this->recvbuf, this->buflen, 0);
     if (iResult > 0) {
-        printf("Bytes received from client: %d\n", iResult);
+        //printf("Bytes received from client: %d\n", iResult);
         return this->recvbuf;
     }
     else if (iResult == 0) {

@@ -33,6 +33,7 @@ int main()
 
     std::cout << "Deserialized Input:" << std::endl;
     printInputPacket(deserializedInput);
+    free(buffer);
 
     assert(compareInputPackets(input, deserializedInput));
 

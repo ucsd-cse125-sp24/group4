@@ -1,69 +1,87 @@
+#include <algorithm>
 #include <chrono>
 #include "../include/server_core.h"
 
 #define TICK_MICROSECS 20000 // this gives 50 fps (fps = 1M / TICK_US)
 
-ServerCore::ServerCore() {
+ServerCore::ServerCore()
+{
+    reader = INIReader("../config.ini");
+    if (reader.ParseError() != 0) {
+        std::cout << "Can't load 'config.ini'\n";
+    }
+
     this->running = false;
     this->ready_players = 0;
-    this->state = LOBBY;
-    for (short i = 0; i < MAX_CLIENTS; i++) // setup available ids to include 1-n
-        this->available_ids.push(i);
+    this->state = ServerState(reader.GetInteger("debug", "start_state", 1));
+    for (short i = 0; i < MAX_CLIENTS; i++) // set up available ids to include [0, n)
+        this->available_ids.push_back(i);
+    std::sort(this->available_ids.begin(), this->available_ids.end());
 }
 
 ServerCore::~ServerCore()
 {
-    shutdown();
+    if (running)
+        shutdown();
 }
 
-void ServerCore::listen() {
-    // Initialize network components, game state, graphics, etc.
+void ServerCore::listen()
+{
+    // get new connection and, if found, add associated client_data
     server.sock_listen();
-    //maybe display some waiting for players screen?
-    for (int i = int(this->clients_data.size()); i < server.get_num_clients(); i++) {
-        // for each new connected client, initialize ClientData
+    for (int i = int(this->clients_data.size()); i < server.get_num_clients(); i++)
         this->accept_new_clients(i);
-    }
 
-    // TODO: update ready_players based on players voting
-    //this->receive_data();
+    // check for votes
+    this->receive_data();
 
-    running = true;
+    running = true; // this might be superfluous now, we'll see
 }
 
-void ServerCore::run() {
+void ServerCore::run()
+{
     running = true;
+    send_heartbeat();
 
-    while (server.get_num_clients() < NUM_CLIENTS )/*|| 
-          (this->ready_players < server.get_num_clients() && this->ready_players < 1))*/ {
-            this->listen();
+    // start once max players is reached OR all (nonzero) players are ready anyway
+    while (server.get_num_clients() < reader.GetInteger("debug", "expected_clients", 4) &&
+           (this->ready_players < server.get_num_clients() || this->ready_players < 1))
+    {
+        this->listen();
     }
+    printf("All players have joined or are ready! Game beginning...\n");
     this->state = MAIN_LOOP;
+    send_heartbeat();
 
-    while (isRunning()) {
+    while (isRunning())
+    {
         auto start = std::chrono::high_resolution_clock::now();
 
-        this->listen(); // comment to disallow joining mid-game
+        if (reader.GetBoolean("debug", "accept_midgame", 0))
+            this->listen(); // join mid-game
         receive_data();
         update_game_state();
         send_updates();
-        
+
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration_us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-        while (duration_us.count() < TICK_MICROSECS) {
+        while (duration_us.count() < TICK_MICROSECS)
+        {
             stop = std::chrono::high_resolution_clock::now();
             duration_us = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
         }
     }
 
     this->state = END_WIN; // future todo to implement logic handling win and lose states
+    send_heartbeat();
 }
 
 void ServerCore::shutdown()
 {
-    for (ClientData* c : clients_data)
+    for (ClientData *c : clients_data)
         free(c);
     clients_data.clear(); // Clear the client data vector
+    pWorld.cleanup();
     server.sock_shutdown();
     running = false;
 }
@@ -81,10 +99,11 @@ void ServerCore::receive_data()
     timeout.tv_sec = 0;
     timeout.tv_usec = 10;
 
-    InputPacket packet;
+    InputPacket input_packet;
+    VotePacket vote_packet;
     char *buf;
 
-    for (ClientData* client : clients_data)
+    for (ClientData *client : clients_data)
     {
         FD_SET(client->sock, &readFdSet);
         if (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0)
@@ -92,68 +111,156 @@ void ServerCore::receive_data()
             buf = server.sock_receive(client->sock);
             if (buf && buf[0])
             {
+                // printf("server received %s\n", buf);
                 PacketType type = Packet::get_packet_type(buf);
-                switch(type) {
-                    // handle diff kinds of packets in diff ways depending on game state
-                    case SERVER_HEARTBEAT: // players voting to start
-                        // expect to deserialize a vote or smth
-                        this->ready_players += 1; // add or subtract ready_players based on vote or rescind vote msgs
-                        break;
+                switch (type)
+                {
+                // handle diff kinds of packets in diff ways depending on game state
+                case PLAYER_INPUT:
+                    if (state != MAIN_LOOP) // only accept input during core gameplay loop
+                        return;
+                    InputPacket::deserialize(buf, input_packet);
+                    process_input(input_packet, client->id);
+                    // Print for testing
+                    // printf("\nEvents: ");
+                    // for (const auto &event : input_packet.events)
+                    //    printf("%d ", event);
+                    // printf("\nCamera angle: %f\n\n", input_packet.cam_angle);
+                    break;
 
-                    case PLAYER_INPUT:
-                        InputPacket::deserialize(buf, packet);
-                        process_input(packet, client->id);
-                        // Print for testing
-                        printf("\nEvents: ");
-                        for (const auto &event : packet.events)
-                            printf("%d ", event);
-                        printf("\n");
-                        printf("Camera angle: %f\n\n", packet.cam_angle);
-                        break;
+                case VOTE:
+                    if (state != LOBBY) // only accept votes while in lobby
+                        return;
+                    VotePacket::deserialize(buf, vote_packet);
+                    printf("received vote %d\n", *(buf + sizeof(Vote)));
+                    // check that vote is actually state-changing and, if it is, update readiness
+                    if (vote_packet.vote == READY && client->ready_to_start == NOT_READY)
+                        ready_players++;
+                    else if (vote_packet.vote == NOT_READY && client->ready_to_start == READY)
+                        ready_players--;
 
-                    default: // shouldn't reach this
-                        printf("Error: unexpected receipt of packet type %d", type);
-                }   
+                    client->ready_to_start = vote_packet.vote;
+                    break;
+
+                default: // shouldn't reach this
+                    printf("Error: unexpected receipt of packet type %d", type);
+                }
             }
         }
     }
 }
 
-void ServerCore::process_input(InputPacket packet, short id) {
-    // For now operate on first player by default. TODO: Identify by socket num? Client ID?
-    glm::mat4 world = serverState.players[id].world;
+void ServerCore::process_input(InputPacket packet, short id)
+{
+    // Find player by id, not index (for loop kinda clunky but it works for now :p)
+    glm::mat4 world = glm::mat4(1.0f);
 
-    float SCALE = 0.05f; // TODO: Define this somewhere else. Maybe in a constants folder?
-
-    // Process input events
-    for (int event : packet.events) {
-        glm::vec3 dir;
-        switch (event) {
-        case MOVE_FORWARD:
-            dir = glm::vec3(0.0f, 0.0f, -1.0f);
-            break;
-        case MOVE_BACKWARD:
-            dir = glm::vec3(0.0f, 0.0f, 1.0f);
-			break;
-        case MOVE_LEFT:
-			dir = glm::vec3(-1.0f, 0.0f, 0.0f);
-			break;
-        case MOVE_RIGHT:
-            dir = glm::vec3(1.0f, 0.0f, 0.0f);
+    short i;
+    for (i = 0; i < serverState.players.size(); i++)
+    {
+        if (clients_data[i]->id == id)
+        { // assumes clients are ordered the same in clients_data & serverState T.T
+            world = serverState.players[i].world;
             break;
         }
-
-        // Rotate dir by camera angle
-        dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
-
-        world = glm::translate(world, dir * SCALE);
-
     }
+    PlayerObject* client_player = pWorld.findPlayer(id);
 
-    serverState.players[id].world = world;
+    int num_events = int(packet.events.size());
+
+    // why does scale depend on # of events?
+    float scale = float(reader.GetReal("graphics", "player_movement_scale", 4.0)) / num_events;
+    glm::vec3 turndir;
+
+    // Process input events
+    glm::vec3 dir = glm::vec3(0.0f, 0.0f, -1.0f);
+    for (int j = 0; j < num_events; j++)
+    {
+        int event = packet.events[j];
+        bool jumping = false;
+        switch (event)
+        {
+            case MOVE_FORWARD:
+                dir = glm::vec3(0.0f, 0.0f, -1.0f);
+                client_player->move();
+                break;
+            case MOVE_BACKWARD:
+                dir = glm::vec3(0.0f, 0.0f, 1.0f);
+                client_player->move();
+                break;
+            case MOVE_LEFT:
+                dir = glm::vec3(-1.0f, 0.0f, 0.0f);
+                client_player->move();
+                break;
+            case MOVE_RIGHT:
+                dir = glm::vec3(1.0f, 0.0f, 0.0f);
+                client_player->move();
+                break;
+            case JUMP:
+            {
+                jumping = true;
+                if(client_player->getPosition().y == 0)
+                    client_player->jump();
+                break;
+            }
+            case DROP:
+            {
+                dir = glm::vec3(0.0f, -1.0f, 0.0f);
+                glm::mat4 t2 = glm::translate(glm::mat4(1.0), dir * scale);
+                world = t2 * world;
+                continue;
+            }
+        }
+        dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
+        
+        // client_player->minBound += dir;
+        // client_player->maxBound += dir;
+        printf("dirs: <%f, %f, %f>\n", dir.x, dir.y, dir.z);
+
+        // Also turn the alien towards the direction the camera's facing
+        glm::vec3 front = glm::vec3(0.0f, 0.0f, 1.0f);
+        front = serverState.players[i].world * glm::vec4(front, 0.0f);
+        if (jumping) 
+            continue;
+        // std::cout << "front for " << i << ": " << front.x << " " << front.y << " " << front.z << "\n";
+        //  Find if DIR is to the right or left of FRONT
+        if (j == 0)
+        {
+            turndir = dir;
+        }
+        else
+        {
+            dir = turndir + dir;
+        }
+        
+        // Calculate the cross product of frontVector and otherVector
+        glm::vec3 crossProduct = glm::cross(front, dir);
+
+        // Check the direction of the cross product to determine left or right
+        if (crossProduct.y > 0) // Assuming y-axis is up in your coordinate system
+        {
+            // Right
+            world = glm::rotate(world, float(-reader.GetReal("graphics", "player_rotation_scale", 0.1)), glm::vec3(0.0f, 1.0f, 0.0f));
+        }
+        else
+        {
+            world = glm::rotate(world, float(reader.GetReal("graphics", "player_rotation_scale", 0.1)), glm::vec3(0.0f, 1.0f, 0.0f));
+        }
+    }
+    pWorld.step();
+    client_player->setPlayerWorld(world);
+
+    // world = glm::translate(world, (client_player->getPosition() - client_player->getOldPosition()) * SCALE);
+    // printf("world m %f,%f,%f\n", world[3][0], world[3][1], world[3][2]);
+    world[3] = glm::vec4(client_player->getPosition(), 1.0f);
+
+    //printf("forces: <%f, %f, %f>\n", client_player->force.x, client_player->force.y, client_player->force.z);
+
+    serverState.players[i].world = world;
 }
 
-void ServerCore::update_game_state() {
+void ServerCore::update_game_state()
+{
 
     // Update parts of the game that don't depend on player input.
 
@@ -184,21 +291,42 @@ void ServerCore::update_game_state() {
 
 }
 
+void ServerCore::send_heartbeat()
+{
+    ServerHeartbeatPacket packet;
+    packet.state = this->state;
+
+    size_t bufferSize = packet.calculateSize();
+    char *buffer = new char[CLIENT_RECV_BUFLEN];
+    ServerHeartbeatPacket::serialize(packet, buffer);
+
+    this->send_serial(buffer);
+    delete[] buffer;
+}
+
 void ServerCore::send_updates()
 {
     GameStatePacket packet;
     packet.state = serverState;
 
     size_t bufferSize = packet.calculateSize();
-
-    char *buffer = new char[bufferSize];
+    char *buffer = new char[CLIENT_RECV_BUFLEN];
     GameStatePacket::serialize(packet, buffer);
 
-    for (auto i = 0; i < (int)clients_data.size(); i++) {
-        bool send_success = server.sock_send(clients_data[i]->sock, (int)bufferSize, buffer);
+    this->send_serial(buffer);
+    delete[] buffer;
+}
+
+void ServerCore::send_serial(char *to_send)
+{
+    for (int i = 0; i < (int)clients_data.size(); i++)
+    {
+        bool send_success = server.sock_send(clients_data[i]->sock, CLIENT_RECV_BUFLEN, to_send);
         // if client shutdown, tear down this client/player
-        if (!send_success) {
-            this->available_ids.push(clients_data[i]->id); // reclaim id as available
+        if (!send_success)
+        {
+            this->available_ids.push_back(clients_data[i]->id); // reclaim id as available
+            std::sort(this->available_ids.begin(), this->available_ids.end());
             server.close_client(clients_data[i]->sock);
             free(clients_data[i]);
             clients_data.erase(clients_data.begin() + i);
@@ -206,33 +334,46 @@ void ServerCore::send_updates()
             i--;
         }
     }
-
-    delete[] buffer;
 }
 
-void ServerCore::accept_new_clients(int i) {
+void ServerCore::accept_new_clients(int i)
+{
     SOCKET clientSock = server.get_client_sock(i);
-    ClientData* client = new ClientData;
+    ClientData *client = new ClientData;
     client->sock = clientSock;
+    client->ready_to_start = NOT_READY;
     client->id = this->available_ids.front(); // assign next avail id to client
-    char* buffer = new char[sizeof(short)];
-    *((short*)buffer) = client->id + 1; // add 1 bc we can't send 0 (null); clientcore subs 1 to correct
-    bool send_success = server.sock_send(client->sock, sizeof(short), buffer);
-    if (!send_success) {
+    char *buffer = new char[CLIENT_RECV_BUFLEN];
+    const char send_id = char(client->id + 1); // add 1 bc we can't send 0 (null); clientcore subs 1 to correct
+    strncpy_s(buffer, CLIENT_RECV_BUFLEN, &send_id, 16);
+    bool send_success = server.sock_send(client->sock, CLIENT_RECV_BUFLEN, buffer);
+    if (!send_success)
+    {
         server.close_client(clientSock); // abort conn
         free(client);
         return;
     }
     delete[] buffer;
-    this->available_ids.pop(); // on success, id is no longer available, client is added
+    this->available_ids.erase(this->available_ids.begin()); // on success, id is no longer available, client is added
     clients_data.push_back(client);
 
     PlayerState p_state;
-    p_state.world = glm::mat4(1.0f);
+    p_state.world = glm::scale(glm::mat4(1.0f), glm::vec3(reader.GetReal("graphics", "player_model_scale", 0.01),
+                                                          reader.GetReal("graphics", "player_model_scale", 0.01),
+                                                          reader.GetReal("graphics", "player_model_scale", 0.01)));
 
     p_state.score = 0;
 
     serverState.players.push_back(p_state);
+
+    AABB* c = new AABB(); // TBD free this
+    PlayerObject* newPlayerObject = new PlayerObject(c); // TBD free this?
+
+    newPlayerObject->setPlayerId(client->id);
+    newPlayerObject->makeCollider();
+    
+    pWorld.addObject(newPlayerObject);
+    pWorld.addPlayer(newPlayerObject);
 
     printf("added new client data\n");
 }

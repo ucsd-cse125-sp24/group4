@@ -5,7 +5,7 @@
 #include "../include/server.h"
 
 #define NUM_TRIALS 128
-#define MAX_DATA_LENGTH 512
+#define MAX_DATA_LENGTH 64
 #define NUM_CLIENTS 4
 
 // CreateThread doesn't like calling an object's member function;
@@ -27,7 +27,7 @@ int test_connect() {
     */
 
     // set up server and listen for clients
-    Server server = Server();
+    Server server = Server("127.0.0.1");
     unsigned long threadID = 0U;
     HANDLE listen_hand = CreateThread(nullptr, 0U, &call_listen, &server, 0, &threadID);
 
@@ -61,7 +61,7 @@ int test_data_transport() {
     */
 
     // create server-client pair to use
-    Server server = Server();
+    Server server = Server("127.0.0.1");
     unsigned long threadID = 0U;
     HANDLE hand = CreateThread(nullptr, 0U, &call_listen, &server, 0, &threadID);
     std::vector<Client> client_list;

@@ -2,13 +2,20 @@
 Code adapted from https://learn.microsoft.com/en-us/windows/win32/winsock/complete-client-code
 */
 #include "../include/client.h"
+#include "../include/inih/INIReader.h"
 #include <windows.h>
 
-Client::Client() {
+Client::Client(const char* addr, size_t len) {
+    strncpy_s(this->addr, addr, len);
     this->connect_to_server();
 }
 
 SOCKET Client::connect_to_server() {
+    INIReader reader("../config.ini");
+    if (reader.ParseError() != 0) {
+        printf("Can't load 'config.ini'\n");
+    }
+
     struct addrinfo* result = NULL, *ptr = NULL, hints;
     this->conn_sock = INVALID_SOCKET;
 
@@ -27,9 +34,10 @@ SOCKET Client::connect_to_server() {
     hints.ai_protocol = IPPROTO_TCP;
 
     // Resolve the server address and port
-    int iResult = getaddrinfo("127.0.0.1", DEFAULT_PORT, &hints, &result);
+    int iResult = getaddrinfo(reader.Get("netwroking", "address", "127.0.0.1").c_str(),
+                              reader.Get("netwroking", "port", "140").c_str(), &hints, &result);
     if ( iResult != 0 ) {
-        printf("getaddrinfo failed with error: %d\n", iResult);
+        printf("client getaddrinfo failed with error: %d\n", iResult);
         WSACleanup();
         return INVALID_SOCKET;
     }
@@ -82,7 +90,7 @@ bool Client::sock_send(int length, const char* data) {
 char* Client::sock_receive() {
     int iResult = recv(this->conn_sock, this->recvbuf, this->buflen, 0);
     if ( iResult > 0 ) {
-        // printf("Bytes received from server: %d\n", iResult);
+        //printf("%d bytes received from server: %s\n", iResult, this->recvbuf);
         return this->recvbuf;
     } else if ( iResult == 0 )
         printf("Connection closed\n");
