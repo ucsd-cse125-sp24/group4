@@ -34,14 +34,15 @@ void PhysicsWorld::removePlayer (PlayerObject* player) {
 }
 
 void PhysicsWorld::cleanup() {
-    for (PlayerObject* obj : p_objects) {
-        delete obj;
+    for (auto it = p_objects.begin(); it != p_objects.end(); ++it) {
+        delete *it;
     }
-    for (GameObject* obj : m_objects) {
-        delete obj;
-    }
+    // for (auto it = m_objects.begin(); it != m_objects.end(); ++it) {
+    //     delete *it;
+    // }
 
     p_objects.clear();
+    // m_objects.clear();
 }
 
 PlayerObject* PhysicsWorld::findPlayer(int id) {
