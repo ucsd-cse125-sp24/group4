@@ -39,10 +39,31 @@ void Model::draw(const glm::mat4 &viewProjMtx, Shader *shader)
 
     }
 
+    glUseProgram(0);
+}
+
+void Model::debug_draw(const glm::mat4& viewProjMtx, Shader* shader) {
+	// Draw hitbox
+    //std::cout << "debug draw\n";
+
+    shader->activate();
+	shader->set_mat4("model", (float*)&model);
+
+    // Print model
+	//std::cout << "Model matrix: " << glm::to_string(model) << std::endl;
+
+	shader->set_mat4("viewProj", (float*)&viewProjMtx);
+
     // Draw the hitbox as a wireframe
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     hitbox->draw(viewProjMtx, shader);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    // Also draw hitboxes of meshes
+	for (unsigned int i = 0; i < meshes.size(); i++)
+	{
+		meshes[i].hitbox->draw(viewProjMtx, shader);
+	}
 
     glUseProgram(0);
 }
@@ -51,7 +72,7 @@ void Model::load_model(const std::string &path)
 {
     Assimp::Importer importer;
 
-    const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+    const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenBoundingBoxes);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
