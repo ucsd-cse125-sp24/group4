@@ -217,6 +217,14 @@ void ServerCore::process_input(InputPacket packet, short id)
                 continue;
             }
         }
+
+        float player_x = client_player->getPosition().x;
+        float player_z = client_player->getPosition().z;
+
+        if (!(player_x <= -270.0f && player_x >= -290.0f && player_z <= -90.0f && player_z >= -110.0f)) {
+            client_player->makeUnready();
+        }
+
         dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
         
         // client_player->minBound += dir;
