@@ -11,11 +11,6 @@ Client::Client(const char* addr, size_t len) {
 }
 
 SOCKET Client::connect_to_server() {
-    INIReader reader("../config.ini");
-    if (reader.ParseError() != 0) {
-        printf("Can't load 'config.ini'\n");
-    }
-
     struct addrinfo* result = NULL, *ptr = NULL, hints;
     this->conn_sock = INVALID_SOCKET;
 
