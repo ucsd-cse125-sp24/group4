@@ -7,6 +7,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "../include/glm/gtx/string_cast.hpp"
 #include <algorithm>
+#include <fstream>
 
 #ifdef min
 #undef min
@@ -15,7 +16,17 @@
 #ifdef max
 #undef max
 #endif
+void writeBoundingBoxToTextFile(const glm::vec3& minVec, const glm::vec3& maxVec) {
+    std::ofstream file("stat", std::ios::app); // Open in text mode to append data
+    if (!file) {
+        std::cerr << "Failed to open the file for writing.\n";
+        return;
+    }
 
+    file << minVec.x << ", " << minVec.y << ", " << minVec.z << std::endl;
+    file << maxVec.x << ", " << maxVec.y << ", " << maxVec.z << "." << std::endl;
+    file.close();
+}
 void Model::draw(const glm::mat4 &viewProjMtx, Shader *shader)
 {
 
@@ -86,6 +97,7 @@ void Model::load_model(const std::string &path)
 
     // Create a hitbox for the model
     hitbox = new Cube(glm::vec3(min_x, min_y, min_z), glm::vec3(max_x, max_y, max_z));
+    writeBoundingBoxToTextFile(glm::vec3(min_x, min_y, min_z), glm::vec3(max_x, max_y, max_z));
 }
 
 void Model::loadAnimations(const std::map<AnimationState, std::string> &animationPath)
@@ -214,6 +226,7 @@ void Model::process_node(aiNode *node, const aiScene *scene, const glm::mat4 &pa
     {
         process_node(node->mChildren[i], scene, globalTransform);
     }
+    
 }
 
 Mesh Model::process_mesh(aiMesh *mesh, const aiScene *scene, const glm::mat4 &transform)
@@ -283,7 +296,11 @@ Mesh Model::process_mesh(aiMesh *mesh, const aiScene *scene, const glm::mat4 &tr
 	Mesh m = Mesh(vertices, indices, textures);
 	m.hitbox = new Cube(glm::vec3(mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z), glm::vec3(mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z));
 	m.hitbox->set_color(glm::vec3(1.0f, 0.0f, 0.0f));
-
+    // floorModel = true;
+    if (floorModel) {
+        // writeBoundingBoxToTextFile(glm::vec3(mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z), glm::vec3(mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z));
+        // writeBoundingBoxToTextFile(glm::vec3(min_x, min_y, min_z), glm::vec3(max_x, max_y, max_z));
+    }
     return m;
 }
 
