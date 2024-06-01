@@ -101,37 +101,63 @@ void Window::setup_callbacks(GLFWwindow *window)
 
 void Window::setup_scene()
 {
-	// Populate players
-	//
-	// unused player models sent into space
+	std::string alien = "art/models/character/green_alien_wbones.fbx";
+	std::string boy = "art/models/character/boy_standing.fbx";
+	std::string girl = "art/models/character/girl_standing.fbx";
 
-	std::map<AnimationState, std::string> animationPath = {
+	std::map<AnimationState, std::string> alienAnim = {
 		{AnimationState::Idle, "art/models/character/green_alien_wbones.fbx"},
 		{AnimationState::Walking, "art/models/animation/walking/green_alien_walking.fbx"}};
 
-	std::string alienPath = "art/models/character/green_alien_wbones.fbx";
+	std::map<AnimationState, std::string> boyAnim = {
+		{AnimationState::Idle, "art/models/character/boy_standing.fbx"},
+		{AnimationState::Walking, "art/models/animation/walking/boy.fbx"}};
+
+	std::map<AnimationState, std::string> girlAnim = {
+		{AnimationState::Idle, "art/models/character/girl_standing.fbx"},
+		{AnimationState::Walking, "art/models/animation/walking/girl.fbx"}};
 
 	glm::mat4 temp = glm::translate(glm::mat4(1.0f), glm::vec3(0, 100, 0));
 
-	Model *player = new Model(alienPath, animationPath);
-	player->set_color(glm::vec3(0, 1, 0)); // p1 - green
-	player->set_world(temp);
-	players.push_back(player);
+	// Model *player = new Model(alien, alienAnim);
+	// player->set_color(glm::vec3(0, 1, 0)); // p1 - green
+	// player->set_world(temp);
+	// players.push_back(player);
 
-	Model *player2 = new Model(alienPath, animationPath);
-	player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
-	player2->set_world(temp);
-	players.push_back(player2);
+	// Model *player2 = new Model(alien, alienAnim);
+	// player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
+	// player2->set_world(temp);
+	// players.push_back(player2);
 
-	Model *player3 = new Model(alienPath, animationPath);
-	player3->set_color(glm::vec3(1, 0, 1)); //p3 - purple
-	player3->set_world(temp);
-	players.push_back(player3);
+	// Model *player3 = new Model(alien, alienAnim);
+	// player3->set_color(glm::vec3(1, 0, 1)); //p3 - purple
+	// player3->set_world(temp);
+	// players.push_back(player3);
 
-	Model *player4 = new Model(alienPath, animationPath);
-	player4->set_color(glm::vec3(0, 0, 1)); // p4 - blue
-	player4->set_world(temp);
-	players.push_back(player4);
+	// Model *player4 = new Model(alien, alienAnim);
+	// player4->set_color(glm::vec3(0, 0, 1)); // p4 - blue
+	// player4->set_world(temp);
+	// players.push_back(player4);
+
+	// Model *boy1 = new Model(boy, boyAnim);
+	// boy1->set_color(glm::vec3(0, 0, 1));
+	// boy1->set_world(temp);
+	// students.push_back(boy1);
+
+	// Model *girl1 = new Model(girl, girlAnim);
+	// girl1->set_color(glm::vec3(0, 0, 1)); 
+	// girl1->set_world(temp);
+	// students.push_back(girl1);
+
+	Model *boy1 = new Model(boy, boyAnim);
+	boy1->set_color(glm::vec3(0, 0, 1));
+	boy1->set_world(temp);
+	players.push_back(boy1);
+
+	Model *girl1 = new Model(girl, girlAnim);
+	girl1->set_color(glm::vec3(0, 1, 0)); 
+	girl1->set_world(temp);
+	players.push_back(girl1);
 
 	// Floor 6_empty works without rotations
 
@@ -151,7 +177,6 @@ AnimationState Window::getAnimationState(Input *input)
 	// else {
 	//     return AnimationState::Idle;
 	// }
-	// return AnimationState::Idle;
 	return AnimationState::Idle;
 }
 
