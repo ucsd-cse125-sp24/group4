@@ -70,7 +70,7 @@ void PhysicsWorld::step()
 }
 
 void PhysicsWorld::handleCollisions() {
-    // Loop through each combination of distinct pairs of objects
+    // Loop through each combination of distinct pairs of players
     for (unsigned int i = 0; i < p_objects.size(); i++) {
         for (unsigned int j = i + 1; j < p_objects.size(); j++) {
             // Check if either object pointer is null
@@ -116,7 +116,33 @@ void PhysicsWorld::handleCollisions() {
 
     // collision between player and game objects
     for (unsigned int i = 0; i < p_objects.size(); i++) {
-        for (unsigned int j = i + 1; j < p_objects.size(); j++) {
+        for (unsigned int j = i + 1; j < m_objects.size(); j++) {
+            if (!p_objects[i] || !m_objects[j]) {
+                std::cout << "Error: Null player or object detected." << std::endl;
+                continue;
+            }
+
+            Collider& playerCollider = p_objects[i]->getCollider();
+            Collider& objectCollider = m_objects[j]->getCollider();
+
+            // Check for collision using references
+            bool collision = playerCollider.collide(objectCollider);
+
+            if (collision) {
+                std::cout << "Collision happened between object " << i << " and object " << j << std::endl;
+
+                glm::vec3 collision_dir = playerCollider.getCollisionNormal(objectCollider);
+
+                p_objects[i]->setVelocity(-collision_dir * 20.0f);
+
+                if (p_objects[i]->getPosition() != m_objects[j]->getPosition()) {
+                    p_objects[i]->setPosition(p_objects[i]->getOldPosition() - collision_dir * 0.5f);
+                }
+                else {
+                    p_objects[i]->setPosition(p_objects[i]->getPosition() + 1.0f);
+                }
+                p_objects[i]->setForce(glm::vec3(0.0));
+
         }
     }
 }
