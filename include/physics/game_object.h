@@ -69,7 +69,7 @@ class PlayerObject : public GameObject {
         virtual ~PlayerObject() {
             delete collider;
         }
-        void move();
+         void move();
         void setPlayerId(short id) { playerId = id; }
         short getPlayerId() { return playerId; }
         void setPlayerWorld(glm::mat4 world){ playerWorld = world; }

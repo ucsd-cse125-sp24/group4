@@ -1,5 +1,6 @@
 #include "../include/physics/game_object.h"
 #include <cmath>
+
 #define step 30.0f
 #define mu 1.4f
 
