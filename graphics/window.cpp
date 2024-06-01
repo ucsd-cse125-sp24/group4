@@ -119,15 +119,15 @@ void Window::setup_scene()
 
 	glm::mat4 temp = glm::translate(glm::mat4(1.0f), glm::vec3(0, 100, 0));
 
-	// Model *player = new Model(alien, alienAnim);
-	// player->set_color(glm::vec3(0, 1, 0)); // p1 - green
-	// player->set_world(temp);
-	// players.push_back(player);
+	Model *player = new Model(alien, alienAnim);
+	player->set_color(glm::vec3(0, 1, 0)); // p1 - green
+	player->set_world(temp);
+	players.push_back(player);
 
-	// Model *player2 = new Model(alien, alienAnim);
-	// player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
-	// player2->set_world(temp);
-	// players.push_back(player2);
+	Model *player2 = new Model(alien, alienAnim);
+	player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
+	player2->set_world(temp);
+	players.push_back(player2);
 
 	// Model *player3 = new Model(alien, alienAnim);
 	// player3->set_color(glm::vec3(1, 0, 1)); //p3 - purple
@@ -139,25 +139,25 @@ void Window::setup_scene()
 	// player4->set_world(temp);
 	// players.push_back(player4);
 
-	// Model *boy1 = new Model(boy, boyAnim);
-	// boy1->set_color(glm::vec3(0, 0, 1));
-	// boy1->set_world(temp);
-	// students.push_back(boy1);
-
-	// Model *girl1 = new Model(girl, girlAnim);
-	// girl1->set_color(glm::vec3(0, 0, 1)); 
-	// girl1->set_world(temp);
-	// students.push_back(girl1);
-
 	Model *boy1 = new Model(boy, boyAnim);
 	boy1->set_color(glm::vec3(0, 0, 1));
 	boy1->set_world(temp);
-	players.push_back(boy1);
+	students.push_back(boy1);
 
 	Model *girl1 = new Model(girl, girlAnim);
-	girl1->set_color(glm::vec3(0, 1, 0)); 
+	girl1->set_color(glm::vec3(0, 0, 1)); 
 	girl1->set_world(temp);
-	players.push_back(girl1);
+	students.push_back(girl1);
+
+	// Model *boy1 = new Model(boy, boyAnim);
+	// boy1->set_color(glm::vec3(0, 0, 1));
+	// boy1->set_world(temp);
+	// players.push_back(boy1);
+
+	// Model *girl1 = new Model(girl, girlAnim);
+	// girl1->set_color(glm::vec3(0, 1, 0)); 
+	// girl1->set_world(temp);
+	// players.push_back(girl1);
 
 	// Floor 6_empty works without rotations
 
@@ -336,7 +336,7 @@ void Window::update_state(GameState &state)
 
 	// TODO: Update other fields - student, etc
 	
-	// for(int i = 0; i < state.students.size(); i++) {
-	// 	students[i]->set_world(state.students[i].world);
-	// }
+	for(int i = 0; i < state.students.size(); i++) {
+		students[i]->set_world(state.students[i].world);
+	}
 }

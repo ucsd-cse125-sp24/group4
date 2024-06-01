@@ -269,6 +269,15 @@ void ServerCore::update_game_state()
     */
 
     // Enemy AI etc
+
+    int size = serverState.students.size();
+
+    for(int i=0; i<size; i++) {
+        serverState.students[i].world = glm::scale(glm::mat4(1.0f), glm::vec3(reader.GetReal("graphics", "player_model_scale", 0.01),
+                                                          reader.GetReal("graphics", "player_model_scale", 0.01),
+                                                          reader.GetReal("graphics", "player_model_scale", 0.01)));
+    }
+    
     while (serverState.students.size() < 1) {
         StudentState student;
         serverState.students.push_back(student);
@@ -287,8 +296,6 @@ void ServerCore::update_game_state()
 
         s.lastUpdate = now;  // Update the last update time
     }
-    
-
 }
 
 void ServerCore::send_heartbeat()
