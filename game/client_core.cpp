@@ -1,5 +1,8 @@
 #include "../include/client_core.h"
+#include "../include/inih/INIReader.h"
 #include <iostream>
+
+#pragma comment(lib, "Winmm.lib")
 
 ClientCore::ClientCore() {
     this->connected = false;
@@ -45,6 +48,12 @@ void ClientCore::shutdown()
 
 void ClientCore::run()
 {
+    INIReader reader = INIReader("../config.ini");
+    if (reader.ParseError() != 0) {
+        std::cout << "Can't load 'config.ini'\n";
+    }
+
+    PlaySound(reader.Get("audio", "background_music", NULL).c_str(), GetModuleHandle(NULL), SND_LOOP | SND_ASYNC);
     printf("Successfully joined game! Be sure to vote to start once you're ready.");
     while (this->server_state == LOBBY) {
         // check if player has voted or rescinded vote to start; if either, send vote packet w deets
