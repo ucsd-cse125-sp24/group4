@@ -111,11 +111,11 @@ void Window::setup_scene()
 
 	std::map<AnimationState, std::string> boyAnim = {
 		{AnimationState::Idle, "art/models/character/boy_standing.fbx"},
-		{AnimationState::Walking, "art/models/animation/walking/boy.fbx"}};
+		{AnimationState::Walking, "art/models/animation/running/boy.fbx"}};
 
 	std::map<AnimationState, std::string> girlAnim = {
 		{AnimationState::Idle, "art/models/character/girl_standing.fbx"},
-		{AnimationState::Walking, "art/models/animation/walking/girl.fbx"}};
+		{AnimationState::Walking, "art/models/animation/running/girl.fbx"}};
 
 	glm::mat4 temp = glm::translate(glm::mat4(1.0f), glm::vec3(0, 100, 0));
 
