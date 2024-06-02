@@ -124,10 +124,10 @@ void Window::setup_scene()
 	player->set_world(temp);
 	players.push_back(player);
 
-	Model *player2 = new Model(alien, alienAnim);
-	player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
-	player2->set_world(temp);
-	players.push_back(player2);
+	// Model *player2 = new Model(alien, alienAnim);
+	// player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
+	// player2->set_world(temp);
+	// players.push_back(player2);
 
 	// Model *player3 = new Model(alien, alienAnim);
 	// player3->set_color(glm::vec3(1, 0, 1)); //p3 - purple
@@ -139,10 +139,10 @@ void Window::setup_scene()
 	// player4->set_world(temp);
 	// players.push_back(player4);
 
-	Model *boy1 = new Model(boy, boyAnim);
-	boy1->set_color(glm::vec3(0, 0, 1));
-	boy1->set_world(temp);
-	students.push_back(boy1);
+	// Model *boy1 = new Model(boy, boyAnim);
+	// boy1->set_color(glm::vec3(0, 0, 1));
+	// boy1->set_world(temp);
+	// students.push_back(boy1);
 
 	Model *girl1 = new Model(girl, girlAnim);
 	girl1->set_color(glm::vec3(0, 0, 1)); 
@@ -161,8 +161,8 @@ void Window::setup_scene()
 
 	// Floor 6_empty works without rotations
 
-	Model* mp = new Model("art/models/chair.fbx");
-	//Model* mp = new Model("art/models/environment/floor2.fbx");
+	// Model* mp = new Model("art/models/chair.fbx");
+	Model* mp = new Model("art/models/environment/floor2.fbx");
 	mp->set_color(glm::vec3(0.5, 0.5, 0.5));
 	mp->set_world(glm::mat4(1.0f));
 	map = mp;
@@ -240,7 +240,7 @@ void Window::display_callback(GLFWwindow *window)
 	for (Drawable *player : players)
 	{
 		player->draw(cam->get_view_project_mtx(), shader_anim_program);
-		player->debug_draw(cam->get_view_project_mtx(), shader_program);
+		//player->debug_draw(cam->get_view_project_mtx(), shader_program);
 		Model *model = dynamic_cast<Model *>(player);
 		if (model)
 		{
@@ -336,7 +336,7 @@ void Window::update_state(GameState &state)
 
 	// TODO: Update other fields - student, etc
 	
-	for(int i = 0; i < state.students.size(); i++) {
-		students[i]->set_world(state.students[i].world);
-	}
+	// for(int i = 0; i < state.students.size(); i++) {
+	// 	students[i]->set_world(state.students[i].world);
+	// }
 }

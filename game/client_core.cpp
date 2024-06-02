@@ -59,7 +59,7 @@ void ClientCore::run()
     while (this->server_state == LOBBY) {
         // check if player has voted or rescinded vote to start; if either, send vote packet w deets
         // TODO: get actual input lmao
-        // send_vote(); // hard-coded to just vote READY immediately
+        send_vote(); // hard-coded to just vote READY immediately
 
         // check for progression to MAIN_LOOP
         receive_updates();
