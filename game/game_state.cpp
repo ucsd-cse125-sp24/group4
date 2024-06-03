@@ -38,7 +38,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
             glm::vec3 directionToPlayer = nearestPlayerPos - currentPos;
             if (glm::length(directionToPlayer) < 5.0f)
             {
-               student.chaseDuration = 20.0f;
+                student.chaseDuration = 20.0f;
             }
             else
             {
@@ -82,17 +82,10 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
 
         if (student.distanceMoved >= totalDistance)
         {
-            // Perform rotation
-            student.rotating += 0.1f;
-            glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f * student.rotating), glm::vec3(0, -1, 0));
+            glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 1, 0));
             student.world = rotationMatrix * student.world;
-
-            if (student.rotating >= 1.0f)
-            {
-                student.rotating = 0.0f;
-                student.distanceMoved = 0.0f;
-                student.currentDir = static_cast<StudentState::Direction>((static_cast<int>(student.currentDir) + 1) % 4);
-            }
+            student.distanceMoved = 0.0f;
+            student.currentDir = static_cast<StudentState::Direction>((static_cast<int>(student.currentDir) + 1) % 4);
         }
     }
 
