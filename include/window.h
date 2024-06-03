@@ -28,6 +28,7 @@ public:
 	// Objects to draw - TODO
 	static std::vector<Drawable*> players;
 	static std::vector<Drawable*> students;
+	static std::vector<bool> studentsChasing;
 	static Drawable* map;
 	static Drawable* obj;
 
