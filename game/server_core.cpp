@@ -215,7 +215,7 @@ void ServerCore::process_input(InputPacket packet, short id)
         
         // client_player->minBound += dir;
         // client_player->maxBound += dir;
-        printf("dirs: <%f, %f, %f>\n", dir.x, dir.y, dir.z);
+        // printf("dirs: <%f, %f, %f>\n", dir.x, dir.y, dir.z);
 
         // Also turn the alien towards the direction the camera's facing
         glm::vec3 front = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -261,39 +261,23 @@ void ServerCore::process_input(InputPacket packet, short id)
 
 void ServerCore::update_game_state()
 {
-
-    // Update parts of the game that don't depend on player input.
-
-    /*
-    serverState.student_update()
-    */
-
-    // Enemy AI etc
-
-    int size = serverState.students.size();
-
-    for(int i=0; i<size; i++) {
-        serverState.students[i].world = glm::scale(glm::mat4(1.0f), glm::vec3(reader.GetReal("graphics", "player_model_scale", 0.01),
-                                                          reader.GetReal("graphics", "player_model_scale", 0.01),
-                                                          reader.GetReal("graphics", "player_model_scale", 0.01)));
-    }
-    
+    // Ensure there is at least one student
     while (serverState.students.size() < 1) {
         StudentState student;
+        student.world = glm::scale(glm::mat4(1.0f), glm::vec3(reader.GetReal("graphics", "student_model_scale", 0.03f)));
         serverState.students.push_back(student);
     }
 
     auto now = std::chrono::high_resolution_clock::now();
 
-    for (StudentState& s : serverState.students){
+    for (StudentState& s : serverState.students) {
         float deltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(now - s.lastUpdate).count();
         s.timeSinceLastUpdate += deltaTime;
 
-        if (s.timeSinceLastUpdate >= 0.1f) {  // Check if 1 second has passed
-            serverState.moveStudent(s, serverState.players, 0.1f, 5.0f);      // Move student
+        if (s.timeSinceLastUpdate >= 0.1f) {  // Check if 0.1 second has passed
+            serverState.moveStudent(s, serverState.players, 1.0f, 10.0f);  // Move student
             s.timeSinceLastUpdate = 0.0f;    // Reset the timer
         }
-
         s.lastUpdate = now;  // Update the last update time
     }
 }

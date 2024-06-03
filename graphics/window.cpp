@@ -15,7 +15,7 @@ float Window::lastFrameTime = 0.0f;
 
 // Drawable objects
 std::vector<Drawable *> Window::players;
-std::vector<Drawable*> Window::students;
+std::vector<Drawable *> Window::students;
 Drawable *Window::map;
 
 short Window::player_id = 0; // 0 by default
@@ -111,11 +111,13 @@ void Window::setup_scene()
 
 	std::map<AnimationState, std::string> boyAnim = {
 		{AnimationState::Idle, "art/models/character/boy_standing.fbx"},
-		{AnimationState::Walking, "art/models/animation/running/boy.fbx"}};
+		{AnimationState::Walking, "art/models/animation/walking/boy.fbx"},
+		{AnimationState::Running, "art/models/animation/running/boy.fbx"}};
 
 	std::map<AnimationState, std::string> girlAnim = {
 		{AnimationState::Idle, "art/models/character/girl_standing.fbx"},
-		{AnimationState::Walking, "art/models/animation/running/girl.fbx"}};
+		{AnimationState::Walking, "art/models/animation/walking/girl.fbx"},
+		{AnimationState::Running, "art/models/animation/running/girl.fbx"}};
 
 	glm::mat4 temp = glm::translate(glm::mat4(1.0f), glm::vec3(0, 100, 0));
 
@@ -139,13 +141,13 @@ void Window::setup_scene()
 	// player4->set_world(temp);
 	// players.push_back(player4);
 
-	// Model *boy1 = new Model(boy, boyAnim);
+	// Model *boy1 = new Model("art/models/animation/walking/boy.fbx", boyAnim);
 	// boy1->set_color(glm::vec3(0, 0, 1));
 	// boy1->set_world(temp);
 	// students.push_back(boy1);
 
 	Model *girl1 = new Model(girl, girlAnim);
-	girl1->set_color(glm::vec3(0, 0, 1)); 
+	girl1->set_color(glm::vec3(0, 0, 1));
 	girl1->set_world(temp);
 	students.push_back(girl1);
 
@@ -155,14 +157,14 @@ void Window::setup_scene()
 	// players.push_back(boy1);
 
 	// Model *girl1 = new Model(girl, girlAnim);
-	// girl1->set_color(glm::vec3(0, 1, 0)); 
+	// girl1->set_color(glm::vec3(0, 1, 0));
 	// girl1->set_world(temp);
 	// players.push_back(girl1);
 
 	// Floor 6_empty works without rotations
 
-	// Model* mp = new Model("art/models/chair.fbx");
-	Model* mp = new Model("art/models/environment/floor2.fbx");
+	Model *mp = new Model("art/models/chair.fbx");
+	// Model* mp = new Model("art/models/environment/floor2.fbx");
 	mp->set_color(glm::vec3(0.5, 0.5, 0.5));
 	mp->set_world(glm::mat4(1.0f));
 	map = mp;
@@ -199,7 +201,8 @@ void Window::clean_up()
 		delete player;
 	}
 
-	for(Drawable* student : students) {
+	for (Drawable *student : students)
+	{
 		delete student;
 	}
 
@@ -235,25 +238,35 @@ void Window::display_callback(GLFWwindow *window)
 	cam->update(players[player_id]->get_world());
 
 	float deltaTime = calculateDeltaTime();
-	
 
 	for (Drawable *player : players)
 	{
 		player->draw(cam->get_view_project_mtx(), shader_anim_program);
-		//player->debug_draw(cam->get_view_project_mtx(), shader_program);
+		// player->debug_draw(cam->get_view_project_mtx(), shader_program);
 		Model *model = dynamic_cast<Model *>(player);
-		if (model)
+		AnimationState currentState = getAnimationState(input);
+
+		if (currentState != AnimationState::Idle)
 		{
-			AnimationState currentState = getAnimationState(input);
-			if (currentState != AnimationState::Idle)
-			{
-				model->updateAnimations(deltaTime, currentState);
-			}
+			model->updateAnimations(deltaTime, currentState);
 		}
 	}
 
-	for(Drawable* student : students) {
-		student->draw(cam->get_view_project_mtx(), shader_program);
+	for (Drawable *student : students)
+	{
+		student->draw(cam->get_view_project_mtx(), shader_anim_program);
+		// StudentState *state = dynamic_cast<StudentState *>(student);
+		// bool running = state->chasingPlayer;
+		Model *model = dynamic_cast<Model *>(student);
+		
+		// if (running)
+		// {
+		// 	model->updateAnimations(deltaTime, AnimationState::Running);
+		// }
+		// else
+		// {
+			model->updateAnimations(deltaTime, AnimationState::Walking);
+		//}
 	}
 
 	map->draw(cam->get_view_project_mtx(), shader_program);
@@ -335,8 +348,10 @@ void Window::update_state(GameState &state)
 	}
 
 	// TODO: Update other fields - student, etc
-	
-	// for(int i = 0; i < state.students.size(); i++) {
-	// 	students[i]->set_world(state.students[i].world);
-	// }
+
+	for (int i = 0; i < state.students.size(); i++)
+	{
+		students[i]->set_world(state.students[i].world);
+		// std::cout << "result: " << state.students[i].world[3][0] << ", " << state.students[i].world[3][1] << ", " << state.students[i].world[3][2] << std::endl;
+	}
 }

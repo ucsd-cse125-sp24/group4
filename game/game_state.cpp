@@ -7,44 +7,61 @@ void GameState::updateScores()
 
 void GameState::moveStudent(StudentState &student, std::vector<PlayerState> players, const float stepSize, const float totalDistance)
 {
-
-    glm::vec3 step(0.0f);
+    // Extract current position from the world matrix
     glm::vec3 currentPos = glm::vec3(student.world[3]);
 
-    // Check for the nearest player within a range of 2 units
+    // Check for the nearest player within a range of 5 units
     glm::vec3 nearestPlayerPos;
     float minDistance = std::numeric_limits<float>::max();
     bool playerInRange = false;
 
-    for (const auto& p : players) {
+    for (const auto &p : players)
+    {
         glm::vec3 playerPos = glm::vec3(p.world[3]);
         float distance = glm::distance(currentPos, playerPos);
-        if (distance < 2.0f && distance < minDistance) { // 2.0f should be a constant config value later
+
+        if (distance < 5.0f && distance < minDistance)
+        {
             minDistance = distance;
             nearestPlayerPos = playerPos;
             playerInRange = true;
+            student.chasingPlayer = true;
         }
     }
 
-    if (playerInRange) {
-        // Player is close, move towards the player
-        if (minDistance > 0) {
-            glm::vec3 directionToPlayer = glm::normalize(nearestPlayerPos - currentPos);
-            step = directionToPlayer * stepSize;
-        } else {
-            step = glm::vec3(0.0f);
-        }
-        student.chasingPlayer = true;
-        currentPos += step;
-        // TODO: calculate rotation matrix
-    }
-    else if (student.chasingPlayer) {
-        // If the player has moved out of range and we were chasing, resume path
-        // should implement for it to take the closest, most direct path to the designed path..?
-        student.chasingPlayer = false;
+    if (student.chasingPlayer)
+    {
 
-    } 
-    else {
+        if (student.chaseDuration == 0)
+        {
+            // Check if player is still in range
+            glm::vec3 directionToPlayer = nearestPlayerPos - currentPos;
+            if (glm::length(directionToPlayer) < 5.0f)
+            {
+               student.chaseDuration = 20.0f;
+            }
+            else
+            {
+                student.chasingPlayer = false;
+                student.chaseDuration = 20.0f;
+            }
+        }
+        else
+        {
+            // Move towards the player
+            glm::vec3 directionToPlayer = nearestPlayerPos - currentPos;
+            if (glm::length(directionToPlayer) > 0.0001f)
+            { // Check if the direction vector is not zero
+                directionToPlayer = glm::normalize(directionToPlayer);
+                currentPos += directionToPlayer * stepSize;
+                student.chaseDuration -= 1;
+            }
+        }
+    }
+    else
+    {
+        // Move in the current direction
+        glm::vec3 step(0.0f);
         switch (student.currentDir)
         {
         case StudentState::Direction::NORTH: // decrement z
@@ -60,29 +77,25 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
             step = glm::vec3(-stepSize, 0.0f, 0.0f);
             break;
         }
-    
         currentPos += step;
         student.distanceMoved += stepSize;
 
         if (student.distanceMoved >= totalDistance)
         {
-
             // Perform rotation
-            student.rotating += 0.1f; // change to some constant config later
-            glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(9.0f), glm::vec3(0, -1, 0));
-            glm::mat4 orientation = glm::mat4(glm::mat3(student.world));
-            student.world = rotationMatrix * orientation; // Apply rotation
+            student.rotating += 0.1f;
+            glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f * student.rotating), glm::vec3(0, -1, 0));
+            student.world = rotationMatrix * student.world;
 
-            if (student.rotating >= 1){
-                student.rotating = 0;
+            if (student.rotating >= 1.0f)
+            {
+                student.rotating = 0.0f;
                 student.distanceMoved = 0.0f;
-                student.currentDir = static_cast<StudentState::Direction>((static_cast<int>(student.currentDir) + 1) % 4); // Change to next direction
+                student.currentDir = static_cast<StudentState::Direction>((static_cast<int>(student.currentDir) + 1) % 4);
             }
-            
         }
     }
-    // Reapply the correct translation manually
-    student.world[3][0] = currentPos.x;
-    student.world[3][1] = currentPos.y;
-    student.world[3][2] = currentPos.z;
+
+    // Update the world matrix with the new position
+    student.world[3] = glm::vec4(currentPos, 1.0f);
 }
