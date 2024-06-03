@@ -27,10 +27,15 @@ public:
 class AABB : public Collider {
 public:
 
-	// constructor with default parameters
-    AABB(glm::vec3 min = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 max = glm::vec3(1.0f, 1.0f, 1.0f)) :
+	// constructor with parameters
+    AABB(glm::vec3 min, glm::vec3 max) :
         minExtents(min),
         maxExtents(max) {}
+    
+    AABB() {
+        minExtents = glm::vec3(0.0f);
+        maxExtents = glm::vec3(0.0f);
+    }
 
     // constructor that takes position
     AABB(const glm::vec3& position) {

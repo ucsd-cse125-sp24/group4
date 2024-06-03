@@ -388,3 +388,40 @@ void ServerCore::accept_new_clients(int i)
 
     printf("added new client data\n");
 }
+
+void ServerCore::readBoundingBoxes() {
+     std::ifstream file("stat");
+    if (!file) {
+        std::cerr << "Failed to open the file for reading.\n";
+        return;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        glm::vec3 minVec, maxVec;
+        std::istringstream iss(line);
+        std::string token;
+
+        // Read minVec values
+        std::getline(iss, token, ',');
+        minVec.x = std::stof(token);
+        std::getline(iss, token, ',');
+        minVec.y = std::stof(token);
+        std::getline(iss, token, ',');
+        minVec.z = std::stof(token);
+
+        // Read maxVec values
+        std::getline(iss, token, ',');
+        maxVec.x = std::stof(token);
+        std::getline(iss, token, ',');
+        maxVec.y = std::stof(token);
+        std::getline(iss, token);
+        maxVec.z = std::stof(token);
+
+        AABB* c = new AABB(minVec, maxVec); 
+        GameObject* newGameObject = new GameObject(c);
+        pWorld.addObject(newGameObject);
+    }
+
+    file.close();
+}
