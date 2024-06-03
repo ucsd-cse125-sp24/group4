@@ -103,7 +103,7 @@ void Model::load_model(const std::string &path)
 	std::cout << "Hitbox min: " << min_x << " " << min_y << " " << min_z << std::endl;
 	std::cout << "Hitbox max: " << max_x << " " << max_y << " " << max_z << std::endl;
 
-    writeBoundingBoxToTextFile(glm::vec3(min_x, min_y, min_z), glm::vec3(max_x, max_y, max_z));
+    // writeBoundingBoxToTextFile(glm::vec3(min_x, min_y, min_z), glm::vec3(max_x, max_y, max_z));
 }
 
 void Model::loadAnimations(const std::map<AnimationState, std::string> &animationPath)

@@ -109,7 +109,13 @@ void Window::setup_scene()
 		{AnimationState::Idle, "art/models/character/green_alien_wbones.fbx"},
 		{AnimationState::Walking, "art/models/animation/walking/green_alien_walking.fbx"}};
 
-	std::string alienPath = "art/models/character/green_alien_wbones.fbx";
+	std::string alienPath = "art/models/character/green_alien.fbx";
+	std::string alienPath2 = "art/models/character/pink_alien.fbx";
+	std::string alienPath3 = "art/models/character/purple_alien.fbx";
+	std::string alienPath4 = "art/models/character/mint_alien.fbx";
+
+	
+
 
 	glm::mat4 temp = glm::translate(glm::mat4(1.0f), glm::vec3(0, 100, 0));
 
@@ -118,34 +124,34 @@ void Window::setup_scene()
 	player->set_world(temp);
 	players.push_back(player);
 
-	Model *player2 = new Model(alienPath, animationPath);
+	Model *player2 = new Model(alienPath2, animationPath);
 	player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
 	player2->set_world(temp);
 	players.push_back(player2);
 
-	Model *player3 = new Model(alienPath, animationPath);
+	Model *player3 = new Model(alienPath3, animationPath);
 	player3->set_color(glm::vec3(1, 0, 1)); //p3 - purple
 	player3->set_world(temp);
 	players.push_back(player3);
 
-	Model *player4 = new Model(alienPath, animationPath);
+	Model *player4 = new Model(alienPath4, animationPath);
 	player4->set_color(glm::vec3(0, 0, 1)); // p4 - blue
 	player4->set_world(temp);
 	players.push_back(player4);
 
 	// Floor 6_empty works without rotations
 
-	Model* mp = new Model("art/models/chair.fbx");
+	Model* mp = new Model("art/models/environment/finished_floor2.fbx");
 	// Model* mp = new Model("art/models/environment/floor2.fbx");
 	mp->set_color(glm::vec3(0.5, 0.5, 0.5));
 	mp->set_world(glm::mat4(1.0f));
 	map = mp;
 
-	glm::mat4 temp_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-280, 0, -100));
-	Model* loc = new Model("art/models/chair.fbx");
-	loc->set_color(glm::vec3(0, 1, 0));
-	loc->set_world(temp_loc);
-	obj = loc;
+	// glm::mat4 temp_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-280, 0, -100));
+	// Model* loc = new Model("art/models/chair.fbx");
+	// loc->set_color(glm::vec3(0, 1, 0));
+	// loc->set_world(temp_loc);
+	// obj = loc;
 }
 
 AnimationState Window::getAnimationState(Input *input)
