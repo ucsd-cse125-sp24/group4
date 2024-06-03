@@ -15,7 +15,7 @@ SOCKET Client::connect_to_server() {
     if (reader.ParseError() != 0) {
         printf("Can't load 'config.ini'\n");
     }
-
+    
     struct addrinfo* result = NULL, *ptr = NULL, hints;
     this->conn_sock = INVALID_SOCKET;
 

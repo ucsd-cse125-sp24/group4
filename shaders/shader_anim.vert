@@ -12,16 +12,27 @@ uniform mat4 boneMatrices[100]; // An array to store bone matrices
 out vec3 fragNormal;
 
 void main() {
-    mat4 boneTransform = 
-        boneMatrices[boneIndices[0]] * boneWeights[0] +
-        boneMatrices[boneIndices[1]] * boneWeights[1] +
-        boneMatrices[boneIndices[2]] * boneWeights[2] +
-        boneMatrices[boneIndices[3]] * boneWeights[3];
+    float totalWeight = boneWeights[0] + boneWeights[1] + boneWeights[2] + boneWeights[3];
 
-    vec4 pos = boneTransform * vec4(position, 1.0f);
-    vec4 norm = boneTransform * vec4(normal, 0.0f);
+    vec4 pos;
+    vec4 norm;
 
-    fragNormal = mat3(transpose(inverse(model))) * vec3(norm); 
+    if (totalWeight > 0) {
+        // Apply bone transformations if weights are non-zero
+        mat4 boneTransform = 
+            boneMatrices[boneIndices[0]] * boneWeights[0] +
+            boneMatrices[boneIndices[1]] * boneWeights[1] +
+            boneMatrices[boneIndices[2]] * boneWeights[2] +
+            boneMatrices[boneIndices[3]] * boneWeights[3];
+
+        pos = boneTransform * vec4(position, 1);
+        norm = boneTransform * vec4(normal, 0);
+    } else {
+        // Use the original position and normal if weights are zero
+        pos = vec4(position, 1);
+        norm = vec4(normal, 0);
+    }
+
     gl_Position = viewProj * model * pos;
-
+    fragNormal = mat3(transpose(inverse(model))) * vec3(norm);
 }

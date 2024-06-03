@@ -81,6 +81,7 @@ void ServerCore::shutdown()
     for (ClientData *c : clients_data)
         free(c);
     clients_data.clear(); // Clear the client data vector
+    pWorld.cleanup();
     server.sock_shutdown();
     running = false;
 }
@@ -202,19 +203,33 @@ void ServerCore::process_input(InputPacket packet, short id)
                     client_player->jump();
                 break;
             }
-            case DROP:
+            case INTERACT:
             {
-                dir = glm::vec3(0.0f, -1.0f, 0.0f);
-                glm::mat4 t2 = glm::translate(glm::mat4(1.0), dir * scale);
-                world = t2 * world;
+                // Check if ready?
+                float player_x = client_player->getPosition().x;
+                float player_z = client_player->getPosition().z;
+
+                if (player_x <= -270.0f && player_x >= -290.0f && player_z <= -90.0f && player_z >= -110.0f) {
+                    printf("This player is ready!\n");
+                    client_player->makeReady();
+                }
+
                 continue;
             }
         }
+
+        float player_x = client_player->getPosition().x;
+        float player_z = client_player->getPosition().z;
+
+        if (!(player_x <= -270.0f && player_x >= -290.0f && player_z <= -90.0f && player_z >= -110.0f)) {
+            client_player->makeUnready();
+        }
+
         dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
         
         // client_player->minBound += dir;
         // client_player->maxBound += dir;
-        printf("dirs: <%f, %f, %f>\n", dir.x, dir.y, dir.z);
+        // printf("dirs: <%f, %f, %f>\n", dir.x, dir.y, dir.z);
 
         // Also turn the alien towards the direction the camera's facing
         glm::vec3 front = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -260,8 +275,20 @@ void ServerCore::process_input(InputPacket packet, short id)
 
 void ServerCore::update_game_state()
 {
-
+    int win = 1;
     // Update parts of the game that don't depend on player input.
+    for (int i = 0; i < serverState.players.size(); i++)
+    {
+        PlayerObject* client_player = pWorld.findPlayer(i);
+        if (client_player->getReady() == 0) {
+            win = 0;
+            break;
+        }
+    }
+    if (win) {
+        this->state = END_WIN;
+        send_heartbeat();
+    }
 
     // Enemy AI etc
     while (serverState.students.size() < 5)
@@ -281,7 +308,7 @@ void ServerCore::send_heartbeat()
     packet.state = this->state;
 
     size_t bufferSize = packet.calculateSize();
-    char *buffer = new char[bufferSize];
+    char *buffer = new char[CLIENT_RECV_BUFLEN];
     ServerHeartbeatPacket::serialize(packet, buffer);
 
     this->send_serial(buffer);
@@ -294,7 +321,7 @@ void ServerCore::send_updates()
     packet.state = serverState;
 
     size_t bufferSize = packet.calculateSize();
-    char *buffer = new char[bufferSize];
+    char *buffer = new char[CLIENT_RECV_BUFLEN];
     GameStatePacket::serialize(packet, buffer);
 
     this->send_serial(buffer);
@@ -327,8 +354,9 @@ void ServerCore::accept_new_clients(int i)
     client->sock = clientSock;
     client->ready_to_start = NOT_READY;
     client->id = this->available_ids.front(); // assign next avail id to client
-    char *buffer = new char[sizeof(short)];
-    *((short *)buffer) = client->id + 1; // add 1 bc we can't send 0 (null); clientcore subs 1 to correct
+    char *buffer = new char[CLIENT_RECV_BUFLEN];
+    const char send_id = char(client->id + 1); // add 1 bc we can't send 0 (null); clientcore subs 1 to correct
+    strncpy_s(buffer, CLIENT_RECV_BUFLEN, &send_id, 16);
     bool send_success = server.sock_send(client->sock, CLIENT_RECV_BUFLEN, buffer);
     if (!send_success)
     {
@@ -349,8 +377,8 @@ void ServerCore::accept_new_clients(int i)
 
     serverState.players.push_back(p_state);
 
-    AABB* c = new AABB(); // TBD free this
-    PlayerObject* newPlayerObject = new PlayerObject(c); // TBD free this?
+    AABB* c = new AABB(); 
+    PlayerObject* newPlayerObject = new PlayerObject(c); 
 
     newPlayerObject->setPlayerId(client->id);
     newPlayerObject->makeCollider();

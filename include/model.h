@@ -37,11 +37,13 @@ class Model : public Drawable
 public:
 	Model(const std::string &path)
 	{
+		floorModel = true;
 		load_model(path);
 	}
 
 	Model(const std::string &modelPath, const std::map<AnimationState, std::string> &animationPath)
 	{
+		floorModel = false;
 		load_model(modelPath);
 		loadAnimations(animationPath);
 	}
@@ -49,7 +51,8 @@ public:
 	Model();
 	~Model();
 
-	void draw(const glm::mat4 &viewProjMtx, Shader *shader);
+	void draw(const glm::mat4 &viewProjMtx, Shader *shader) override;
+	void debug_draw(const glm::mat4& viewProjMtx, Shader* shader);
 	void loadAnimations(const std::map<AnimationState, std::string> &animationPath);
 	void updateAnimations(float deltaTime, AnimationState currentState);
 
@@ -57,6 +60,7 @@ private:
 	float ticks;
 	float duration = 0;
 	glm::mat4 globalInverse;
+	float floorModel = false;
 
 	Skeleton skeleton;
 	std::map<AnimationState, std::vector<AnimationNode>> animations;
