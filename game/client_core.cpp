@@ -76,11 +76,11 @@ void ClientCore::run()
     }
 
     while (this->server_state == END_WIN) {
-        printf("yalls won\n"); // TODO: actual win logic
+        printf("\nyalls won!\n"); // TODO: actual win logic
         return;
     }
     while (this->server_state == END_LOSE) {
-        printf("a loser is u\n"); // TODO: actual loss logic
+        printf("\na loser is u\n"); // TODO: actual loss logic
         break;
     }
 }

@@ -29,6 +29,7 @@ public:
 	static std::vector<Drawable*> players;
 	static std::vector<Drawable*> students;
 	static Drawable* map;
+	static Drawable* obj;
 
 	// Camera
 	static Camera* cam;

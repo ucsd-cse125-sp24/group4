@@ -60,6 +60,7 @@ class PlayerObject : public GameObject {
     private: 
         short playerId;
         glm::mat4 playerWorld;
+        int ready = 0;
 
     public:
 
@@ -77,4 +78,7 @@ class PlayerObject : public GameObject {
         void jump();
         void simulate_player(float dt);
         void makeCollider();
+        void makeReady() { ready = 1; }
+        void makeUnready() { ready = 0; }
+        int getReady() { return ready; }
 };
