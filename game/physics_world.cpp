@@ -96,10 +96,26 @@ void PhysicsWorld::step()
             obj->simulate_player(dt);
         }
 
-        // printf("pos: <%f, %f, %f>\n", obj->getPosition().x, obj->getPosition().y, obj->getPosition().z);
     }
 
     handleCollisions(); // update position and then check for collision?
+}
+
+void PhysicsWorld::step_student(glm::mat4 NPC_world)
+{
+    float dt = 1.0f;
+    for (GameObject *obj : s_objects)
+    {
+
+        if (obj != nullptr)
+        {
+            obj->simulate(dt, NPC_world); // for NPC student
+        }
+
+    }
+
+    handleCollisionsNPC();
+
 }
 
 void PhysicsWorld::handleCollisions()
@@ -126,7 +142,7 @@ void PhysicsWorld::handleCollisions()
             // printf("bbox %f, %f, %f \n\n", collider2.maxExtents[0], collider2.maxExtents[1], collider2.maxExtents[2]);
             if (collision)
             {
-                std::cout << "Collision happened between object " << i << " and object " << j << std::endl;
+                std::cout << "Collision happened between player " << i << " and player " << j << std::endl;
 
                 glm::vec3 collision_dir = collider1.getCollisionNormal(collider2);
 
@@ -168,7 +184,7 @@ void PhysicsWorld::handleCollisions()
 
             if (collision)
             {
-                std::cout << "Collision happened between object " << i << " and object " << j << std::endl;
+                std::cout << "Collision happened between player " << i << " and object " << j << std::endl;
 
                 glm::vec3 collision_dir = playerCollider.getCollisionNormal(objectCollider);
 
@@ -183,6 +199,49 @@ void PhysicsWorld::handleCollisions()
                     p_objects[i]->setPosition(p_objects[i]->getPosition() + 1.0f);
                 }
                 p_objects[i]->setForce(glm::vec3(0.0));
+            }
+        }
+    }
+
+}
+
+void PhysicsWorld::handleCollisionsNPC()
+{
+    // collision between NPC and game objects
+    for (unsigned int i = 0; i < s_objects.size(); i++)
+    {
+        for (unsigned int j = i + 1; j < m_objects.size(); j++)
+        {
+            if (!s_objects[i] || !m_objects[j])
+            {
+                std::cout << "Error: Null student or object detected." << std::endl;
+                continue;
+            }
+
+            Collider &studentCollider = s_objects[i]->getCollider();
+            Collider &objectCollider = m_objects[j]->getCollider();
+
+            // Check for collision using references
+            // std::cout << "Checking collision between player " << i << " and object " << j << std::endl;
+            bool collision = studentCollider.collide(objectCollider);
+
+            if (collision)
+            {
+                std::cout << "Collision happened between student " << i << " and object " << j << std::endl;
+
+                glm::vec3 collision_dir = studentCollider.getCollisionNormal(objectCollider);
+
+                s_objects[i]->setVelocity(-collision_dir * 20.0f);
+
+                if (s_objects[i]->getPosition() != m_objects[j]->getPosition())
+                {
+                    s_objects[i]->setPosition(s_objects[i]->getOldPosition() - collision_dir * 0.5f);
+                }
+                else
+                {
+                    s_objects[i]->setPosition(s_objects[i]->getPosition() + 1.0f);
+                }
+                s_objects[i]->setForce(glm::vec3(0.0));
             }
         }
     }

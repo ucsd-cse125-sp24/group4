@@ -102,16 +102,25 @@ void ServerCore::initialize_npcs()
 {
     while (serverState.students.size() < NUM_NPC)
     {
-        StudentState student;
-        student.world = glm::scale(glm::mat4(1.0f), glm::vec3(reader.GetReal("graphics", "student_model_scale", 0.02f)));
+        glm::mat4 world = glm::scale(glm::mat4(1.0f), glm::vec3(reader.GetReal("graphics", "student_model_scale", 0.02f)));
 
         // Generate random positions
         float randomX = getRandomFloat(-50.0f, 50.0f);
         float randomY = getRandomFloat(0.0f, 0.0f); 
         float randomZ = getRandomFloat(-50.0f, 50.0f);
 
-        student.world = glm::translate(glm::mat4(1.0f), glm::vec3(randomX, randomY, randomZ)) * student.world;
+        world = glm::translate(glm::mat4(1.0f), glm::vec3(randomX, randomY, randomZ)) * world;
+
+        // create collider for npc student and add to physics world
+        AABB* c = new AABB(world[3], TYPE_NPC);
+        GameObject* newStudentObject = new GameObject(c);
+        pWorld.addNPC(newStudentObject);
+        
+        StudentState student;
+        student.physicalObject = newStudentObject;
+        student.world = world;
         serverState.students.push_back(student);
+
     }
 }
 
@@ -328,6 +337,10 @@ void ServerCore::update_game_state()
         if (s.timeSinceLastUpdate >= 0.1f)
         {                                                                 // Check if 0.1 second has passed
             serverState.moveStudent(s, serverState.players, 1.0f, 10.0f); // Move student
+            s.physicalObject->getCollider().setBoundingBox(s.world[3], TYPE_NPC);               // set npc student bounding box in pWorld
+            // pWorld.step_student(s.world);
+            // s.world[3] = glm::vec4(s.physicalObject->getPosition(), 1.0f);
+
             s.timeSinceLastUpdate = 0.0f;                                 // Reset the timer
         }
         s.lastUpdate = now; // Update the last update time
@@ -416,11 +429,10 @@ void ServerCore::accept_new_clients(int i)
 
     serverState.players.push_back(p_state);
 
-    AABB *c = new AABB();
+    AABB *c = new AABB(glm::vec3(0.0f), TYPE_PLAYER); // create a collider for the player at position 0,0,0
     PlayerObject *newPlayerObject = new PlayerObject(c);
 
     newPlayerObject->setPlayerId(client->id);
-    newPlayerObject->makeCollider();
     
     // pWorld.addObject(newPlayerObject);
     pWorld.addPlayer(newPlayerObject);
@@ -472,26 +484,4 @@ void ServerCore::readBoundingBoxes() {
     }
 
     file.close();
-
-    // while (true) {
-    //     glm::vec3 minVec, maxVec;
-    //     if (!std::getline(file, line)) break;
-    //     std::istringstream iss(line);
-    //     iss >> minVec.x >> minVec.y >> minVec.z;
-
-    //     if (!std::getline(file, line)) {
-    //         std::cerr << "File has an odd number of lines." << std::endl;
-    //         break;
-    //     }
-    //     std::istringstream iss2(line);
-    //     iss2 >> maxVec.x >> maxVec.y >> maxVec.z;
-
-    //     AABB* c = new AABB(minVec, maxVec);
-    //     printf("this is maxVec %f %f %f\n",maxVec.x, maxVec.y, maxVec.z);
-    //     printf("Added object to physics world with bounding box minExtents %f %f %f\n", c->minExtents.x, c->minExtents.y,c->minExtents.z);
-    //     printf("                                                maxExtents %f %f %f\n", c->maxExtents.x, c->maxExtents.y,c->maxExtents.z);
-    //     GameObject* newGameObject = new GameObject(c);
-    //     pWorld.addObject(newGameObject);
-    // }
-
 }
