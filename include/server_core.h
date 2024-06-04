@@ -22,6 +22,7 @@
 #include <fstream> // Include this for std::ifstream
 #include <sstream>
 #include <string>
+#include "random_float.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/rotate_vector.hpp"
@@ -50,6 +51,7 @@ class ServerCore {
 
         bool isRunning() const;             // Check if the server is running
 
+        void initialize_npcs();
         void receive_data();                // Receive data from clients
         void process_input(InputPacket packet, short id); // Process inputs
         void update_game_state();           // Update the game state

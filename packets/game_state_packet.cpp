@@ -7,7 +7,7 @@ size_t GameStatePacket::calculateSize() const
 
     totalSize += sizeof(PacketType); // store packet type
 
-    totalSize += sizeof(size_t);  // To store the number of players
+    totalSize += sizeof(size_t);                                            // To store the number of players
     totalSize += state.players.size() * (sizeof(float) * 16 + sizeof(int)); // Each player's size: 16 floats for world matrix, 1 int for score
 
     // To store the number of students
@@ -22,9 +22,10 @@ size_t GameStatePacket::calculateSize() const
 }
 
 // Ensure outData is large enough to store all the data that is intended to be serialized.
-void GameStatePacket::serialize(const GameStatePacket& packet, char*& outData) {
-    char* temp = outData;
-    
+void GameStatePacket::serialize(const GameStatePacket &packet, char *&outData)
+{
+    char *temp = outData;
+
     // serialize packet type
     PacketType type = GAME_STATE;
     memcpy(temp, &type, sizeof(type));
@@ -71,8 +72,8 @@ void GameStatePacket::serialize(const GameStatePacket& packet, char*& outData) {
         memcpy(temp, &student.currentDir, sizeof(student.currentDir));
         temp += sizeof(student.currentDir);
 
-        memcpy(temp, &student.distanceMoved, sizeof(student.distanceMoved));
-        temp += sizeof(student.distanceMoved);
+        memcpy(temp, &student.chasingPlayer, sizeof(student.chasingPlayer));
+        temp += sizeof(student.chasingPlayer);
     }
 
     // Serialize level
@@ -80,7 +81,8 @@ void GameStatePacket::serialize(const GameStatePacket& packet, char*& outData) {
     temp += sizeof(packet.state.level);
 }
 
-void GameStatePacket::deserialize(const char* inData, GameStatePacket& packet) {
+void GameStatePacket::deserialize(const char *inData, GameStatePacket &packet)
+{
     // skip packet type; we know it's GAME_STATE if we're calling this
     inData += sizeof(PacketType);
 
@@ -129,8 +131,8 @@ void GameStatePacket::deserialize(const char* inData, GameStatePacket& packet) {
         memcpy(&student.currentDir, inData, sizeof(student.currentDir));
         inData += sizeof(student.currentDir);
 
-        memcpy(&student.distanceMoved, inData, sizeof(student.distanceMoved));
-        inData += sizeof(student.distanceMoved);
+        memcpy(&student.chasingPlayer, inData, sizeof(student.chasingPlayer));
+        inData += sizeof(student.chasingPlayer);
     }
 
     // Deserialize level

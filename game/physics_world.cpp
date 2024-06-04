@@ -77,7 +77,7 @@ void PhysicsWorld::step()
             obj->simulate_player(dt);
         }
 
-        printf("pos: <%f, %f, %f>\n", obj->getPosition().x, obj->getPosition().y, obj->getPosition().z);
+        // printf("pos: <%f, %f, %f>\n", obj->getPosition().x, obj->getPosition().y, obj->getPosition().z);
     }
 
     handleCollisions(); // update position and then check for collision?
