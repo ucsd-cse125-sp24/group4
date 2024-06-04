@@ -282,12 +282,12 @@ void Window::display_callback(GLFWwindow *window)
 		Model *model = dynamic_cast<Model *>(students[i]);
 		if (studentsChasing[i])
 		{
-			std::cout << "chasing!" << std::endl;
+			//std::cout << "chasing!" << std::endl;
 			model->updateAnimations(deltaTime, AnimationState::Running);
 		}
 		else
 		{
-			std::cout << "walking" << std::endl;
+			//std::cout << "walking" << std::endl;
 			model->updateAnimations(deltaTime, AnimationState::Walking);
 		}
 	}
