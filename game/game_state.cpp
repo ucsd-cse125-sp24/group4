@@ -53,6 +53,31 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
             directionToPlayer = glm::normalize(directionToPlayer);
             currentPos += directionToPlayer * stepSize;
             student.chaseDuration -= 1;
+
+            // Update student's facing direction
+            glm::vec3 forward = glm::normalize(-directionToPlayer); // Change here to face the player correctly
+            glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+            glm::vec3 right = glm::cross(up, forward);
+
+            // Create a new rotation matrix
+            glm::mat4 rotationMatrix(1.0f);
+            rotationMatrix[0] = glm::vec4(right, 0.0f);
+            rotationMatrix[1] = glm::vec4(up, 0.0f);
+            rotationMatrix[2] = glm::vec4(forward, 0.0f);
+
+            // Preserve the current scale
+            glm::vec3 currentScale = glm::vec3(glm::length(student.world[0]),
+                                               glm::length(student.world[1]),
+                                               glm::length(student.world[2]));
+
+            // Apply the scale to the rotation matrix
+            rotationMatrix = glm::scale(rotationMatrix, currentScale);
+
+            // Set the student's world matrix with the new rotation and the current position
+            student.world[0] = rotationMatrix[0];
+            student.world[1] = rotationMatrix[1];
+            student.world[2] = rotationMatrix[2];
+            student.world[3] = glm::vec4(currentPos, 1.0f);
         }
     }
     else
