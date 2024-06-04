@@ -102,7 +102,7 @@ void ServerCore::initialize_npcs()
     while (serverState.students.size() < NUM_NPC)
     {
         StudentState student;
-        student.world = glm::scale(glm::mat4(1.0f), glm::vec3(reader.GetReal("graphics", "student_model_scale", 0.03f)));
+        student.world = glm::scale(glm::mat4(1.0f), glm::vec3(reader.GetReal("graphics", "student_model_scale", 0.02f)));
 
         // Generate random positions
         float randomX = getRandomFloat(-100.0f, 100.0f);
