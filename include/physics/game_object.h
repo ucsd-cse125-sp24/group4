@@ -28,7 +28,7 @@ class GameObject {
         //     delete collider;
         // }
         // update position of the object based on forces for delta time tick
-        void simulate(float dt);
+        void simulate(float dt, glm::mat4 world = glm::mat4(1.0f));
 
         // setters and getters
         void setPosition(glm::vec3 pos) { position = pos; }
@@ -53,7 +53,6 @@ class GameObject {
         void applyForce(const glm::vec3& force) {
             this->force += force;
         }
-        void makeCollider();
 };
 
 class PlayerObject : public GameObject {
@@ -77,7 +76,6 @@ class PlayerObject : public GameObject {
         glm::mat4 getPlayerWorld() { return playerWorld; }
         void jump();
         void simulate_player(float dt);
-        void makeCollider();
         void makeReady() { ready = 1; }
         void makeUnready() { ready = 0; }
         int getReady() { return ready; }

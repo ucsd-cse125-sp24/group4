@@ -55,6 +55,7 @@ public:
 	void debug_draw(const glm::mat4& viewProjMtx, Shader* shader);
 	void loadAnimations(const std::map<AnimationState, std::string> &animationPath);
 	void updateAnimations(float deltaTime, AnimationState currentState);
+	std::vector<Mesh> meshes;
 
 private:
 	float ticks;
@@ -65,7 +66,7 @@ private:
 	Skeleton skeleton;
 	std::map<AnimationState, std::vector<AnimationNode>> animations;
 	// Model data
-	std::vector<Mesh> meshes;
+	
 	std::string directory;
 	float min_x = FLT_MAX, min_y = FLT_MAX, min_z = FLT_MAX;
 	float max_x = FLT_MIN, max_y = FLT_MIN, max_z = FLT_MIN;

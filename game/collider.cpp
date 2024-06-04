@@ -14,10 +14,6 @@ bool AABB::collidingAABB(AABB& other) {
     glm::vec3 b_min = other.getMinExtents();
     glm::vec3 b_max = other.getMaxExtents();
 
-    // if (a_max[0] != 0 || a_max[1] != 0 || a_max[2] != 0){
-    //     printf("BBOX of collider IS NOT ZERO %f %f %f\n\n\n",a_max[0],a_max[1],a_max[2] );
-    // }
-
     return (
         a_min.x <= b_max.x &&
         a_max.x >= b_min.x &&
@@ -28,17 +24,30 @@ bool AABB::collidingAABB(AABB& other) {
     );
 }
 
-void AABB::setBoundingBox(const glm::vec3& position) {
-    float minX = position.x - PLAYER_WIDTH / 2.0;
-    float minY = position.y - PLAYER_LENGTH / 2.0;
-    float minZ = position.z;
-    float maxX = position.x + PLAYER_WIDTH / 2.0;
-    float maxY = position.y + PLAYER_LENGTH / 2.0;
-    float maxZ = position.z + PLAYER_HEIGHT;
+void AABB::setBoundingBox(const glm::vec3& position, int type) {
+    float minX, minY, minZ, maxX, maxY, maxZ;
+    if (type == TYPE_PLAYER){
+        minX = position.x - PLAYER_WIDTH / 2.0;
+        minY = position.y;
+        minZ = position.z - PLAYER_LENGTH / 2.0;
+        maxX = position.x + PLAYER_WIDTH / 2.0;
+        maxY = position.y + PLAYER_HEIGHT;
+        maxZ = position.z + PLAYER_LENGTH / 2.0;
+    }
+
+    if (type == TYPE_NPC){
+        minX = position.x - NPC_WIDTH / 2.0;
+        minY = position.y;
+        minZ = position.z - NPC_LENGTH / 2.0;
+        maxX = position.x + NPC_WIDTH / 2.0;
+        maxY = position.y + NPC_HEIGHT;
+        maxZ = position.z + NPC_LENGTH / 2.0;
+    }
 
     minExtents = glm::vec3(minX, minY, minZ);
     maxExtents = glm::vec3(maxX, maxY, maxZ);
 }
+
 
 glm::vec3 AABB::getCollisionNormal(Collider& other) const {
     if (const AABB* otherAABB = dynamic_cast<const AABB*>(&other)) {
