@@ -45,6 +45,18 @@ void AABB::setBoundingBox(const glm::vec3& position) {
     maxExtents = glm::vec3(maxX, maxY, maxZ);
 }
 
+void AABB::setBoundingBoxStudent(const glm::vec3& position) {
+    float minX = position.x - PLAYER_WIDTH / 2.0;
+    float minY = position.y;
+    float minZ = position.z - PLAYER_LENGTH / 2.0;
+    float maxX = position.x + PLAYER_WIDTH / 2.0;
+    float maxY = position.y + PLAYER_HEIGHT;
+    float maxZ = position.z + PLAYER_LENGTH / 2.0;
+
+    minExtents = glm::vec3(minX, minY, minZ);
+    maxExtents = glm::vec3(maxX, maxY, maxZ);
+}
+
 glm::vec3 AABB::getCollisionNormal(Collider& other) const {
     if (const AABB* otherAABB = dynamic_cast<const AABB*>(&other)) {
         glm::vec3 centerThis = (minExtents + maxExtents) * 0.5f;
