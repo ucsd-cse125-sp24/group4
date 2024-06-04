@@ -158,7 +158,7 @@ void Window::setup_scene()
 	mp->set_world(glm::scale(glm::mat4(1.0f), glm::vec3(0.1, 0.1, 0.1)));
 	map = mp;
 
-	glm::mat4 end_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-138, 0, -45));
+	glm::mat4 end_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-95, 0, 25));
 	Model* end = new Model("art/models/exit_square.fbx");
 	end->set_color(glm::vec3(0, 1, 0));
 	end->set_world(glm::scale(end_loc, glm::vec3(0.05, 0.05, 0.05)));
