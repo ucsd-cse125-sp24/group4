@@ -3,6 +3,7 @@
 void GameState::updateScores()
 {
     // Implementation for updating scores
+    score += 1;
 }
 
 void GameState::moveStudent(StudentState &student, const float stepSize, const float totalDistance)

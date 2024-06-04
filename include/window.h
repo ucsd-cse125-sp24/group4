@@ -28,7 +28,8 @@ public:
 	// Objects to draw - TODO
 	static std::vector<Drawable*> players;
 	static Drawable* map;
-	static Drawable* obj;
+	static Drawable* exit_square;
+	static std::vector<Drawable*> batteries;
 
 	// Camera
 	static Camera* cam;
@@ -41,6 +42,7 @@ public:
 
 	// INITIALIZATION ----------------------------------------------------------
 	static GLFWwindow* create_window(int width, int height);
+	
 	static void setup_callbacks(GLFWwindow* window);
 	static void setup_scene();
 

@@ -41,7 +41,7 @@ void ServerCore::listen()
 void ServerCore::run()
 {
     running = true;
-    readBoundingBoxes();
+    //readBoundingBoxes();
     send_heartbeat();
 
     // start once max players is reached OR all (nonzero) players are ready anyway
@@ -210,7 +210,7 @@ void ServerCore::process_input(InputPacket packet, short id)
                 float player_x = client_player->getPosition().x;
                 float player_z = client_player->getPosition().z;
 
-                if (player_x <= -270.0f && player_x >= -290.0f && player_z <= -90.0f && player_z >= -110.0f) {
+                if (player_x <= -138.0f + 5 && player_x >= -138.0f - 5 && player_z <= -45.0f + 5 && player_z >= -45.0f - 5) {
                     printf("This player is ready!\n");
                     client_player->makeReady();
                 }
@@ -222,7 +222,7 @@ void ServerCore::process_input(InputPacket packet, short id)
         float player_x = client_player->getPosition().x;
         float player_z = client_player->getPosition().z;
 
-        if (!(player_x <= -270.0f && player_x >= -290.0f && player_z <= -90.0f && player_z >= -110.0f)) {
+        if (!(player_x <= -138.0f + 5 && player_x >= -138.0f - 5 && player_z <= -45.0f + 5 && player_z >= -45.0f - 5)) {
             client_player->makeUnready();
         }
 
