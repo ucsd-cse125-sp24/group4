@@ -16,17 +16,7 @@
 #ifdef max
 #undef max
 #endif
-void writeBoundingBoxToTextFile(const glm::vec3& minVec, const glm::vec3& maxVec) {
-    std::ofstream file("stat", std::ios::app); // Open in text mode to append data
-    if (!file) {
-        std::cerr << "Failed to open the file for writing.\n";
-        return;
-    }
 
-    file << minVec.x << ", " << minVec.y << ", " << minVec.z << std::endl;
-    file << maxVec.x << ", " << maxVec.y << ", " << maxVec.z << "." << std::endl;
-    file.close();
-}
 void Model::draw(const glm::mat4 &viewProjMtx, Shader *shader)
 {
 
@@ -103,7 +93,6 @@ void Model::load_model(const std::string &path)
 	std::cout << "Hitbox min: " << min_x << " " << min_y << " " << min_z << std::endl;
 	std::cout << "Hitbox max: " << max_x << " " << max_y << " " << max_z << std::endl;
 
-    // writeBoundingBoxToTextFile(glm::vec3(min_x, min_y, min_z), glm::vec3(max_x, max_y, max_z));
 }
 
 void Model::loadAnimations(const std::map<AnimationState, std::string> &animationPath)
@@ -319,12 +308,7 @@ Mesh Model::process_mesh(aiMesh *mesh, const aiScene *scene, const glm::mat4 &tr
 	Mesh m = Mesh(vertices, indices, textures);
 	m.hitbox = new Cube(glm::vec3(mmin_x, mmin_y, mmin_z), glm::vec3(mmax_x, mmax_y, mmax_z));
 	m.hitbox->set_color(glm::vec3(1.0f, 0.0f, 0.0f));
-    // floorModel = true;
-    if (floorModel) {
-        // writeBoundingBoxToTextFile(glm::vec3(mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z), glm::vec3(mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z));
-        // writeBoundingBoxToTextFile(glm::vec3(min_x, min_y, min_z), glm::vec3(max_x, max_y, max_z));
-        writeBoundingBoxToTextFile(glm::vec3(mmin_x, mmin_y, mmin_z), glm::vec3(mmax_x, mmax_y, mmax_z));
-    }
+
     return m;
 }
 

@@ -23,6 +23,18 @@ short Window::player_id = 0; // 0 by default
 // Camera
 Camera *Window::cam;
 
+void writeBoundingBoxToTextFile(const glm::vec3& minVec, const glm::vec3& maxVec) {
+    std::ofstream file("stat", std::ios::app); // Open in text mode to append data
+    if (!file) {
+        std::cerr << "Failed to open the file for writing.\n";
+        return;
+    }
+
+    file << minVec.x << ", " << minVec.y << ", " << minVec.z << std::endl;
+    file << maxVec.x << ", " << maxVec.y << ", " << maxVec.z << "." << std::endl;
+    file.close();
+}
+
 GLFWwindow *Window::create_window(int width, int height)
 {
 	Window::width = width;
@@ -136,20 +148,26 @@ void Window::setup_scene()
 
 	// Floor 6_empty works without rotations
 
-	std::cout << "Loading map...\n";
-	 Model* mp = new Model("art/models/chair.fbx");
-	//Model* mp = new Model("art/models/environment/test.fbx");
+	// Model* mp = new Model("art/models/chair.fbx");
+	Model* mp = new Model("art/models/chair.fbx");
 	mp->set_color(glm::vec3(0.5, 0.5, 0.5));
 
 	// Scale by half
 	mp->set_world(glm::scale(glm::mat4(1.0f), glm::vec3(0.1, 0.1, 0.1)));
 	map = mp;
 
-	//glm::mat4 temp_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-280, 0, -100));
-	//Model* loc = new Model("art/models/chair.fbx");
-	//loc->set_color(glm::vec3(0, 1, 0));
-	//loc->set_world(temp_loc);
-	//obj = loc;
+	for (const Mesh& mesh : mp->meshes) {
+		if (mesh.hitbox != nullptr){
+			writeBoundingBoxToTextFile(mesh.hitbox->cubeMin, mesh.hitbox->cubeMax);
+		}
+	}
+    
+
+	// glm::mat4 temp_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-280, 0, -100));
+	// Model* loc = new Model("art/models/chair.fbx");
+	// loc->set_color(glm::vec3(0, 1, 0));
+	// loc->set_world(temp_loc);
+	// obj = loc;
 }
 
 AnimationState Window::getAnimationState(Input *input)

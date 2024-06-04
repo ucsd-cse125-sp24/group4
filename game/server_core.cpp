@@ -41,6 +41,7 @@ void ServerCore::listen()
 void ServerCore::run()
 {
     running = true;
+    readBoundingBoxes();
     send_heartbeat();
 
     // start once max players is reached OR all (nonzero) players are ready anyway
@@ -383,7 +384,7 @@ void ServerCore::accept_new_clients(int i)
     newPlayerObject->setPlayerId(client->id);
     newPlayerObject->makeCollider();
     
-    pWorld.addObject(newPlayerObject);
+    // pWorld.addObject(newPlayerObject);
     pWorld.addPlayer(newPlayerObject);
 
     printf("added new client data\n");
@@ -418,7 +419,9 @@ void ServerCore::readBoundingBoxes() {
         std::getline(iss, token);
         maxVec.z = std::stof(token);
 
-        AABB* c = new AABB(minVec, maxVec); 
+        AABB* c = new AABB(minVec, maxVec);
+        printf("Added object to physics world with bounding box minExtents %f %f %f\n", c->minExtents.x, c->minExtents.y,c->minExtents.z);
+        printf("                                                maxExtents %f %f %f\n", c->maxExtents.x, c->maxExtents.y,c->maxExtents.z);
         GameObject* newGameObject = new GameObject(c);
         pWorld.addObject(newGameObject);
     }
