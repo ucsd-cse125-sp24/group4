@@ -2,6 +2,7 @@
 #define PHYSICS_WORLD_H
 
 #include "game_object.h"
+#include "../game_state.h"
 #include "../core.h"
 #include <vector>
 #include <algorithm>
@@ -24,7 +25,7 @@ class PhysicsWorld {
 		PlayerObject* findPlayer(int id);
 
 		void step();
-		void step_student(glm::mat4 world = glm::mat4(1.0f));
+		void step_student(StudentState &student); // step for a single student
 		void handleCollisions();
 		void handleCollisionsNPC();
 

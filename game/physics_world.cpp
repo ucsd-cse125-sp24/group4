@@ -101,19 +101,12 @@ void PhysicsWorld::step()
     handleCollisions(); // update position and then check for collision?
 }
 
-void PhysicsWorld::step_student(glm::mat4 NPC_world)
+void PhysicsWorld::step_student(StudentState &s)
 {
     float dt = 1.0f;
-    for (GameObject *obj : s_objects)
-    {
-
-        if (obj != nullptr)
-        {
-            obj->simulate(dt, NPC_world); // for NPC student
-        }
-
-    }
-
+    s.physicalObject->setPosition(s.world[3]);
+    s.physicalObject->simulate(dt, s.world); // for NPC student
+    s.world[3] = glm::vec4(s.physicalObject->getPosition(), 1.0f);
     handleCollisionsNPC();
 
 }
@@ -241,6 +234,8 @@ void PhysicsWorld::handleCollisionsNPC()
                 std::cout << "Collision happened between student " << i << " and object " << j << std::endl;
 
                 glm::vec3 collision_dir = studentCollider.getCollisionNormal(objectCollider);
+                collision_dir.y = 0;
+                collision_dir = glm::normalize(collision_dir);
 
                 s_objects[i]->setVelocity(-collision_dir * 20.0f);
 

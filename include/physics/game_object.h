@@ -53,6 +53,7 @@ class GameObject {
         void applyForce(const glm::vec3& force) {
             this->force += force;
         }
+        void moveNPC(const glm::vec3 directionToPlayer, const float stepSize);
 };
 
 class PlayerObject : public GameObject {
