@@ -28,9 +28,10 @@ class AABB : public Collider {
 public:
 
 	// constructor with parameters
-    AABB(glm::vec3 min, glm::vec3 max) :
-        minExtents(min),
-        maxExtents(max) {}
+    AABB(glm::vec3 min, glm::vec3 max){
+        minExtents = min;
+        maxExtents = max;
+    }
     
     AABB() {
         minExtents = glm::vec3(0.0f);
@@ -53,8 +54,6 @@ public:
 	glm::vec3 getCollisionNormal(Collider& other) const override;
     // float getPenetrationDepth(Collider& other) const override;
 
-    glm::vec3 minExtents;
-    glm::vec3 maxExtents;
 };
 
 class Plane : public Collider {

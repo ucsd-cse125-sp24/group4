@@ -23,6 +23,18 @@ short Window::player_id = 0; // 0 by default
 // Camera
 Camera *Window::cam;
 
+void writeBoundingBoxToTextFile(const glm::vec3& minVec, const glm::vec3& maxVec) {
+    std::ofstream file("stat", std::ios::app); // Open in text mode to append data
+    if (!file) {
+        std::cerr << "Failed to open the file for writing.\n";
+        return;
+    }
+
+    file << minVec.x << ", " << minVec.y << ", " << minVec.z << std::endl;
+    file << maxVec.x << ", " << maxVec.y << ", " << maxVec.z << "." << std::endl;
+    file.close();
+}
+
 GLFWwindow *Window::create_window(int width, int height)
 {
 	Window::width = width;
@@ -136,10 +148,17 @@ void Window::setup_scene()
 	// Floor 6_empty works without rotations
 
 	// Model* mp = new Model("art/models/chair.fbx");
-	Model* mp = new Model("art/models/environment/finished_floor2.fbx");
+	Model* mp = new Model("art/models/chair.fbx");
 	mp->set_color(glm::vec3(0.5, 0.5, 0.5));
 	mp->set_world(glm::mat4(1.0f));
 	map = mp;
+
+	for (const Mesh& mesh : mp->meshes) {
+		if (mesh.hitbox != nullptr){
+			writeBoundingBoxToTextFile(mesh.hitbox->cubeMin, mesh.hitbox->cubeMax);
+		}
+	}
+    
 
 	glm::mat4 temp_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-280, 0, -100));
 	Model* loc = new Model("art/models/chair.fbx");
@@ -232,7 +251,7 @@ void Window::display_callback(GLFWwindow *window)
 
 	map->draw(cam->get_view_project_mtx(), shader_program);
 	obj->draw(cam->get_view_project_mtx(), shader_program);
-	// map->debug_draw(cam->get_view_project_mtx(), shader_program);
+	map->debug_draw(cam->get_view_project_mtx(), shader_program);
 
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
