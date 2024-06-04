@@ -3,7 +3,7 @@
 #include "../include/server_core.h"
 
 #define TICK_MICROSECS 20000 // this gives 50 fps (fps = 1M / TICK_US)
-#define NUM_NPC 10
+#define NUM_NPC 12
 
 ServerCore::ServerCore()
 {
@@ -112,11 +112,11 @@ void ServerCore::initialize_npcs()
 
         // Make sure npc is not around players when starting the game
         do {
-            randomX = getRandomFloat(-50.0f, 50.0f);
+            randomX = getRandomFloat(-100.0f, 100.0f);
         } while(randomX > -10.0f && randomX < 10.0f);
 
         do {
-            randomZ = getRandomFloat(-50.0f, 50.0f);
+            randomZ = getRandomFloat(-100.0f, 100.0f);
         } while(randomZ > -10.0f && randomZ < 10.0f);
 
         randomY = 0.0f; // same level so Y=0 for now
