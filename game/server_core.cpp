@@ -106,14 +106,26 @@ void ServerCore::initialize_npcs()
         student.world = glm::scale(glm::mat4(1.0f), glm::vec3(reader.GetReal("graphics", "student_model_scale", 0.02f)));
 
         // Generate random positions
-        float randomX = getRandomFloat(-50.0f, 50.0f);
-        float randomY = getRandomFloat(0.0f, 0.0f); 
-        float randomZ = getRandomFloat(-50.0f, 50.0f);
+        float randomX = 0.0f;
+        float randomY = 0.0f;
+        float randomZ = 0.0f;
+
+        // Make sure npc is not around players when starting the game
+        do {
+            randomX = getRandomFloat(-50.0f, 50.0f);
+        } while(randomX > -10.0f && randomX < 10.0f);
+
+        do {
+            randomZ = getRandomFloat(-50.0f, 50.0f);
+        } while(randomZ > -10.0f && randomZ < 10.0f);
+
+        randomY = 0.0f; // same level so Y=0 for now
 
         student.world = glm::translate(glm::mat4(1.0f), glm::vec3(randomX, randomY, randomZ)) * student.world;
         serverState.students.push_back(student);
     }
 }
+
 
 void ServerCore::receive_data()
 {
