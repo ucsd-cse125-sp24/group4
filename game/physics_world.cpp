@@ -20,6 +20,25 @@ void PhysicsWorld::removeObject(GameObject *object)
     }
 }
 
+void PhysicsWorld::addNPC(GameObject *object)
+{
+    s_objects.push_back(object);
+}
+
+void PhysicsWorld::removeNPC(GameObject *object)
+{
+    // Find the object in the vector
+    auto it = std::find(s_objects.begin(), s_objects.end(), object);
+
+    // If the object is found, erase it
+    if (it != s_objects.end())
+    {
+        s_objects.erase(it);
+        // delete object->collider;
+        delete object;
+    }
+}
+
 void PhysicsWorld::addPlayer(PlayerObject *player)
 {
     p_objects.push_back(player);
@@ -110,13 +129,7 @@ void PhysicsWorld::handleCollisions()
                 std::cout << "Collision happened between object " << i << " and object " << j << std::endl;
 
                 glm::vec3 collision_dir = collider1.getCollisionNormal(collider2);
-                // glm::vec3 collision_force = collision_dir * COLLISION_FORCE_FACTOR; // later use penetrationDepth ?
-                // glm::vec3 collision_vel = collision_dir * (p_objects[i]->getVelocity() + p_objects[j]->getVelocity()); // later use penetrationDepth ?
 
-                // p_objects[i]->applyForce(-collision_force);
-                // p_objects[j]->applyForce(collision_force);
-                //  p_objects[i]->applyForce(-collision_force);
-                //  p_objects[j]->applyForce(collision_force);
                 p_objects[i]->setVelocity(-collision_dir * 20.0f);
                 p_objects[j]->setVelocity(collision_dir * 20.0f);
                 if (p_objects[i]->getPosition() != p_objects[j]->getPosition())
