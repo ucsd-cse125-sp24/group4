@@ -15,6 +15,8 @@ private:
 	std::vector<unsigned int> indices;
 
 public:
+	glm::vec3 cubeMin;
+	glm::vec3 cubeMax;
 	Cube(glm::vec3 cubeMin = glm::vec3(-1, -1, -1), glm::vec3 cubeMax = glm::vec3(1, 1, 1));
 	~Cube();
 

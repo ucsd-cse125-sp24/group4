@@ -150,6 +150,7 @@ void PhysicsWorld::handleCollisions()
             Collider &objectCollider = m_objects[j]->getCollider();
 
             // Check for collision using references
+            // std::cout << "Checking collision between player " << i << " and object " << j << std::endl;
             bool collision = playerCollider.collide(objectCollider);
 
             if (collision)

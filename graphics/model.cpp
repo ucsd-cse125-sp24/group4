@@ -7,6 +7,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "../include/glm/gtx/string_cast.hpp"
 #include <algorithm>
+#include <fstream>
 
 #ifdef min
 #undef min
@@ -57,22 +58,23 @@ void Model::debug_draw(const glm::mat4& viewProjMtx, Shader* shader) {
     // Draw the hitbox as a wireframe
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     hitbox->draw(viewProjMtx, shader);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     // Also draw hitboxes of meshes
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{
 		meshes[i].hitbox->draw(viewProjMtx, shader);
 	}
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glUseProgram(0);
 }
 
 void Model::load_model(const std::string &path)
-{
+{   
+
     Assimp::Importer importer;
 
-    const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenBoundingBoxes);
+    const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
@@ -86,6 +88,11 @@ void Model::load_model(const std::string &path)
 
     // Create a hitbox for the model
     hitbox = new Cube(glm::vec3(min_x, min_y, min_z), glm::vec3(max_x, max_y, max_z));
+
+    // Print hitbox
+	//std::cout << "Hitbox min: " << min_x << " " << min_y << " " << min_z << std::endl;
+	//std::cout << "Hitbox max: " << max_x << " " << max_y << " " << max_z << std::endl;
+
 }
 
 void Model::loadAnimations(const std::map<AnimationState, std::string> &animationPath)
@@ -214,6 +221,7 @@ void Model::process_node(aiNode *node, const aiScene *scene, const glm::mat4 &pa
     {
         process_node(node->mChildren[i], scene, globalTransform);
     }
+    
 }
 
 Mesh Model::process_mesh(aiMesh *mesh, const aiScene *scene, const glm::mat4 &transform)
@@ -221,6 +229,8 @@ Mesh Model::process_mesh(aiMesh *mesh, const aiScene *scene, const glm::mat4 &tr
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     std::vector<Texture> textures;
+
+	float mmin_x = INT_MAX, mmin_y = INT_MAX, mmin_z = INT_MAX, mmax_x = INT_MIN, mmax_y = INT_MIN, mmax_z = INT_MIN;
 
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
@@ -240,7 +250,22 @@ Mesh Model::process_mesh(aiMesh *mesh, const aiScene *scene, const glm::mat4 &tr
         max_x = std::max(max_x, vertex.position.x);
         max_y = std::max(max_y, vertex.position.y);
         max_z = std::max(max_z, vertex.position.z);
+
+        // Local minimum (per mesh)
+        mmin_x = std::min(mmin_x, vertex.position.x);
+        mmin_y = std::min(mmin_y, vertex.position.y);
+        mmin_z = std::min(mmin_z, vertex.position.z);
+        mmax_x = std::max(mmax_x, vertex.position.x);
+        mmax_y = std::max(mmax_y, vertex.position.y);
+        mmax_z = std::max(mmax_z, vertex.position.z);
     }
+
+    // print local minimum
+    //if (!floorModel)
+    //{
+    //    std::cout << "Local min: " << mmin_x << " " << mmin_y << " " << mmin_z << std::endl;
+    //    std::cout << "Local max: " << mmax_x << " " << mmax_y << " " << mmax_z << std::endl;
+    //}
 
     // Process indices
     for (unsigned int i = 0; i < mesh->mNumFaces; i++)
@@ -281,7 +306,7 @@ Mesh Model::process_mesh(aiMesh *mesh, const aiScene *scene, const glm::mat4 &tr
         }
     }
 	Mesh m = Mesh(vertices, indices, textures);
-	m.hitbox = new Cube(glm::vec3(mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z), glm::vec3(mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z));
+	m.hitbox = new Cube(glm::vec3(mmin_x, mmin_y, mmin_z), glm::vec3(mmax_x, mmax_y, mmax_z));
 	m.hitbox->set_color(glm::vec3(1.0f, 0.0f, 0.0f));
 
     return m;

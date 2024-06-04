@@ -37,11 +37,13 @@ class Model : public Drawable
 public:
 	Model(const std::string &path)
 	{
+		floorModel = true;
 		load_model(path);
 	}
 
 	Model(const std::string &modelPath, const std::map<AnimationState, std::string> &animationPath)
 	{
+		floorModel = false;
 		load_model(modelPath);
 		loadAnimations(animationPath);
 	}
@@ -53,16 +55,18 @@ public:
 	void debug_draw(const glm::mat4& viewProjMtx, Shader* shader);
 	void loadAnimations(const std::map<AnimationState, std::string> &animationPath);
 	void updateAnimations(float deltaTime, AnimationState currentState);
+	std::vector<Mesh> meshes;
 
 private:
 	float ticks;
 	float duration = 0;
 	glm::mat4 globalInverse;
+	float floorModel = false;
 
 	Skeleton skeleton;
 	std::map<AnimationState, std::vector<AnimationNode>> animations;
 	// Model data
-	std::vector<Mesh> meshes;
+	
 	std::string directory;
 	float min_x = FLT_MAX, min_y = FLT_MAX, min_z = FLT_MAX;
 	float max_x = FLT_MIN, max_y = FLT_MIN, max_z = FLT_MIN;

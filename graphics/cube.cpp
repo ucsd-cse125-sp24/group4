@@ -1,6 +1,8 @@
 #include "../include/cube.h"
 
 Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax) {
+    this->cubeMin = cubeMin;
+    this->cubeMax = cubeMax;
 	// Model matrix - Maybe decouple from cube?
 	model = glm::mat4(1.0f);
 
