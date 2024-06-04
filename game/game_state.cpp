@@ -20,7 +20,13 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
         glm::vec3 playerPos = glm::vec3(p.world[3]);
         float distance = glm::distance(currentPos, playerPos);
 
-        if (distance < 5.0f && distance < minDistance)
+        if (distance < 0.5f) // Assuming this is the threshold for a collision
+        {
+            student.hasCaughtPlayer = true;
+            return;
+        }
+
+        if (distance <= 5.0f && distance < minDistance)
         {
             minDistance = distance;
             nearestPlayerPos = playerPos;
@@ -31,31 +37,22 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
 
     if (student.chasingPlayer)
     {
-
+        glm::vec3 directionToPlayer = nearestPlayerPos - currentPos;
         if (student.chaseDuration == 0)
         {
             // Check if player is still in range
-            glm::vec3 directionToPlayer = nearestPlayerPos - currentPos;
-            if (glm::length(directionToPlayer) < 5.0f)
-            {
-                student.chaseDuration = 20.0f;
-            }
-            else
+            if (glm::length(directionToPlayer) > 5.0f)
             {
                 student.chasingPlayer = false;
-                student.chaseDuration = 20.0f;
             }
+            student.chaseDuration = 20.0f;
         }
         else
         {
             // Move towards the player
-            glm::vec3 directionToPlayer = nearestPlayerPos - currentPos;
-            if (glm::length(directionToPlayer) > 0.0001f)
-            { // Check if the direction vector is not zero
-                directionToPlayer = glm::normalize(directionToPlayer);
-                currentPos += directionToPlayer * stepSize;
-                student.chaseDuration -= 1;
-            }
+            directionToPlayer = glm::normalize(directionToPlayer);
+            currentPos += directionToPlayer * stepSize;
+            student.chaseDuration -= 1;
         }
     }
     else
@@ -90,9 +87,4 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
     }
 
     student.world[3] = glm::vec4(currentPos, 1.0f);
-
-    if (minDistance < 0.2f) // Assuming this is the threshold for a collision
-    {
-        student.hasCaughtPlayer = true; 
-    }
 }
