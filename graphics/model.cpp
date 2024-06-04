@@ -65,6 +65,7 @@ void Model::debug_draw(const glm::mat4& viewProjMtx, Shader* shader) {
 		meshes[i].hitbox->draw(viewProjMtx, shader);
 	}
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     glUseProgram(0);
 }
 
@@ -249,15 +250,22 @@ Mesh Model::process_mesh(aiMesh *mesh, const aiScene *scene, const glm::mat4 &tr
         max_x = std::max(max_x, vertex.position.x);
         max_y = std::max(max_y, vertex.position.y);
         max_z = std::max(max_z, vertex.position.z);
-        
+
         // Local minimum (per mesh)
-		mmin_x = std::min(mmin_x, vertex.position.x);
-		mmin_y = std::min(mmin_y, vertex.position.y);
-		mmin_z = std::min(mmin_z, vertex.position.z);
-		mmax_x = std::max(mmax_x, vertex.position.x);
-		mmax_y = std::max(mmax_y, vertex.position.y);
-		mmax_z = std::max(mmax_z, vertex.position.z);
+        mmin_x = std::min(mmin_x, vertex.position.x);
+        mmin_y = std::min(mmin_y, vertex.position.y);
+        mmin_z = std::min(mmin_z, vertex.position.z);
+        mmax_x = std::max(mmax_x, vertex.position.x);
+        mmax_y = std::max(mmax_y, vertex.position.y);
+        mmax_z = std::max(mmax_z, vertex.position.z);
     }
+
+    // print local minimum
+    //if (!floorModel)
+    //{
+    //    std::cout << "Local min: " << mmin_x << " " << mmin_y << " " << mmin_z << std::endl;
+    //    std::cout << "Local max: " << mmax_x << " " << mmax_y << " " << mmax_z << std::endl;
+    //}
 
     // Process indices
     for (unsigned int i = 0; i < mesh->mNumFaces; i++)
