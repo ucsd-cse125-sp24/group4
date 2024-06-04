@@ -41,6 +41,7 @@ void ServerCore::listen()
 void ServerCore::run()
 {
     running = true;
+    readBoundingBoxes();
     send_heartbeat();
 
     // start once max players is reached OR all (nonzero) players are ready anyway
@@ -383,8 +384,76 @@ void ServerCore::accept_new_clients(int i)
     newPlayerObject->setPlayerId(client->id);
     newPlayerObject->makeCollider();
     
-    pWorld.addObject(newPlayerObject);
+    // pWorld.addObject(newPlayerObject);
     pWorld.addPlayer(newPlayerObject);
 
     printf("added new client data\n");
+}
+
+glm::vec3 parseLine(std::string line) {
+    // Remove trailing period if present
+    if (line.back() == '.') {
+        line.pop_back();
+    }
+
+    // Replace commas with spaces
+    std::replace(line.begin(), line.end(), ',', ' ');
+
+    std::istringstream iss(line);
+    glm::vec3 vec;
+    iss >> vec.x >> vec.y >> vec.z;
+    return vec;
+}
+
+void ServerCore::readBoundingBoxes() {
+     std::ifstream file("stat");
+    if (!file) {
+        std::cerr << "Failed to open the file for reading.\n";
+        return;
+    }
+    glm::vec3 minVec, maxVec;
+    std::string line;
+    int lineCount = 0;
+    while (std::getline(file, line)) {
+        if (lineCount % 2 == 0) {
+            minVec = parseLine(line);
+        } else {
+            maxVec = parseLine(line);
+            AABB* c = new AABB(minVec, maxVec);
+            printf("this is maxVec %f %f %f\n",maxVec.x, maxVec.y, maxVec.z);
+            printf("Added object to physics world with bounding box minExtents %f %f %f\n", c->minExtents.x, c->minExtents.y,c->minExtents.z);
+            printf("                                                maxExtents %f %f %f\n", c->maxExtents.x, c->maxExtents.y,c->maxExtents.z);
+            GameObject* newGameObject = new GameObject(c);
+            pWorld.addObject(newGameObject);
+        }
+        lineCount++;
+    }
+
+    if (lineCount % 2 != 0) {
+        std::cerr << "File has an odd number of lines." << std::endl;
+    }
+
+    file.close();
+
+    // while (true) {
+    //     glm::vec3 minVec, maxVec;
+    //     if (!std::getline(file, line)) break;
+    //     std::istringstream iss(line);
+    //     iss >> minVec.x >> minVec.y >> minVec.z;
+
+    //     if (!std::getline(file, line)) {
+    //         std::cerr << "File has an odd number of lines." << std::endl;
+    //         break;
+    //     }
+    //     std::istringstream iss2(line);
+    //     iss2 >> maxVec.x >> maxVec.y >> maxVec.z;
+
+    //     AABB* c = new AABB(minVec, maxVec);
+    //     printf("this is maxVec %f %f %f\n",maxVec.x, maxVec.y, maxVec.z);
+    //     printf("Added object to physics world with bounding box minExtents %f %f %f\n", c->minExtents.x, c->minExtents.y,c->minExtents.z);
+    //     printf("                                                maxExtents %f %f %f\n", c->maxExtents.x, c->maxExtents.y,c->maxExtents.z);
+    //     GameObject* newGameObject = new GameObject(c);
+    //     pWorld.addObject(newGameObject);
+    // }
+
 }
