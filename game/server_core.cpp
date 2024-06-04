@@ -105,9 +105,9 @@ void ServerCore::initialize_npcs()
         student.world = glm::scale(glm::mat4(1.0f), glm::vec3(reader.GetReal("graphics", "student_model_scale", 0.02f)));
 
         // Generate random positions
-        float randomX = getRandomFloat(-100.0f, 100.0f);
+        float randomX = getRandomFloat(-50.0f, 50.0f);
         float randomY = getRandomFloat(0.0f, 0.0f); 
-        float randomZ = getRandomFloat(-100.0f, 100.0f);
+        float randomZ = getRandomFloat(-50.0f, 50.0f);
 
         student.world = glm::translate(glm::mat4(1.0f), glm::vec3(randomX, randomY, randomZ)) * student.world;
         serverState.students.push_back(student);

@@ -82,7 +82,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
 
         if (student.distanceMoved >= totalDistance)
         {
-            glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 1, 0));
+            glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, -1, 0));
             student.world = rotationMatrix * student.world;
             student.distanceMoved = 0.0f;
             student.currentDir = static_cast<StudentState::Direction>((static_cast<int>(student.currentDir) + 1) % 4);
@@ -91,7 +91,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
 
     student.world[3] = glm::vec4(currentPos, 1.0f);
 
-    if (minDistance < 0.1f) // Assuming 0.1f is the threshold for a collision
+    if (minDistance < 0.2f) // Assuming this is the threshold for a collision
     {
         student.hasCaughtPlayer = true; 
     }
