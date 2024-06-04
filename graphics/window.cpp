@@ -149,16 +149,19 @@ void Window::setup_scene()
 	// Floor 6_empty works without rotations
 
 	// Model* mp = new Model("art/models/chair.fbx");
-	Model* mp = new Model("art/models/chair.fbx");
+	Model* mp = new Model("art/models/environment/test.fbx");
 	mp->set_color(glm::vec3(0.5, 0.5, 0.5));
 
 	// Scale by half
 	mp->set_world(glm::scale(glm::mat4(1.0f), glm::vec3(0.1, 0.1, 0.1)));
 	map = mp;
 
-	for (const Mesh& mesh : mp->meshes) {
-		if (mesh.hitbox != nullptr){
-			writeBoundingBoxToTextFile(mesh.hitbox->cubeMin, mesh.hitbox->cubeMax);
+	bool write_to_stat = false;
+	if (write_to_stat){
+		for (const Mesh& mesh : mp->meshes) {
+			if (mesh.hitbox != nullptr){
+				writeBoundingBoxToTextFile(glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMin, 1.0f)), glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMax, 1.0f)));
+			}
 		}
 	}
     

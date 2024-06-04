@@ -17,11 +17,11 @@ bool AABB::collidingAABB(AABB& other) {
     // if (a_max[0] != 0 || a_max[1] != 0 || a_max[2] != 0){
     //     printf("BBOX of collider IS NOT ZERO %f %f %f\n\n\n",a_max[0],a_max[1],a_max[2] );
     // }
-    printf("%f %f %f\n", minExtents.x,minExtents.y,minExtents.z);
-    printf("%f %f %f\n", other.maxExtents.x,other.maxExtents.y,other.maxExtents.z);
-    
-    printf("%f %f %f\n", maxExtents.x,maxExtents.y,maxExtents.z);
-    printf("%f %f %f\n", other.minExtents.x,other.minExtents.y,other.minExtents.z);
+    // printf("%f %f %f\n", minExtents.x,minExtents.y,minExtents.z);
+    // printf("%f %f %f\n", other.maxExtents.x,other.maxExtents.y,other.maxExtents.z);
+
+    // printf("%f %f %f\n", maxExtents.x,maxExtents.y,maxExtents.z);
+    // printf("%f %f %f\n", other.minExtents.x,other.minExtents.y,other.minExtents.z);
 
     return (
         a_min.x <= b_max.x &&
