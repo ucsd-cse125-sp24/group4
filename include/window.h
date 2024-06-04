@@ -27,6 +27,8 @@ public:
 	static short player_id;
 	// Objects to draw - TODO
 	static std::vector<Drawable*> players;
+	static std::vector<Drawable*> students;
+	static std::vector<bool> studentsChasing;
 	static Drawable* map;
 	static Drawable* exit_square;
 	static std::vector<Drawable*> batteries;

@@ -1,6 +1,6 @@
 #include "../include/physics/game_object.h"
 #include <cmath>
-#define step 60.0f
+#define step 20.0f
 #define mu 1.2f
 
 void PlayerObject::move() {

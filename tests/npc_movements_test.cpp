@@ -30,7 +30,7 @@ int main()
     // This test checks the case where student starts at the bottom left of the squaren, traverses each side of the square, and returns to the starting point
     for (int x = 0; x < 12; x++)
     {
-        state.moveStudent(student, 1, 3);
+        state.moveStudent(student, state.players, 1, 3);
         for (int j = 0; j < 4; j++)
         {
             for (int i = 0; i < 4; i++)
