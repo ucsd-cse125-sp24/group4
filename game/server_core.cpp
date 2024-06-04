@@ -3,11 +3,13 @@
 #include "../include/server_core.h"
 
 #define TICK_MICROSECS 20000 // this gives 50 fps (fps = 1M / TICK_US)
+#define NUM_NPC 10
 
 ServerCore::ServerCore()
 {
     reader = INIReader("../config.ini");
-    if (reader.ParseError() != 0) {
+    if (reader.ParseError() != 0)
+    {
         std::cout << "Can't load 'config.ini'\n";
     }
 
@@ -60,6 +62,10 @@ void ServerCore::run()
 
         if (reader.GetBoolean("debug", "accept_midgame", 0))
             this->listen(); // join mid-game
+        if (serverState.students.size() < NUM_NPC)
+        {
+            initialize_npcs();
+        }
         receive_data();
         update_game_state();
         send_updates();
@@ -82,7 +88,7 @@ void ServerCore::shutdown()
     for (ClientData *c : clients_data)
         free(c);
     clients_data.clear(); // Clear the client data vector
-    pWorld.cleanup();
+    // pWorld.cleanup();
     server.sock_shutdown();
     running = false;
 }
@@ -90,6 +96,23 @@ void ServerCore::shutdown()
 bool ServerCore::isRunning() const
 {
     return running;
+}
+
+void ServerCore::initialize_npcs()
+{
+    while (serverState.students.size() < NUM_NPC)
+    {
+        StudentState student;
+        student.world = glm::scale(glm::mat4(1.0f), glm::vec3(reader.GetReal("graphics", "student_model_scale", 0.02f)));
+
+        // Generate random positions
+        float randomX = getRandomFloat(-50.0f, 50.0f);
+        float randomY = getRandomFloat(0.0f, 0.0f); 
+        float randomZ = getRandomFloat(-50.0f, 50.0f);
+
+        student.world = glm::translate(glm::mat4(1.0f), glm::vec3(randomX, randomY, randomZ)) * student.world;
+        serverState.students.push_back(student);
+    }
 }
 
 void ServerCore::receive_data()
@@ -165,7 +188,7 @@ void ServerCore::process_input(InputPacket packet, short id)
             break;
         }
     }
-    PlayerObject* client_player = pWorld.findPlayer(id);
+    PlayerObject *client_player = pWorld.findPlayer(id);
 
     int num_events = int(packet.events.size());
 
@@ -181,53 +204,55 @@ void ServerCore::process_input(InputPacket packet, short id)
         bool jumping = false;
         switch (event)
         {
-            case MOVE_FORWARD:
-                dir = glm::vec3(0.0f, 0.0f, -1.0f);
-                client_player->move();
-                break;
-            case MOVE_BACKWARD:
-                dir = glm::vec3(0.0f, 0.0f, 1.0f);
-                client_player->move();
-                break;
-            case MOVE_LEFT:
-                dir = glm::vec3(-1.0f, 0.0f, 0.0f);
-                client_player->move();
-                break;
-            case MOVE_RIGHT:
-                dir = glm::vec3(1.0f, 0.0f, 0.0f);
-                client_player->move();
-                break;
-            case JUMP:
-            {
-                jumping = true;
-                if(client_player->getPosition().y == 0)
-                    client_player->jump();
-                break;
-            }
-            case INTERACT:
-            {
-                // Check if ready?
-                float player_x = client_player->getPosition().x;
-                float player_z = client_player->getPosition().z;
+        case MOVE_FORWARD:
+            dir = glm::vec3(0.0f, 0.0f, -1.0f);
+            client_player->move();
+            break;
+        case MOVE_BACKWARD:
+            dir = glm::vec3(0.0f, 0.0f, 1.0f);
+            client_player->move();
+            break;
+        case MOVE_LEFT:
+            dir = glm::vec3(-1.0f, 0.0f, 0.0f);
+            client_player->move();
+            break;
+        case MOVE_RIGHT:
+            dir = glm::vec3(1.0f, 0.0f, 0.0f);
+            client_player->move();
+            break;
+        case JUMP:
+        {
+            jumping = true;
+            if (client_player->getPosition().y == 0)
+                client_player->jump();
+            break;
+        }
+        case INTERACT:
+        {
+            // Check if ready?
+            float player_x = client_player->getPosition().x;
+            float player_z = client_player->getPosition().z;
 
-                if (player_x <= -270.0f && player_x >= -290.0f && player_z <= -90.0f && player_z >= -110.0f) {
-                    printf("This player is ready!\n");
-                    client_player->makeReady();
-                }
-
-                continue;
+            if (player_x <= -270.0f && player_x >= -290.0f && player_z <= -90.0f && player_z >= -110.0f)
+            {
+                printf("This player is ready!\n");
+                client_player->makeReady();
             }
+
+            continue;
+        }
         }
 
         float player_x = client_player->getPosition().x;
         float player_z = client_player->getPosition().z;
 
-        if (!(player_x <= -270.0f && player_x >= -290.0f && player_z <= -90.0f && player_z >= -110.0f)) {
+        if (!(player_x <= -270.0f && player_x >= -290.0f && player_z <= -90.0f && player_z >= -110.0f))
+        {
             client_player->makeUnready();
         }
 
         dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
-        
+
         // client_player->minBound += dir;
         // client_player->maxBound += dir;
         // printf("dirs: <%f, %f, %f>\n", dir.x, dir.y, dir.z);
@@ -235,7 +260,7 @@ void ServerCore::process_input(InputPacket packet, short id)
         // Also turn the alien towards the direction the camera's facing
         glm::vec3 front = glm::vec3(0.0f, 0.0f, 1.0f);
         front = serverState.players[i].world * glm::vec4(front, 0.0f);
-        if (jumping) 
+        if (jumping)
             continue;
         // std::cout << "front for " << i << ": " << front.x << " " << front.y << " " << front.z << "\n";
         //  Find if DIR is to the right or left of FRONT
@@ -247,7 +272,7 @@ void ServerCore::process_input(InputPacket packet, short id)
         {
             dir = turndir + dir;
         }
-        
+
         // Calculate the cross product of frontVector and otherVector
         glm::vec3 crossProduct = glm::cross(front, dir);
 
@@ -269,7 +294,7 @@ void ServerCore::process_input(InputPacket packet, short id)
     // printf("world m %f,%f,%f\n", world[3][0], world[3][1], world[3][2]);
     world[3] = glm::vec4(client_player->getPosition(), 1.0f);
 
-    //printf("forces: <%f, %f, %f>\n", client_player->force.x, client_player->force.y, client_player->force.z);
+    // printf("forces: <%f, %f, %f>\n", client_player->force.x, client_player->force.y, client_player->force.z);
 
     serverState.players[i].world = world;
 }
@@ -280,27 +305,40 @@ void ServerCore::update_game_state()
     // Update parts of the game that don't depend on player input.
     for (int i = 0; i < serverState.players.size(); i++)
     {
-        PlayerObject* client_player = pWorld.findPlayer(i);
-        if (client_player->getReady() == 0) {
+        PlayerObject *client_player = pWorld.findPlayer(i);
+        if (client_player->getReady() == 0)
+        {
             win = 0;
             break;
         }
     }
-    if (win) {
+    if (win)
+    {
         this->state = END_WIN;
         send_heartbeat();
     }
 
-    // Enemy AI etc
-    while (serverState.students.size() < 5)
+    auto now = std::chrono::high_resolution_clock::now();
+
+    for (StudentState &s : serverState.students)
     {
-        StudentState s_state;
+        float deltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(now - s.lastUpdate).count();
+        s.timeSinceLastUpdate += deltaTime;
 
-        s_state.world = glm::mat4(1.0f); // TEMP
+        if (s.timeSinceLastUpdate >= 0.1f)
+        {                                                                 // Check if 0.1 second has passed
+            serverState.moveStudent(s, serverState.players, 1.0f, 10.0f); // Move student
+            s.timeSinceLastUpdate = 0.0f;                                 // Reset the timer
+        }
+        s.lastUpdate = now; // Update the last update time
 
-        serverState.students.push_back(s_state);
+        if (s.hasCaughtPlayer)
+        {
+            this->state = END_LOSE;
+            send_heartbeat();
+            // break;
+        }
     }
-    serverState.level = 5;
 }
 
 void ServerCore::send_heartbeat()
@@ -378,8 +416,8 @@ void ServerCore::accept_new_clients(int i)
 
     serverState.players.push_back(p_state);
 
-    AABB* c = new AABB(); 
-    PlayerObject* newPlayerObject = new PlayerObject(c); 
+    AABB *c = new AABB();
+    PlayerObject *newPlayerObject = new PlayerObject(c);
 
     newPlayerObject->setPlayerId(client->id);
     newPlayerObject->makeCollider();
