@@ -90,8 +90,8 @@ void Model::load_model(const std::string &path)
     hitbox = new Cube(glm::vec3(min_x, min_y, min_z), glm::vec3(max_x, max_y, max_z));
 
     // Print hitbox
-	std::cout << "Hitbox min: " << min_x << " " << min_y << " " << min_z << std::endl;
-	std::cout << "Hitbox max: " << max_x << " " << max_y << " " << max_z << std::endl;
+	//std::cout << "Hitbox min: " << min_x << " " << min_y << " " << min_z << std::endl;
+	//std::cout << "Hitbox max: " << max_x << " " << max_y << " " << max_z << std::endl;
 
 }
 
