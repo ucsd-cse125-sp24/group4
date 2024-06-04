@@ -104,9 +104,9 @@ void Window::setup_callbacks(GLFWwindow *window)
 
 void Window::setup_scene()
 {
-	std::string alien = "art/models/character/green_alien_wbones.fbx";
-	std::string boy = "art/models/character/boy_standing.fbx";
-	std::string girl = "art/models/character/girl_standing.fbx";
+	std::string alienPath = "art/models/character/green_alien_wbones.fbx";
+	std::string boyPath = "art/models/character/boy_standing.fbx";
+	std::string girlPath = "art/models/character/girl_standing.fbx";
 
 	std::map<AnimationState, std::string> alienAnim = {
 		{AnimationState::Idle, "art/models/character/green_alien_wbones.fbx"},
@@ -124,37 +124,40 @@ void Window::setup_scene()
 
 	glm::mat4 temp = glm::translate(glm::mat4(1.0f), glm::vec3(0, 100, 0));
 
-	Model *player = new Model(alien, alienAnim);
+	Model *player = new Model(alienPath, alienAnim);
 	player->set_color(glm::vec3(0, 1, 0)); // p1 - green
 	player->set_world(temp);
 	players.push_back(player);
 
-	// Model *player2 = new Model(alien, alienAnim);
-	// player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
-	// player2->set_world(temp);
-	// players.push_back(player2);
+	Model *player2 = new Model(alienPath, alienAnim);
+	player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
+	player2->set_world(temp);
+	players.push_back(player2);
 
-	// Model *player3 = new Model(alien, alienAnim);
-	// player3->set_color(glm::vec3(1, 0, 1)); //p3 - purple
-	// player3->set_world(temp);
-	// players.push_back(player3);
+	Model *player3 = new Model(alienPath, alienAnim);
+	player3->set_color(glm::vec3(1, 0, 1)); // p3 - purple
+	player3->set_world(temp);
+	players.push_back(player3);
 
-	// Model *player4 = new Model(alien, alienAnim);
-	// player4->set_color(glm::vec3(0, 0, 1)); // p4 - blue
-	// player4->set_world(temp);
-	// players.push_back(player4);
+	Model *player4 = new Model(alienPath, alienAnim);
+	player4->set_color(glm::vec3(0, 0, 1)); // p4 - blue
+	player4->set_world(temp);
+	players.push_back(player4);
 
-	// Model *boy1 = new Model(boy, boyAnim);
-	// boy1->set_color(glm::vec3(0, 0, 1));
-	// boy1->set_world(temp);
-	// students.push_back(boy1);
-	// studentsChasing.push_back(false);
+	for (int i = 0; i < 10; i++)
+	{
+		Model *girl = new Model(girlPath, girlAnim);
+		girl->set_color(glm::vec3(0, 0, 1));
+		girl->set_world(temp);
+		students.push_back(girl);
+		studentsChasing.push_back(false);
 
-	Model *girl1 = new Model(girl, girlAnim);
-	girl1->set_color(glm::vec3(0, 0, 1));
-	girl1->set_world(temp);
-	students.push_back(girl1);
-	studentsChasing.push_back(false);
+		// Model *boy = new Model(boyPath, boyAnim);
+		// boy->set_color(glm::vec3(0, 0, 1));
+		// boy->set_world(temp);
+		// students.push_back(boy);
+		// studentsChasing.push_back(false);
+	}
 
 	Model *mp = new Model("art/models/chair.fbx");
 	// Model* mp = new Model("art/models/environment/newest_floor2.fbx");
@@ -255,12 +258,12 @@ void Window::display_callback(GLFWwindow *window)
 		Model *model = dynamic_cast<Model *>(students[i]);
 		if (studentsChasing[i])
 		{
-			std::cout<<"chasing!"<<std::endl;
+			std::cout << "chasing!" << std::endl;
 			model->updateAnimations(deltaTime, AnimationState::Running);
 		}
 		else
 		{
-			std::cout<<"walking"<<std::endl;
+			std::cout << "walking" << std::endl;
 			model->updateAnimations(deltaTime, AnimationState::Walking);
 		}
 	}

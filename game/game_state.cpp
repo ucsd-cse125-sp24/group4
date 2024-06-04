@@ -89,6 +89,10 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
         }
     }
 
-    // Update the world matrix with the new position
     student.world[3] = glm::vec4(currentPos, 1.0f);
+
+    if (minDistance < 0.1f) // Assuming 0.1f is the threshold for a collision
+    {
+        student.hasCaughtPlayer = true; 
+    }
 }
