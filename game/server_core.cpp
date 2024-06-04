@@ -114,6 +114,7 @@ void ServerCore::initialize_npcs()
         // create collider for npc student and add to physics world
         AABB* c = new AABB(world[3], TYPE_NPC);
         GameObject* newStudentObject = new GameObject(c);
+        newStudentObject->setPosition(world[3]);
         pWorld.addNPC(newStudentObject);
         
         StudentState student;
@@ -334,23 +335,22 @@ void ServerCore::update_game_state()
         float deltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(now - s.lastUpdate).count();
         s.timeSinceLastUpdate += deltaTime;
 
-        if (s.timeSinceLastUpdate >= 0.1f)
+        if (s.timeSinceLastUpdate >= 1.0f)
         {                                                                 // Check if 0.1 second has passed
             serverState.moveStudent(s, serverState.players, 1.0f, 10.0f); // Move student
-            s.physicalObject->getCollider().setBoundingBox(s.world[3], TYPE_NPC);               // set npc student bounding box in pWorld
-            // pWorld.step_student(s.world);
-            // s.world[3] = glm::vec4(s.physicalObject->getPosition(), 1.0f);
+            // s.physicalObject->getCollider().setBoundingBox(s.world[3], TYPE_NPC);               // set npc student bounding box in pWorld
+            // pWorld.step_student(s);
 
             s.timeSinceLastUpdate = 0.0f;                                 // Reset the timer
         }
         s.lastUpdate = now; // Update the last update time
 
-        if (s.hasCaughtPlayer)
-        {
-            this->state = END_LOSE;
-            send_heartbeat();
-            // break;
-        }
+        // if (s.hasCaughtPlayer)
+        // {
+        //     this->state = END_LOSE;
+        //     send_heartbeat();
+        //     // break;
+        // }
     }
 }
 

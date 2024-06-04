@@ -10,6 +10,13 @@ void PlayerObject::move() {
     setForce(norm_force);
 }
 
+void GameObject::moveNPC(const glm::vec3 directionToPlayer, const float stepSize) {
+    glm::vec3 move_force = glm::vec3(0.0f, 0.0f, -step);
+    setForce(force + move_force);
+    glm::vec3 norm_force = glm::vec3(0.0f, 0.0f, force.z/abs(force.z) * step);
+    setForce(norm_force);
+}
+
 void GameObject::applyFriction() {
     glm::vec3 friction = glm::vec3(-velocity.x * mu, 0, -velocity.z * mu);
     setForce(force + friction);
@@ -31,7 +38,7 @@ void PlayerObject::simulate_player(float dt) {
     
     applyFriction();
     applyGravity();
-    glm::vec3 ori_v = velocity;
+
     velocity += force / mass * dt;
     worldVelocity = glm::vec3(playerWorld * glm::vec4(velocity, 0.0f));
     old_position = position;
@@ -53,16 +60,18 @@ void PlayerObject::simulate_player(float dt) {
 
 void GameObject::simulate(float dt, glm::mat4 NPC_world) {
     
-    applyFriction();
-    applyGravity();
-    glm::vec3 ori_v = velocity;
-    velocity += force / mass * dt;
+    // applyFriction();
+    // applyGravity();
+
     worldVelocity = glm::vec3(NPC_world * glm::vec4(velocity, 0.0f));
     old_position = position;
     position += worldVelocity * dt;
 
     collider->setBoundingBox(position, TYPE_NPC); // update the bbox based on updated position
-
+    printf("old positions: <%f, %f, %f>\n", old_position.x, old_position.y, old_position.z);
+    printf("positions: <%f, %f, %f>\n", position.x, position.y, position.z);
+    printf("world velocity: <%f, %f, %f>\n\n", worldVelocity.x, worldVelocity.y, worldVelocity.z);
+    printf("velocity: <%f, %f, %f>\n\n", velocity.x, velocity.y, velocity.z);
     force = glm::vec3(0, 0, 0); // reset net force at the end
 
 }

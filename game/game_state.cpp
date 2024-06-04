@@ -54,6 +54,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
             { // Check if the direction vector is not zero
                 directionToPlayer = glm::normalize(directionToPlayer);
                 currentPos += directionToPlayer * stepSize;
+                // student.physicalObject->moveNPC(directionToPlayer, stepSize);
                 student.chaseDuration -= 1;
             }
         }
