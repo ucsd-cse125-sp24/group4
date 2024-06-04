@@ -113,6 +113,7 @@ void Window::setup_scene()
 
 	glm::mat4 temp = glm::translate(glm::mat4(1.0f), glm::vec3(0, 100, 0));
 
+	std::cout << "Loading players...\n";
 	Model *player = new Model(alienPath, animationPath);
 	player->set_color(glm::vec3(0, 1, 0)); // p1 - green
 	player->set_world(temp);
@@ -135,17 +136,20 @@ void Window::setup_scene()
 
 	// Floor 6_empty works without rotations
 
-	// Model* mp = new Model("art/models/chair.fbx");
-	Model* mp = new Model("art/models/environment/finished_floor2.fbx");
+	std::cout << "Loading map...\n";
+	 Model* mp = new Model("art/models/chair.fbx");
+	//Model* mp = new Model("art/models/environment/test.fbx");
 	mp->set_color(glm::vec3(0.5, 0.5, 0.5));
-	mp->set_world(glm::mat4(1.0f));
+
+	// Scale by half
+	mp->set_world(glm::scale(glm::mat4(1.0f), glm::vec3(0.1, 0.1, 0.1)));
 	map = mp;
 
-	glm::mat4 temp_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-280, 0, -100));
-	Model* loc = new Model("art/models/chair.fbx");
-	loc->set_color(glm::vec3(0, 1, 0));
-	loc->set_world(temp_loc);
-	obj = loc;
+	//glm::mat4 temp_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-280, 0, -100));
+	//Model* loc = new Model("art/models/chair.fbx");
+	//loc->set_color(glm::vec3(0, 1, 0));
+	//loc->set_world(temp_loc);
+	//obj = loc;
 }
 
 AnimationState Window::getAnimationState(Input *input)
@@ -231,8 +235,8 @@ void Window::display_callback(GLFWwindow *window)
 	}
 
 	map->draw(cam->get_view_project_mtx(), shader_program);
-	obj->draw(cam->get_view_project_mtx(), shader_program);
-	// map->debug_draw(cam->get_view_project_mtx(), shader_program);
+	//obj->draw(cam->get_view_project_mtx(), shader_program);
+	map->debug_draw(cam->get_view_project_mtx(), shader_program);
 
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
