@@ -64,12 +64,12 @@ void PhysicsWorld::cleanup()
     {
         delete *it;
     }
-    // for (auto it = m_objects.begin(); it != m_objects.end(); ++it) {
-    //     delete *it;
-    // }
+    for (auto it = m_objects.begin(); it != m_objects.end(); ++it) {
+        delete *it;
+    }
 
     p_objects.clear();
-    // m_objects.clear();
+    m_objects.clear();
 }
 
 PlayerObject *PhysicsWorld::findPlayer(int id)
@@ -142,7 +142,7 @@ void PhysicsWorld::handleCollisions()
             // printf("bbox %f, %f, %f \n\n", collider2.maxExtents[0], collider2.maxExtents[1], collider2.maxExtents[2]);
             if (collision)
             {
-                std::cout << "Collision happened between player " << i << " and player " << j << std::endl;
+                // std::cout << "Collision happened between player " << i << " and player " << j << std::endl;
 
                 glm::vec3 collision_dir = collider1.getCollisionNormal(collider2);
 
@@ -184,11 +184,22 @@ void PhysicsWorld::handleCollisions()
 
             if (collision)
             {
-                std::cout << "Collision happened between player " << i << " and object " << j << std::endl;
-
+                // std::cout << "Collision happened between player " << i << " and object " << j << std::endl;
+                
                 glm::vec3 collision_dir = playerCollider.getCollisionNormal(objectCollider);
 
+                if (collision_dir.y < -0.5) {
+                    p_objects[i]->setVelocity(glm::vec3(p_objects[i]->getVelocity().x, 0, p_objects[i]->getVelocity().z));
+                    glm::vec3 maxExt = objectCollider.maxExtents;
+                    p_objects[i]->setPosition(glm::vec3(p_objects[i]->getPosition().x, maxExt.y, p_objects[i]->getPosition().z));
+                    p_objects[i]->setForce(glm::vec3(0.0));
+                    return;
+                }
+
                 p_objects[i]->setVelocity(-collision_dir * 20.0f);
+                // glm::vec3 tempVel = p_objects[i]->getVelocity();
+                // tempVel.y = 0.0;
+                // p_objects[i]->setVelocity(tempVel);
 
                 if (p_objects[i]->getPosition() != m_objects[j]->getPosition())
                 {

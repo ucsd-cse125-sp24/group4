@@ -232,8 +232,9 @@ void ServerCore::process_input(InputPacket packet, short id)
         case JUMP:
         {
             jumping = true;
-            if (client_player->getPosition().y == 0)
+            if (client_player->getPosition().y < 5 || client_player->getVelocity().y == 0)
                 client_player->jump();
+            // client_player->jump();
             break;
         }
         case INTERACT:
