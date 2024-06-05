@@ -19,6 +19,6 @@ Specifically, "Getting started with Winsock" and "Initializing Winsock"
 #include <stdio.h>
 
 #define DEFAULT_BUFLEN 512
-#define CLIENT_RECV_BUFLEN 1024
+#define CLIENT_RECV_BUFLEN 4096
 #define SERVER_RECV_BUFLEN 64
 #define CONNECT_TIMEOUT 1

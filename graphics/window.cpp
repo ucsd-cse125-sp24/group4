@@ -161,19 +161,19 @@ void Window::setup_scene()
 	players.push_back(player4);
 
 	std::cout << "Load students\n";
-	for (int i = 0; i < 12; i++)
+	for (int i = 0; i < 50; i++)
 	{
 		Model *girl = new Model(girlPath, girlAnim);
 		girl->set_color(glm::vec3(0, 0, 1));
 		girl->set_world(temp);
 		students.push_back(girl);
 		studentsChasing.push_back(false);
-		std::cout << "Done\n";
+		std::cout << "Done: " << i << "\n";
 	}
 
 	std::cout << "Load map\n";
 	// Model* mp = new Model("art/models/chair.fbx");
-	Model* mp = new Model("art/models/environment/test.fbx");
+	Model* mp = new Model("art/models/environment/floor2.fbx");
 	mp->set_color(glm::vec3(0.5, 0.5, 0.5));
 
 	// Scale by half
@@ -214,7 +214,9 @@ void Window::setup_scene()
 				writeBoundingBoxToTextFile(glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMin, 1.0f)), glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMax, 1.0f)));
 			}
 		}
+		std::cout << "Written\n";
 	}
+
 }
 
 AnimationState Window::getAnimationState(Input *input)
