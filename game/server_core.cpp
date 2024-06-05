@@ -491,7 +491,7 @@ glm::vec3 parseLine(std::string line) {
 }
 
 void ServerCore::readBoundingBoxes() {
-     std::ifstream file("../game/floor2");
+    std::ifstream file("../game/map_stat");
     if (!file) {
         std::cerr << "Failed to open the file for reading.\n";
         return;
@@ -520,25 +520,37 @@ void ServerCore::readBoundingBoxes() {
 
     file.close();
 
-    // while (true) {
-    //     glm::vec3 minVec, maxVec;
-    //     if (!std::getline(file, line)) break;
-    //     std::istringstream iss(line);
-    //     iss >> minVec.x >> minVec.y >> minVec.z;
+    // building bounding box for batteries
+    bool contain_batteries = true;
+    if (contain_batteries){
+        std::ifstream file("../game/batteries_stat");
+        if (!file) {
+            std::cerr << "Failed to open the file for reading.\n";
+            return;
+        }
+        glm::vec3 minVec, maxVec;
+        std::string line;
+        int lineCount = 0;
+        while (std::getline(file, line)) {
+            if (lineCount % 2 == 0) {
+                minVec = parseLine(line);
+            } else {
+                maxVec = parseLine(line);
+                AABB* c = new AABB(minVec, maxVec);
+                printf("this is maxVec %f %f %f\n",maxVec.x, maxVec.y, maxVec.z);
+                printf("Added object to physics world with bounding box minExtents %f %f %f\n", c->minExtents.x, c->minExtents.y,c->minExtents.z);
+                printf("                                                maxExtents %f %f %f\n", c->maxExtents.x, c->maxExtents.y,c->maxExtents.z);
+                GameObject* newGameObject = new GameObject(c);
+                pWorld.addBatteries(newGameObject);
+            }
+            lineCount++;
+        }
 
-    //     if (!std::getline(file, line)) {
-    //         std::cerr << "File has an odd number of lines." << std::endl;
-    //         break;
-    //     }
-    //     std::istringstream iss2(line);
-    //     iss2 >> maxVec.x >> maxVec.y >> maxVec.z;
+        if (lineCount % 2 != 0) {
+            std::cerr << "File has an odd number of lines." << std::endl;
+        }
 
-    //     AABB* c = new AABB(minVec, maxVec);
-    //     printf("this is maxVec %f %f %f\n",maxVec.x, maxVec.y, maxVec.z);
-    //     printf("Added object to physics world with bounding box minExtents %f %f %f\n", c->minExtents.x, c->minExtents.y,c->minExtents.z);
-    //     printf("                                                maxExtents %f %f %f\n", c->maxExtents.x, c->maxExtents.y,c->maxExtents.z);
-    //     GameObject* newGameObject = new GameObject(c);
-    //     pWorld.addObject(newGameObject);
-    // }
+        file.close();
+    }
 
 }

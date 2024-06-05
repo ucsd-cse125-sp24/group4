@@ -27,18 +27,34 @@ short Window::player_id = 0; // 0 by default
 // Camera
 Camera *Window::cam;
 
-void writeBoundingBoxToTextFile(const glm::vec3 &minVec, const glm::vec3 &maxVec)
+void writeBoundingBoxToTextFile(const glm::vec3 &minVec, const glm::vec3 &maxVec, bool map=true)
 {
-	std::ofstream file("stat", std::ios::app); // Open in text mode to append data
-	if (!file)
-	{
-		std::cerr << "Failed to open the file for writing.\n";
-		return;
-	}
+	if (map){ 
+		std::ofstream file("../game/map_stat", std::ios::app); // Open in text mode to append data
+		if (!file)
+		{
+			std::cerr << "Failed to open the file for writing.\n";
+			return;
+		}
 
-	file << minVec.x << ", " << minVec.y << ", " << minVec.z << std::endl;
-	file << maxVec.x << ", " << maxVec.y << ", " << maxVec.z << "." << std::endl;
-	file.close();
+		file << minVec.x << ", " << minVec.y << ", " << minVec.z << std::endl;
+		file << maxVec.x << ", " << maxVec.y << ", " << maxVec.z << "." << std::endl;
+		file.close();
+	}
+	else{
+		std::ofstream file("../game/batteries_stat", std::ios::app); // Open in text mode to append data
+		if (!file)
+		{
+			std::cerr << "Failed to open the file for writing.\n";
+			return;
+		}
+
+		file << minVec.x << ", " << minVec.y << ", " << minVec.z << std::endl;
+		file << maxVec.x << ", " << maxVec.y << ", " << maxVec.z << "." << std::endl;
+		file.close();
+	}
+	
+
 }
 
 GLFWwindow *Window::create_window(int width, int height)
@@ -204,7 +220,7 @@ void Window::setup_scene()
 	bat3->set_world(glm::scale(bat3_loc, glm::vec3(0.01, 0.01, 0.01)));
 	batteries.push_back(bat3);
 
-	bool write_to_stat = false;
+	bool write_to_stat = true;
 	if (write_to_stat)
 	{
 		for (const Mesh &mesh : mp->meshes)
@@ -214,6 +230,17 @@ void Window::setup_scene()
 				writeBoundingBoxToTextFile(glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMin, 1.0f)), glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMax, 1.0f)));
 			}
 		}
+
+		for (auto battery : batteries){
+			for (const Mesh &mesh : battery.meshes)
+			{
+				if (mesh.hitbox != nullptr)
+				{
+					writeBoundingBoxToTextFile(glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMin, 1.0f)), glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMax, 1.0f)), map=false);
+				}
+			}
+		}
+
 		std::cout << "Written\n";
 	}
 
