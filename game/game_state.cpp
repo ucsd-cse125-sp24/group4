@@ -27,7 +27,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
             return;
         }
 
-        if (distance <= 5.0f && distance < minDistance)
+        if (distance <= 10.0f && distance < minDistance)
         {
             minDistance = distance;
             nearestPlayerPos = playerPos;
@@ -42,7 +42,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
         if (student.chaseDuration == 0)
         {
             // Check if player is still in range
-            if (glm::length(directionToPlayer) > 5.0f)
+            if (glm::length(directionToPlayer) > 10.0f)
             {
                 student.chasingPlayer = false;
             }
