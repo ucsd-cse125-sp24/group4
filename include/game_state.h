@@ -11,6 +11,13 @@ struct PlayerState
     glm::mat4 world;
     int score;
     // Add other player-specific state variables
+
+    void lose() {
+        score = -1;
+    }
+    int get_score() {
+        return score;
+    }
 };
 
 struct StudentState
@@ -49,5 +56,5 @@ struct GameState
     int score = 0;
 
     void updateScores();
-    void moveStudent(StudentState &student, std::vector<PlayerState> players, const float stepSize, const float totalDistance);
+    void moveStudent(StudentState &student, std::vector<PlayerState> &players, const float stepSize, const float totalDistance);
 };

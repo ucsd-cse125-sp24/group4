@@ -325,12 +325,12 @@ void Window::display_callback(GLFWwindow *window)
 	for (Drawable *battery : batteries)
 	{
 		battery->draw(cam->get_view_project_mtx(), shader_anim_program);
-		battery->debug_draw(cam->get_view_project_mtx(), shader_program);
+		//battery->debug_draw(cam->get_view_project_mtx(), shader_program);
 	}
 
 	map->draw(cam->get_view_project_mtx(), shader_program);
 	exit_square->draw(cam->get_view_project_mtx(), shader_program);
-	map->debug_draw(cam->get_view_project_mtx(), shader_program);
+	//map->debug_draw(cam->get_view_project_mtx(), shader_program);
 
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();

@@ -6,7 +6,7 @@ void GameState::updateScores()
     score += 1;
 }
 
-void GameState::moveStudent(StudentState &student, std::vector<PlayerState> players, const float stepSize, const float totalDistance)
+void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &players, const float stepSize, const float totalDistance)
 {
     // Extract current position from the world matrix
     glm::vec3 currentPos = glm::vec3(student.world[3]);
@@ -16,14 +16,15 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
     float minDistance = std::numeric_limits<float>::max();
     bool playerInRange = false;
 
-    for (const auto &p : players)
+    for (auto &p : players)
     {
         glm::vec3 playerPos = glm::vec3(p.world[3]);
         float distance = glm::distance(currentPos, playerPos);
 
-        if (distance < 0.5f) // Assuming this is the threshold for a collision
+        if (distance < 0.75f) // Assuming this is the threshold for a collision
         {
             student.hasCaughtPlayer = true;
+            p.lose();
             return;
         }
 
@@ -52,6 +53,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
         {
             // Move towards the player
             directionToPlayer = glm::normalize(directionToPlayer);
+            directionToPlayer.y = 0;
             currentPos += directionToPlayer * stepSize;
             student.chaseDuration -= 1;
 

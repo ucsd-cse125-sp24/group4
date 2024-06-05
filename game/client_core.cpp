@@ -167,6 +167,16 @@ void ClientCore::process_server_data() {
 void ClientCore::renderGameState()
 {
     // Render
-    Window::display_callback(window);
-    Window::idle_callback();
+    if (server_state == END_WIN) {
+        // render win screen
+    }
+    else if (server_state == END_LOSE) {
+        // render lose screen
+        Window::display_callback(window);
+        Window::idle_callback();
+    }
+    else {
+        Window::display_callback(window);
+        Window::idle_callback();
+    }
 }

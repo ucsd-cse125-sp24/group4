@@ -341,14 +341,51 @@ void ServerCore::update_game_state()
             s.timeSinceLastUpdate = 0.0f;                                 // Reset the timer
         }
         s.lastUpdate = now; // Update the last update time
+    }
 
-        if (s.hasCaughtPlayer)
-        {
-            this->state = END_LOSE;
-            send_heartbeat();
-            // break;
+    int lost = 1;
+    for (size_t i = 0; i < serverState.players.size(); ++i) {
+        auto &p = serverState.players[i];
+        if (p.get_score() != -1) {
+            lost = 0;
+        } else {
+            handleLostPlayer(i);
         }
     }
+    if (lost == 1) {
+        this->state = END_TOTAL_LOSE;
+        send_heartbeat();
+    }
+}
+
+void ServerCore::handleLostPlayer(int client_i) {
+    PlayerObject *client_player = pWorld.findPlayer(client_i);
+    glm::vec3 dir = glm::vec3(0.0f, -1000.0f, 0.0f);
+    glm::mat4 t2 = glm::translate(glm::mat4(1.0), dir);
+    glm::mat4 world = glm::mat4(1.0f);
+    world = t2 * world;
+    world = glm::scale(world, glm::vec3(reader.GetReal("graphics", "player_model_scale", 0.01),
+                                                          reader.GetReal("graphics", "player_model_scale", 0.01),
+                                                          reader.GetReal("graphics", "player_model_scale", 0.01)));                                   
+    client_player->setPlayerWorld(world);
+    serverState.players[client_i].world = world;
+    client_player->makeReady();
+
+    ServerHeartbeatPacket packet;
+    if (this->state != END_WIN) {
+         packet.state = END_LOSE;
+    }
+    else {
+        return;
+    }
+    
+    size_t bufferSize = packet.calculateSize();
+    char *buffer = new char[CLIENT_RECV_BUFLEN];
+    ServerHeartbeatPacket::serialize(packet, buffer);
+
+    bool send_success = server.sock_send(clients_data[client_i]->sock, CLIENT_RECV_BUFLEN, buffer);
+
+    delete[] buffer;
 }
 
 void ServerCore::send_heartbeat()
