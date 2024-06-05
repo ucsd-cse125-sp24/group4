@@ -131,24 +131,24 @@ void Window::setup_scene()
 	player->set_world(temp);
 	players.push_back(player);
 
-	Model *player2 = new Model(alienPath, animationPath);
-	player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
-	player2->set_world(temp);
-	players.push_back(player2);
+	//Model *player2 = new Model(alienPath, animationPath);
+	//player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
+	//player2->set_world(temp);
+	//players.push_back(player2);
 
-	Model *player3 = new Model(alienPath, animationPath);
-	player3->set_color(glm::vec3(1, 0, 1)); //p3 - purple
-	player3->set_world(temp);
-	players.push_back(player3);
+	//Model *player3 = new Model(alienPath, animationPath);
+	//player3->set_color(glm::vec3(1, 0, 1)); //p3 - purple
+	//player3->set_world(temp);
+	//players.push_back(player3);
 
-	Model *player4 = new Model(alienPath, animationPath);
-	player4->set_color(glm::vec3(0, 0, 1)); // p4 - blue
-	player4->set_world(temp);
-	players.push_back(player4);
+	//Model *player4 = new Model(alienPath, animationPath);
+	//player4->set_color(glm::vec3(0, 0, 1)); // p4 - blue
+	//player4->set_world(temp);
+	//players.push_back(player4);
 
-	// Floor 6_empty works without rotations
+	std::cout << "Loading map\n";
 
-	// Model* mp = new Model("art/models/chair.fbx");
+	//Model* mp = new Model("art/models/chair.fbx");
 	Model* mp = new Model("art/models/environment/test.fbx");
 	mp->set_color(glm::vec3(0.5, 0.5, 0.5));
 
