@@ -139,6 +139,7 @@ void Window::setup_scene()
 
 	glm::mat4 temp = glm::translate(glm::mat4(1.0f), glm::vec3(0, 100, 0));
 
+	std::cout << "Load player" << std::endl;
 	Model *player = new Model(alienPath, alienAnim);
 	player->set_color(glm::vec3(0, 1, 0)); // p1 - green
 	player->set_world(temp);
@@ -159,6 +160,7 @@ void Window::setup_scene()
 	player4->set_world(temp);
 	players.push_back(player4);
 
+	std::cout << "Load students\n";
 	for (int i = 0; i < 12; i++)
 	{
 		Model *girl = new Model(girlPath, girlAnim);
@@ -166,8 +168,10 @@ void Window::setup_scene()
 		girl->set_world(temp);
 		students.push_back(girl);
 		studentsChasing.push_back(false);
+		std::cout << "Done\n";
 	}
 
+	std::cout << "Load map\n";
 	// Model* mp = new Model("art/models/chair.fbx");
 	Model* mp = new Model("art/models/environment/test.fbx");
 	mp->set_color(glm::vec3(0.5, 0.5, 0.5));
