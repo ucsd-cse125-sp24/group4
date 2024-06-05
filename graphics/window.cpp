@@ -15,6 +15,9 @@ float Window::lastFrameTime = 0.0f;
 
 // Drawable objects
 std::vector<Drawable *> Window::players;
+std::vector<Drawable *> Window::students;
+std::vector<bool> Window::studentsChasing;
+
 Drawable *Window::map;
 Drawable *Window::obj;
 
@@ -23,16 +26,18 @@ short Window::player_id = 0; // 0 by default
 // Camera
 Camera *Window::cam;
 
-void writeBoundingBoxToTextFile(const glm::vec3& minVec, const glm::vec3& maxVec) {
-    std::ofstream file("stat", std::ios::app); // Open in text mode to append data
-    if (!file) {
-        std::cerr << "Failed to open the file for writing.\n";
-        return;
-    }
+void writeBoundingBoxToTextFile(const glm::vec3 &minVec, const glm::vec3 &maxVec)
+{
+	std::ofstream file("stat", std::ios::app); // Open in text mode to append data
+	if (!file)
+	{
+		std::cerr << "Failed to open the file for writing.\n";
+		return;
+	}
 
-    file << minVec.x << ", " << minVec.y << ", " << minVec.z << std::endl;
-    file << maxVec.x << ", " << maxVec.y << ", " << maxVec.z << "." << std::endl;
-    file.close();
+	file << minVec.x << ", " << minVec.y << ", " << minVec.z << std::endl;
+	file << maxVec.x << ", " << maxVec.y << ", " << maxVec.z << "." << std::endl;
+	file.close();
 }
 
 GLFWwindow *Window::create_window(int width, int height)
@@ -113,42 +118,56 @@ void Window::setup_callbacks(GLFWwindow *window)
 
 void Window::setup_scene()
 {
-	// Populate players
-	//
-	// unused player models sent into space
+	std::string alienPath = "art/models/character/green_alien_wbones.fbx";
+	std::string boyPath = "art/models/character/boy_standing.fbx";
+	std::string girlPath = "art/models/character/girl_standing.fbx";
 
-	std::map<AnimationState, std::string> animationPath = {
+	std::map<AnimationState, std::string> alienAnim = {
 		{AnimationState::Idle, "art/models/character/green_alien_wbones.fbx"},
 		{AnimationState::Walking, "art/models/animation/walking/green_alien_walking.fbx"}};
 
-	std::string alienPath = "art/models/character/green_alien_wbones.fbx";
+	std::map<AnimationState, std::string> boyAnim = {
+		{AnimationState::Idle, "art/models/character/boy_standing.fbx"},
+		{AnimationState::Walking, "art/models/animation/walking/boy_walking.fbx"},
+		{AnimationState::Running, "art/models/animation/running/boy_running.fbx"}};
+
+	std::map<AnimationState, std::string> girlAnim = {
+		{AnimationState::Idle, "art/models/character/girl_standing.fbx"},
+		{AnimationState::Walking, "art/models/animation/walking/girl_walking.fbx"},
+		{AnimationState::Running, "art/models/animation/running/girl_running.fbx"}};
 
 	glm::mat4 temp = glm::translate(glm::mat4(1.0f), glm::vec3(0, 100, 0));
 
-	std::cout << "Loading players...\n";
-	Model *player = new Model(alienPath, animationPath);
+	Model *player = new Model(alienPath, alienAnim);
 	player->set_color(glm::vec3(0, 1, 0)); // p1 - green
 	player->set_world(temp);
 	players.push_back(player);
 
-	//Model *player2 = new Model(alienPath, animationPath);
-	//player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
-	//player2->set_world(temp);
-	//players.push_back(player2);
+	Model *player2 = new Model(alienPath, alienAnim);
+	player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
+	player2->set_world(temp);
+	players.push_back(player2);
 
-	//Model *player3 = new Model(alienPath, animationPath);
-	//player3->set_color(glm::vec3(1, 0, 1)); //p3 - purple
-	//player3->set_world(temp);
-	//players.push_back(player3);
+	Model *player3 = new Model(alienPath, alienAnim);
+	player3->set_color(glm::vec3(1, 0, 1)); // p3 - purple
+	player3->set_world(temp);
+	players.push_back(player3);
 
-	//Model *player4 = new Model(alienPath, animationPath);
-	//player4->set_color(glm::vec3(0, 0, 1)); // p4 - blue
-	//player4->set_world(temp);
-	//players.push_back(player4);
+	Model *player4 = new Model(alienPath, alienAnim);
+	player4->set_color(glm::vec3(0, 0, 1)); // p4 - blue
+	player4->set_world(temp);
+	players.push_back(player4);
 
-	std::cout << "Loading map\n";
+	for (int i = 0; i < 12; i++)
+	{
+		Model *girl = new Model(girlPath, girlAnim);
+		girl->set_color(glm::vec3(0, 0, 1));
+		girl->set_world(temp);
+		students.push_back(girl);
+		studentsChasing.push_back(false);
+	}
 
-	//Model* mp = new Model("art/models/chair.fbx");
+	// Model* mp = new Model("art/models/chair.fbx");
 	Model* mp = new Model("art/models/environment/test.fbx");
 	mp->set_color(glm::vec3(0.5, 0.5, 0.5));
 
@@ -157,14 +176,16 @@ void Window::setup_scene()
 	map = mp;
 
 	bool write_to_stat = false;
-	if (write_to_stat){
-		for (const Mesh& mesh : mp->meshes) {
-			if (mesh.hitbox != nullptr){
+	if (write_to_stat)
+	{
+		for (const Mesh &mesh : mp->meshes)
+		{
+			if (mesh.hitbox != nullptr)
+			{
 				writeBoundingBoxToTextFile(glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMin, 1.0f)), glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMax, 1.0f)));
 			}
 		}
 	}
-    
 
 	// glm::mat4 temp_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-280, 0, -100));
 	// Model* loc = new Model("art/models/chair.fbx");
@@ -179,10 +200,6 @@ AnimationState Window::getAnimationState(Input *input)
 	{
 		return AnimationState::Walking;
 	}
-	// else {
-	//     return AnimationState::Idle;
-	// }
-	// return AnimationState::Idle;
 	return AnimationState::Idle;
 }
 
@@ -203,6 +220,11 @@ void Window::clean_up()
 	for (Drawable *player : players)
 	{
 		delete player;
+	}
+
+	for (Drawable *student : students)
+	{
+		delete student;
 	}
 
 	delete map;
@@ -238,25 +260,38 @@ void Window::display_callback(GLFWwindow *window)
 	cam->update(players[player_id]->get_world());
 
 	float deltaTime = calculateDeltaTime();
-	
 
 	for (Drawable *player : players)
 	{
 		player->draw(cam->get_view_project_mtx(), shader_anim_program);
-		player->debug_draw(cam->get_view_project_mtx(), shader_program);
+		// player->debug_draw(cam->get_view_project_mtx(), shader_program);
 		Model *model = dynamic_cast<Model *>(player);
-		if (model)
+		AnimationState currentState = getAnimationState(input);
+
+		if (currentState != AnimationState::Idle)
 		{
-			AnimationState currentState = getAnimationState(input);
-			if (currentState != AnimationState::Idle)
-			{
-				model->updateAnimations(deltaTime, currentState);
-			}
+			model->updateAnimations(deltaTime, currentState);
+		}
+	}
+
+	for (int i = 0; i < students.size(); i++)
+	{
+		students[i]->draw(cam->get_view_project_mtx(), shader_anim_program);
+		Model *model = dynamic_cast<Model *>(students[i]);
+		if (studentsChasing[i])
+		{
+			// std::cout << "chasing!" << std::endl;
+			model->updateAnimations(deltaTime, AnimationState::Running);
+		}
+		else
+		{
+			// std::cout << "walking" << std::endl;
+			model->updateAnimations(deltaTime, AnimationState::Walking);
 		}
 	}
 
 	map->draw(cam->get_view_project_mtx(), shader_program);
-	//obj->draw(cam->get_view_project_mtx(), shader_program);
+	// obj->draw(cam->get_view_project_mtx(), shader_program);
 	map->debug_draw(cam->get_view_project_mtx(), shader_program);
 
 	// Gets events, including input such as keyboard and mouse or window resizing
@@ -334,18 +369,13 @@ void Window::update_state(GameState &state)
 		players[i]->set_world(state.players[i].world);
 	}
 
-	// float deltaTime = calculateDeltaTime();
-
-	// AnimationState currentState = getAnimationState(input);
-
-	// for (auto &player : players)
-	// {
-	// 	Model *model = dynamic_cast<Model *>(player);
-	// 	if (model)
-	// 	{
-	// 		model->updateAnimations(deltaTime, currentState);
-	// 	}
-	// }
-
 	// TODO: Update other fields - student, etc
+
+	for (int i = 0; i < state.students.size(); i++)
+	{
+		students[i]->set_world(state.students[i].world);
+		studentsChasing[i] = state.students[i].chasingPlayer;
+
+		// std::cout << "result: " << state.students[i].world[3][0] << ", " << state.students[i].world[3][1] << ", " << state.students[i].world[3][2] << std::endl;
+	}
 }
