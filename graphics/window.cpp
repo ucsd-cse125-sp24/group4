@@ -300,6 +300,22 @@ void Window::display_callback(GLFWwindow *window)
 		}
 	}
 
+	for (int i = 0; i < students.size(); i++)
+	{
+		students[i]->draw(cam->get_view_project_mtx(), shader_anim_program);
+		Model *model = dynamic_cast<Model *>(students[i]);
+		if (studentsChasing[i])
+		{
+			// std::cout << "chasing!" << std::endl;
+			model->updateAnimations(deltaTime, AnimationState::Running);
+		}
+		else
+		{
+			// std::cout << "walking" << std::endl;
+			model->updateAnimations(deltaTime, AnimationState::Walking);
+		}
+	}
+
 	for (Drawable *battery : batteries)
 	{
 		battery->draw(cam->get_view_project_mtx(), shader_anim_program);

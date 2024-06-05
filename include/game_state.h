@@ -46,13 +46,7 @@ struct GameState
     std::vector<PlayerState> players;
     std::vector<StudentState> students;
     int level;
-<<<<<<< HEAD
     int score = 0;
-    
-    void updateScores();
-    void moveStudent(StudentState& student, const float stepSize, const float totalDistance);
-=======
->>>>>>> main
 
     void updateScores();
     void moveStudent(StudentState &student, std::vector<PlayerState> players, const float stepSize, const float totalDistance);
