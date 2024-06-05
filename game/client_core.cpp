@@ -167,6 +167,7 @@ void ClientCore::receive_updates() {
 void ClientCore::process_server_data() {
     // Processed in Window
     Window::update_state(world_state);
+    //printf("%d\n", this->world_state.score);
 }
 
 void ClientCore::renderGameState()

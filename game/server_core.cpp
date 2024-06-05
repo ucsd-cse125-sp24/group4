@@ -245,11 +245,10 @@ void ServerCore::process_input(InputPacket packet, short id)
             float player_x = client_player->getPosition().x;
             float player_z = client_player->getPosition().z;
 
-            if (player_x <= -270.0f && player_x >= -290.0f && player_z <= -90.0f && player_z >= -110.0f)
-            {
-                printf("This player is ready!\n");
-                client_player->makeReady();
-            }
+                if (player_x <= -95.0f + 5 && player_x >= -95.0f - 5 && player_z <= 25.0f + 5 && player_z >= 25.0f - 5) {
+                    printf("This player is ready!\n");
+                    client_player->makeReady();
+                }
 
             continue;
         }
@@ -258,8 +257,7 @@ void ServerCore::process_input(InputPacket packet, short id)
         float player_x = client_player->getPosition().x;
         float player_z = client_player->getPosition().z;
 
-        if (!(player_x <= -270.0f && player_x >= -290.0f && player_z <= -90.0f && player_z >= -110.0f))
-        {
+        if (!(player_x <= -95.0f + 5 && player_x >= -95.0f - 5 && player_z <= 25.0f + 5 && player_z >= 25.0f - 5)) {
             client_player->makeUnready();
         }
 
@@ -456,7 +454,7 @@ glm::vec3 parseLine(std::string line) {
 }
 
 void ServerCore::readBoundingBoxes() {
-     std::ifstream file("stat");
+     std::ifstream file("../game/floor2");
     if (!file) {
         std::cerr << "Failed to open the file for reading.\n";
         return;

@@ -79,6 +79,9 @@ void GameStatePacket::serialize(const GameStatePacket &packet, char *&outData)
     // Serialize level
     memcpy(temp, &packet.state.level, sizeof(packet.state.level));
     temp += sizeof(packet.state.level);
+
+    memcpy(temp, &packet.state.score, sizeof(packet.state.score));
+    temp += sizeof(packet.state.score);
 }
 
 void GameStatePacket::deserialize(const char *inData, GameStatePacket &packet)
@@ -138,4 +141,7 @@ void GameStatePacket::deserialize(const char *inData, GameStatePacket &packet)
     // Deserialize level
     memcpy(&packet.state.level, inData, sizeof(packet.state.level));
     inData += sizeof(packet.state.level);
+
+    memcpy(&packet.state.score, inData, sizeof(packet.state.score));
+    inData += sizeof(packet.state.score);
 }

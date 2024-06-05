@@ -19,7 +19,8 @@ std::vector<Drawable *> Window::students;
 std::vector<bool> Window::studentsChasing;
 
 Drawable *Window::map;
-Drawable *Window::obj;
+Drawable *Window::exit_square;
+std::vector<Drawable *> Window::batteries;
 
 short Window::player_id = 0; // 0 by default
 
@@ -175,6 +176,30 @@ void Window::setup_scene()
 	mp->set_world(glm::scale(glm::mat4(1.0f), glm::vec3(0.1, 0.1, 0.1)));
 	map = mp;
 
+	glm::mat4 end_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-95, 0, 25));
+	Model* end = new Model("art/models/exit_square.fbx");
+	end->set_color(glm::vec3(0, 1, 0));
+	end->set_world(glm::scale(end_loc, glm::vec3(0.05, 0.05, 0.05)));
+	exit_square = end;
+
+	glm::mat4 bat1_loc = glm::translate(glm::mat4(1.0f), glm::vec3(1, 0, 1));
+	Model* bat1 = new Model("art/models/battery.fbx");
+	bat1->set_color(glm::vec3(1, 1, 0));
+	bat1->set_world(glm::scale(bat1_loc, glm::vec3(0.01, 0.01, 0.01)));
+	batteries.push_back(bat1);
+
+	glm::mat4 bat2_loc = glm::translate(glm::mat4(1.0f), glm::vec3(40, 0, -2.5));
+	Model* bat2 = new Model("art/models/battery.fbx");
+	bat2->set_color(glm::vec3(1, 1, 0));
+	bat2->set_world(glm::scale(bat2_loc, glm::vec3(0.01, 0.01, 0.01)));
+	batteries.push_back(bat2);
+
+	glm::mat4 bat3_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-25, 0, 40));
+	Model* bat3 = new Model("art/models/battery.fbx");
+	bat3->set_color(glm::vec3(1, 1, 0));
+	bat3->set_world(glm::scale(bat3_loc, glm::vec3(0.01, 0.01, 0.01)));
+	batteries.push_back(bat3);
+
 	bool write_to_stat = false;
 	if (write_to_stat)
 	{
@@ -186,12 +211,6 @@ void Window::setup_scene()
 			}
 		}
 	}
-
-	// glm::mat4 temp_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-280, 0, -100));
-	// Model* loc = new Model("art/models/chair.fbx");
-	// loc->set_color(glm::vec3(0, 1, 0));
-	// loc->set_world(temp_loc);
-	// obj = loc;
 }
 
 AnimationState Window::getAnimationState(Input *input)
@@ -228,7 +247,12 @@ void Window::clean_up()
 	}
 
 	delete map;
-	delete obj;
+	delete exit_square;
+	
+	for (Drawable *battery : batteries)
+	{
+		delete battery;
+	}
 
 	// Delete the shader program
 	delete shader_program;
@@ -266,11 +290,13 @@ void Window::display_callback(GLFWwindow *window)
 		player->draw(cam->get_view_project_mtx(), shader_anim_program);
 		// player->debug_draw(cam->get_view_project_mtx(), shader_program);
 		Model *model = dynamic_cast<Model *>(player);
-		AnimationState currentState = getAnimationState(input);
-
-		if (currentState != AnimationState::Idle)
+		if (model)
 		{
-			model->updateAnimations(deltaTime, currentState);
+			AnimationState currentState = getAnimationState(input);
+			if (currentState != AnimationState::Idle)
+			{
+				model->updateAnimations(deltaTime, currentState);
+			}
 		}
 	}
 
@@ -290,8 +316,14 @@ void Window::display_callback(GLFWwindow *window)
 		}
 	}
 
+	for (Drawable *battery : batteries)
+	{
+		battery->draw(cam->get_view_project_mtx(), shader_anim_program);
+		battery->debug_draw(cam->get_view_project_mtx(), shader_program);
+	}
+
 	map->draw(cam->get_view_project_mtx(), shader_program);
-	// obj->draw(cam->get_view_project_mtx(), shader_program);
+	exit_square->draw(cam->get_view_project_mtx(), shader_program);
 	map->debug_draw(cam->get_view_project_mtx(), shader_program);
 
 	// Gets events, including input such as keyboard and mouse or window resizing
