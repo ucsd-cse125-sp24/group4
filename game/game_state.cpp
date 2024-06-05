@@ -20,7 +20,13 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
         glm::vec3 playerPos = glm::vec3(p.world[3]);
         float distance = glm::distance(currentPos, playerPos);
 
-        if (distance < 5.0f && distance < minDistance)
+        if (distance < 0.5f) // Assuming this is the threshold for a collision
+        {
+            student.hasCaughtPlayer = true;
+            return;
+        }
+
+        if (distance <= 5.0f && distance < minDistance)
         {
             minDistance = distance;
             nearestPlayerPos = playerPos;
@@ -31,32 +37,47 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
 
     if (student.chasingPlayer)
     {
-
+        glm::vec3 directionToPlayer = nearestPlayerPos - currentPos;
         if (student.chaseDuration == 0)
         {
             // Check if player is still in range
-            glm::vec3 directionToPlayer = nearestPlayerPos - currentPos;
-            if (glm::length(directionToPlayer) < 5.0f)
-            {
-                student.chaseDuration = 20.0f;
-            }
-            else
+            if (glm::length(directionToPlayer) > 5.0f)
             {
                 student.chasingPlayer = false;
-                student.chaseDuration = 20.0f;
             }
+            student.chaseDuration = 20.0f;
         }
         else
         {
             // Move towards the player
-            glm::vec3 directionToPlayer = nearestPlayerPos - currentPos;
-            if (glm::length(directionToPlayer) > 0.0001f)
-            { // Check if the direction vector is not zero
-                directionToPlayer = glm::normalize(directionToPlayer);
-                currentPos += directionToPlayer * stepSize;
-                // student.physicalObject->moveNPC(directionToPlayer, stepSize);
-                student.chaseDuration -= 1;
-            }
+            directionToPlayer = glm::normalize(directionToPlayer);
+            currentPos += directionToPlayer * stepSize;
+            student.chaseDuration -= 1;
+
+            // Update student's facing direction
+            glm::vec3 forward = glm::normalize(-directionToPlayer); // Change here to face the player correctly
+            glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+            glm::vec3 right = glm::cross(up, forward);
+
+            // Create a new rotation matrix
+            glm::mat4 rotationMatrix(1.0f);
+            rotationMatrix[0] = glm::vec4(right, 0.0f);
+            rotationMatrix[1] = glm::vec4(up, 0.0f);
+            rotationMatrix[2] = glm::vec4(forward, 0.0f);
+
+            // Preserve the current scale
+            glm::vec3 currentScale = glm::vec3(glm::length(student.world[0]),
+                                               glm::length(student.world[1]),
+                                               glm::length(student.world[2]));
+
+            // Apply the scale to the rotation matrix
+            rotationMatrix = glm::scale(rotationMatrix, currentScale);
+
+            // Set the student's world matrix with the new rotation and the current position
+            student.world[0] = rotationMatrix[0];
+            student.world[1] = rotationMatrix[1];
+            student.world[2] = rotationMatrix[2];
+            student.world[3] = glm::vec4(currentPos, 1.0f);
         }
     }
     else
@@ -91,9 +112,4 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
     }
 
     student.world[3] = glm::vec4(currentPos, 1.0f);
-
-    if (minDistance < 0.2f) // Assuming this is the threshold for a collision
-    {
-        student.hasCaughtPlayer = true; 
-    }
 }
