@@ -1,5 +1,4 @@
 #include "../include/client_core.h"
-#include "../include/inih/INIReader.h"
 #include <iostream>
 
 #pragma comment(lib, "Winmm.lib")
@@ -48,11 +47,6 @@ void ClientCore::shutdown()
 
 void ClientCore::run()
 {
-    INIReader reader = INIReader("../config.ini");
-    if (reader.ParseError() != 0) {
-        std::cout << "Can't load 'config.ini'\n";
-    }
-
     PlaySound((LPCSTR)"../audio/sneaky_background.wav", GetModuleHandle(NULL), SND_LOOP | SND_ASYNC);
     
     printf("Successfully joined game! Be sure to vote to start once you're ready.");
