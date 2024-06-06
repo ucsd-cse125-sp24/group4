@@ -490,6 +490,7 @@ void ServerCore::accept_new_clients(int i)
     PlayerObject *newPlayerObject = new PlayerObject(c);
 
     newPlayerObject->setPlayerId(client->id);
+    newPlayerObject->setPosition(glm::vec3(1.5f * client->id, 0.0f, 0.0f));
     
     // pWorld.addObject(newPlayerObject);
     pWorld.addPlayer(newPlayerObject);
