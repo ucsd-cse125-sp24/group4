@@ -2,6 +2,8 @@
 #include <iostream>
 #include "window.h"
 
+#define NUM_NPC 10
+
 int Window::width;
 int Window::height;
 const char *Window::window_title = "Graphics Client";
@@ -177,7 +179,7 @@ void Window::setup_scene()
 	players.push_back(player4);
 
 	std::cout << "Load students\n";
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < NUM_NPC/2; i++)
 	{
 		Model *boy = new Model(boyPath,boyAnim);
 		boy->set_color(glm::vec3(0, 0, 1));
