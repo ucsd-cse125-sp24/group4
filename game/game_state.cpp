@@ -21,6 +21,10 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
         glm::vec3 playerPos = glm::vec3(p.world[3]);
         float distance = glm::distance(currentPos, playerPos);
 
+        if (p.score == -1) {
+            distance = std::numeric_limits<float>::max();
+        }
+
         if (distance < 0.75f) // Assuming this is the threshold for a collision
         {
             student.hasCaughtPlayer = true;
