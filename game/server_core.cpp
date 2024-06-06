@@ -2,7 +2,7 @@
 #include <chrono>
 #include "../include/server_core.h"
 
-#define TICK_MICROSECS 20000 // this gives 50 fps (fps = 1M / TICK_US)
+#define TICK_MICROSECS 40000 // this gives 50 fps (fps = 1M / TICK_US)
 #define NUM_NPC 5
 
 ServerCore::ServerCore()

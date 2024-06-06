@@ -47,7 +47,7 @@ void PlayerObject::simulate_player(float dt) {
     
     // printf("forces: <%f, %f, %f>\n", force.x, force.y, force.z);
     // printf("velocity: <%f, %f, %f>\n", velocity.x, velocity.y, velocity.z);
-    // printf("positions: <%f, %f, %f>\n\n", position.x, position.y, position.z);
+    printf("positions: <%f, %f, %f>\n\n", position.x, position.y, position.z);
 
     collider->setBoundingBox(position); // update the bbox based on updated position
 
