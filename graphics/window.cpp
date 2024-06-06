@@ -177,7 +177,7 @@ void Window::setup_scene()
 	players.push_back(player4);
 
 	std::cout << "Load students\n";
-	for (int i = 0; i < 50; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		Model *girl = new Model(girlPath, girlAnim);
 		girl->set_color(glm::vec3(0, 0, 1));
@@ -189,7 +189,7 @@ void Window::setup_scene()
 
 	std::cout << "Load map\n";
 	// Model* mp = new Model("art/models/chair.fbx");
-	Model* mp = new Model("art/models/environment/floor2.fbx");
+	Model* mp = new Model("art/models/environment/test.fbx");
 	mp->set_color(glm::vec3(0.5, 0.5, 0.5));
 
 	// Scale by half
@@ -220,7 +220,7 @@ void Window::setup_scene()
 	bat3->set_world(glm::scale(bat3_loc, glm::vec3(0.01, 0.01, 0.01)));
 	batteries.push_back(bat3);
 
-	bool write_to_stat = true;
+	bool write_to_stat = false;
 	if (write_to_stat)
 	{
 		for (const Mesh &mesh : mp->meshes)
@@ -231,12 +231,13 @@ void Window::setup_scene()
 			}
 		}
 
-		for (auto battery : batteries){
-			for (const Mesh &mesh : battery.meshes)
+		for (auto drawable_bat : batteries){
+			Model* battery = dynamic_cast<Model*>(drawable_bat);
+			for (const Mesh &mesh : battery->meshes)
 			{
 				if (mesh.hitbox != nullptr)
 				{
-					writeBoundingBoxToTextFile(glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMin, 1.0f)), glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMax, 1.0f)), map=false);
+					writeBoundingBoxToTextFile(glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMin, 1.0f)), glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMax, 1.0f)), false);
 				}
 			}
 		}
