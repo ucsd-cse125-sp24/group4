@@ -149,7 +149,7 @@ void ClientCore::receive_updates() {
                     break;
                 default: // shouldn't reach this
                     printf("Error: unexpected receipt of packet type %d\n", type);
-                    shutdown(); // not ideal but ehhh
+                    //shutdown(); // not ideal but ehhh
             }
 
             //printf("client got \"%s\" from server\n", received_data);

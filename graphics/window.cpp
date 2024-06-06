@@ -161,7 +161,7 @@ void Window::setup_scene()
 	players.push_back(player4);
 
 	std::cout << "Load students\n";
-	for (int i = 0; i < 50; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		Model *girl = new Model(girlPath, girlAnim);
 		girl->set_color(glm::vec3(0, 0, 1));

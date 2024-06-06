@@ -2,8 +2,8 @@
 #include <chrono>
 #include "../include/server_core.h"
 
-#define TICK_MICROSECS 20000 // this gives 50 fps (fps = 1M / TICK_US)
-#define NUM_NPC 50
+#define TICK_MICROSECS 40000 // this gives 25 fps (fps = 1M / TICK_US)
+#define NUM_NPC 5
 
 ServerCore::ServerCore()
 {
@@ -86,7 +86,7 @@ void ServerCore::run()
 void ServerCore::shutdown()
 {
     for (ClientData *c : clients_data)
-        free(c);
+        delete c;
     clients_data.clear(); // Clear the client data vector
     // pWorld.cleanup();
     server.sock_shutdown();
@@ -388,7 +388,7 @@ void ServerCore::send_serial(char *to_send)
             this->available_ids.push_back(clients_data[i]->id); // reclaim id as available
             std::sort(this->available_ids.begin(), this->available_ids.end());
             server.close_client(clients_data[i]->sock);
-            free(clients_data[i]);
+            delete clients_data[i];
             clients_data.erase(clients_data.begin() + i);
             serverState.players.erase(serverState.players.begin() + i);
             i--;
@@ -410,7 +410,7 @@ void ServerCore::accept_new_clients(int i)
     if (!send_success)
     {
         server.close_client(clientSock); // abort conn
-        free(client);
+        delete client;
         return;
     }
     delete[] buffer;
@@ -426,7 +426,7 @@ void ServerCore::accept_new_clients(int i)
 
     serverState.players.push_back(p_state);
 
-    AABB *c = new AABB();
+    AABB *c = nullptr;
     PlayerObject *newPlayerObject = new PlayerObject(c);
 
     newPlayerObject->setPlayerId(client->id);
