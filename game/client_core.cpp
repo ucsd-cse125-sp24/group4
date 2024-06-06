@@ -16,6 +16,8 @@ ClientCore::~ClientCore()
 
 void ClientCore::initialize()
 {
+
+
     while (!client.is_connected()) {
         client.connect_to_server();
     }
@@ -27,10 +29,12 @@ void ClientCore::initialize()
     }
     this->id = *buffer - 1;
     connected = true;
+    
     printf("client connected with id %d\n", this->id);
-
     // Initialize graphics
     window = Graphics::set_up_window(this->id);
+
+
 }
 
 bool ClientCore::is_connected() {
@@ -53,7 +57,7 @@ void ClientCore::run()
     while (this->server_state == LOBBY) {
         // check if player has voted or rescinded vote to start; if either, send vote packet w deets
         // TODO: get actual input lmao
-        // send_vote(); // hard-coded to just vote READY immediately
+        send_vote(); // hard-coded to just vote READY immediately
 
         // check for progression to MAIN_LOOP
         receive_updates();

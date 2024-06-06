@@ -47,7 +47,7 @@ void ServerCore::run()
     send_heartbeat();
 
     // start once max players is reached OR all (nonzero) players are ready anyway
-    while (server.get_num_clients() < reader.GetInteger("debug", "expected_clients", 4) &&
+    while (server.get_num_clients() < reader.GetInteger("debug", "expected_clients", 4) ||
            (this->ready_players < server.get_num_clients() || this->ready_players < 1))
     {
         this->listen();
@@ -511,7 +511,7 @@ glm::vec3 parseLine(std::string line) {
 }
 
 void ServerCore::readBoundingBoxes() {
-    std::ifstream file("../game/map_stat");
+    std::ifstream file("../game/floor2");
     if (!file) {
         std::cerr << "Failed to open the file for reading.\n";
         return;

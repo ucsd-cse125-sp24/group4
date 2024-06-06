@@ -189,7 +189,7 @@ void Window::setup_scene()
 
 	std::cout << "Load map\n";
 	// Model* mp = new Model("art/models/chair.fbx");
-	Model* mp = new Model("art/models/environment/test.fbx");
+	Model* mp = new Model("art/models/environment/floor2.fbx");
 	mp->set_color(glm::vec3(0.5, 0.5, 0.5));
 
 	// Scale by half
