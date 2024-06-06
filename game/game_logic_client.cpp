@@ -13,8 +13,21 @@ int main() {
 
     clientCore.run();
 
-    if (clientCore.is_connected()) {
-        clientCore.shutdown();
+    while (clientCore.is_connected()) {
+        // display image
+        clientCore.receive_updates();
+        clientCore.process_server_data();
+        clientCore.renderGameState();
+        clientCore.send_input();
+
+        if (clientCore.server_state == END_TOTAL_LOSE) {
+            printf("oh no, your team lost\n");
+            clientCore.shutdown();
+        }
+        if (clientCore.server_state == END_WIN) {
+            printf("congrats your team won\n");
+            clientCore.shutdown();
+        }
     }
 
     return 0;

@@ -18,11 +18,11 @@
 #include "server.h"
 #include "windows_socket.h"
 #include "game_state.h"
+#include "random_float.h"
 #include <iostream>
 #include <fstream> // Include this for std::ifstream
 #include <sstream>
 #include <string>
-#include "random_float.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/rotate_vector.hpp"
@@ -60,6 +60,7 @@ class ServerCore {
         void send_serial(char* to_send);    // Send updates to clients
         void accept_new_clients(int i);
         void readBoundingBoxes();
+        void handleLostPlayer(int client_i);
 
         bool running;                       // Server running state
         Server server;

@@ -28,7 +28,7 @@ SOCKET Client::connect_to_server() {
     hints.ai_protocol = IPPROTO_TCP;
 
     // Resolve the server address and port
-    int iResult = getaddrinfo("137.110.111.246", "140", &hints, &result);
+    int iResult = getaddrinfo("127.0.0.1", "140", &hints, &result);
     if ( iResult != 0 ) {
         printf("client getaddrinfo failed with error: %d\n", iResult);
         WSACleanup();
