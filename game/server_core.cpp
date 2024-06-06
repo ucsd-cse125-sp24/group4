@@ -122,7 +122,18 @@ void ServerCore::initialize_npcs()
         randomY = 0.0f; // same level so Y=0 for now
 
         student.world = glm::translate(glm::mat4(1.0f), glm::vec3(randomX, randomY, randomZ)) * student.world;
+
+        // create collider for npc student and add to physics world
+        AABB* c = new AABB(student.world[3], TYPE_NPC);
+        GameObject* newStudentObject = new GameObject(c);
+        newStudentObject->setPosition(student.world[3]);
+        pWorld.addNPC(newStudentObject);
+        
+        //StudentState student;
+        student.physicalObject = newStudentObject;
+        //student.world = world;
         serverState.students.push_back(student);
+
     }
 }
 
@@ -235,8 +246,9 @@ void ServerCore::process_input(InputPacket packet, short id)
         case JUMP:
         {
             jumping = true;
-            if (client_player->getPosition().y == 0)
+            if (client_player->getPosition().y < 5 || client_player->getVelocity().y == 0)
                 client_player->jump();
+            // client_player->jump();
             break;
         }
         case INTERACT:
@@ -337,19 +349,22 @@ void ServerCore::update_game_state()
         float deltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(now - s.lastUpdate).count();
         s.timeSinceLastUpdate += deltaTime;
 
-        if (s.timeSinceLastUpdate >= 0.1f)
+        if (s.timeSinceLastUpdate >= 1.0f)
         {                                                                 // Check if 0.1 second has passed
             serverState.moveStudent(s, serverState.players, 1.0f, 10.0f); // Move student
+            // s.physicalObject->getCollider().setBoundingBox(s.world[3], TYPE_NPC);               // set npc student bounding box in pWorld
+            // pWorld.step_student(s);
+
             s.timeSinceLastUpdate = 0.0f;                                 // Reset the timer
         }
         s.lastUpdate = now; // Update the last update time
 
-        if (s.hasCaughtPlayer)
-        {
-            this->state = END_LOSE;
-            send_heartbeat();
-            // break;
-        }
+        // if (s.hasCaughtPlayer)
+        // {
+        //     this->state = END_LOSE;
+        //     send_heartbeat();
+        //     // break;
+        // }
     }
 }
 
@@ -428,11 +443,10 @@ void ServerCore::accept_new_clients(int i)
 
     serverState.players.push_back(p_state);
 
-    AABB *c = new AABB();
+    AABB *c = new AABB(glm::vec3(0.0f), TYPE_PLAYER); // create a collider for the player at position 0,0,0
     PlayerObject *newPlayerObject = new PlayerObject(c);
 
     newPlayerObject->setPlayerId(client->id);
-    newPlayerObject->makeCollider();
     
     // pWorld.addObject(newPlayerObject);
     pWorld.addPlayer(newPlayerObject);
@@ -456,7 +470,7 @@ glm::vec3 parseLine(std::string line) {
 }
 
 void ServerCore::readBoundingBoxes() {
-     std::ifstream file("stat");
+     std::ifstream file("../game/floor2Data");
     if (!file) {
         std::cerr << "Failed to open the file for reading.\n";
         return;
@@ -470,9 +484,9 @@ void ServerCore::readBoundingBoxes() {
         } else {
             maxVec = parseLine(line);
             AABB* c = new AABB(minVec, maxVec);
-            printf("this is maxVec %f %f %f\n",maxVec.x, maxVec.y, maxVec.z);
-            printf("Added object to physics world with bounding box minExtents %f %f %f\n", c->minExtents.x, c->minExtents.y,c->minExtents.z);
-            printf("                                                maxExtents %f %f %f\n", c->maxExtents.x, c->maxExtents.y,c->maxExtents.z);
+            // printf("this is maxVec %f %f %f\n",maxVec.x, maxVec.y, maxVec.z);
+            // printf("Added object to physics world with bounding box minExtents %f %f %f\n", c->minExtents.x, c->minExtents.y,c->minExtents.z);
+            // printf("                                                maxExtents %f %f %f\n", c->maxExtents.x, c->maxExtents.y,c->maxExtents.z);
             GameObject* newGameObject = new GameObject(c);
             pWorld.addObject(newGameObject);
         }
@@ -484,26 +498,4 @@ void ServerCore::readBoundingBoxes() {
     }
 
     file.close();
-
-    // while (true) {
-    //     glm::vec3 minVec, maxVec;
-    //     if (!std::getline(file, line)) break;
-    //     std::istringstream iss(line);
-    //     iss >> minVec.x >> minVec.y >> minVec.z;
-
-    //     if (!std::getline(file, line)) {
-    //         std::cerr << "File has an odd number of lines." << std::endl;
-    //         break;
-    //     }
-    //     std::istringstream iss2(line);
-    //     iss2 >> maxVec.x >> maxVec.y >> maxVec.z;
-
-    //     AABB* c = new AABB(minVec, maxVec);
-    //     printf("this is maxVec %f %f %f\n",maxVec.x, maxVec.y, maxVec.z);
-    //     printf("Added object to physics world with bounding box minExtents %f %f %f\n", c->minExtents.x, c->minExtents.y,c->minExtents.z);
-    //     printf("                                                maxExtents %f %f %f\n", c->maxExtents.x, c->maxExtents.y,c->maxExtents.z);
-    //     GameObject* newGameObject = new GameObject(c);
-    //     pWorld.addObject(newGameObject);
-    // }
-
 }
