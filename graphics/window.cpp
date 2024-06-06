@@ -350,7 +350,7 @@ void Window::display_callback(GLFWwindow *window)
 		Model *model = dynamic_cast<Model *>(students[i]);
 		if (studentsChasing[i])
 		{
-			//PlaySound((LPCSTR)"../audio/alert.wav", GetModuleHandle(NULL), SND_LOOP | SND_ASYNC);
+			PlaySound((LPCSTR)"../audio/alert.wav", GetModuleHandle(NULL), SND_LOOP | SND_ASYNC);
 			model->updateAnimations(deltaTime, AnimationState::Running);
 		}
 		else

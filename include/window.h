@@ -7,6 +7,7 @@
 #include "enums.h"
 #include "game_state.h"
 #include "model.h"
+#include "windows.h"
 
 /*
  * Window.h
