@@ -347,7 +347,7 @@ void ServerCore::update_game_state()
         float deltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(now - s.lastUpdate).count();
         s.timeSinceLastUpdate += deltaTime;
 
-        if (s.timeSinceLastUpdate >= 1.0f)
+        if (s.timeSinceLastUpdate >= 0.1f)
         {                                                                 // Check if 0.1 second has passed
             serverState.moveStudent(s, serverState.players, 1.0f, 10.0f); // Move student
             // s.physicalObject->getCollider().setBoundingBox(s.world[3], TYPE_NPC);               // set npc student bounding box in pWorld
