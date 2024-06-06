@@ -212,9 +212,10 @@ void Window::setup_scene()
 	end->set_world(glm::scale(end_loc, glm::vec3(0.05, 0.05, 0.05)));
 	exit_square = end;
 
-	glm::mat4 sign_loc = glm::translate(glm::mat4(1.0f), glm::vec3(0, 7, 0));
-	Model* end_sign = new Model("art/models/battery.fbx");
-	end_sign->set_world(glm::scale(sign_loc, glm::vec3(0.015, 0.015, 0.015)));
+	glm::mat4 sign_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-95, 7, 25));
+	Model* end_sign = new Model("art/models/exit_sign.fbx");
+	end_sign->set_world(sign_loc);
+	end_sign->set_world(glm::scale(sign_loc, glm::vec3(0.02, 0.02, 0.02)));
 	exit_sign = end_sign;
 
 	glm::mat4 bat1_loc = glm::translate(glm::mat4(1.0f), glm::vec3(1, 0, 1));

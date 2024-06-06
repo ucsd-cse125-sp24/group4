@@ -34,6 +34,8 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
 
         if (distance <= 20.0f && distance < minDistance)
         {
+            printf("positions: <%f, %f, %f>\n", playerPos.x, playerPos.y, playerPos.z);
+            printf("positions: <%f, %f, %f>\n\n", currentPos.x, currentPos.y, currentPos.z);
             minDistance = distance;
             nearestPlayerPos = playerPos;
             playerInRange = true;
@@ -43,6 +45,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
 
     if (student.chasingPlayer)
     {
+        printf("student chasing\n");
         glm::vec3 directionToPlayer = nearestPlayerPos - currentPos;
         if (student.chaseDuration == 0)
         {
