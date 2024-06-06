@@ -250,6 +250,8 @@ void PhysicsWorld::handleCollisions()
             if (collision)
             {
                 std::cout << "Collision happened between player " << i << " and battery " << j << std::endl;
+                int score = p_objects[i]->updateScore();
+                std::cout << "Player " << i << " collected " << score << " batteries!" << std::endl;
                 removeBatteries(b_objects[j]);
             }
         }

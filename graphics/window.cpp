@@ -208,17 +208,29 @@ void Window::setup_scene()
 	bat1->set_world(glm::scale(bat1_loc, glm::vec3(0.01, 0.01, 0.01)));
 	batteries.push_back(bat1);
 
-	glm::mat4 bat2_loc = glm::translate(glm::mat4(1.0f), glm::vec3(40, 0, -2.5));
+	glm::mat4 bat2_loc = glm::translate(glm::mat4(1.0f), glm::vec3(40, 0, 20));
 	Model* bat2 = new Model("art/models/battery.fbx");
 	bat2->set_color(glm::vec3(1, 1, 0));
 	bat2->set_world(glm::scale(bat2_loc, glm::vec3(0.01, 0.01, 0.01)));
 	batteries.push_back(bat2);
 
-	glm::mat4 bat3_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-25, 0, 40));
+	glm::mat4 bat3_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-30, 0, 40));
 	Model* bat3 = new Model("art/models/battery.fbx");
 	bat3->set_color(glm::vec3(1, 1, 0));
 	bat3->set_world(glm::scale(bat3_loc, glm::vec3(0.01, 0.01, 0.01)));
 	batteries.push_back(bat3);
+
+	glm::mat4 bat4_loc = glm::translate(glm::mat4(1.0f), glm::vec3(2, 0, 2));
+	Model* bat4 = new Model("art/models/battery.fbx");
+	bat4->set_color(glm::vec3(1, 1, 0));
+	bat4->set_world(glm::scale(bat4_loc, glm::vec3(0.01, 0.01, 0.01)));
+	batteries.push_back(bat4);
+
+	glm::mat4 bat5_loc = glm::translate(glm::mat4(1.0f), glm::vec3(3, 0, 3));
+	Model* bat5 = new Model("art/models/battery.fbx");
+	bat5->set_color(glm::vec3(1, 1, 0));
+	bat5->set_world(glm::scale(bat5_loc, glm::vec3(0.01, 0.01, 0.01)));
+	batteries.push_back(bat5);
 
 	bool write_to_stat = false;
 	if (write_to_stat)
@@ -237,7 +249,7 @@ void Window::setup_scene()
 			{
 				if (mesh.hitbox != nullptr)
 				{
-					writeBoundingBoxToTextFile(glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMin, 1.0f)), glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMax, 1.0f)), false);
+					writeBoundingBoxToTextFile(glm::vec3(battery->get_world() * glm::vec4(mesh.hitbox->cubeMin, 1.0f)), glm::vec3(battery->get_world() * glm::vec4(mesh.hitbox->cubeMax, 1.0f)), false);
 				}
 			}
 		}
