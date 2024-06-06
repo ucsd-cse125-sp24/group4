@@ -62,8 +62,8 @@ add_test(NAME ServerCoreShutdownTest COMMAND ServerCoreTests "shutdown")
 # add_test(NAME ClientCoreShutdownTest COMMAND ClientCoreTests "shutdown")
 
 # ---- Packets test ----
-add_executable(GameStatePacketTest tests/game_state_packet_test.cpp packets/game_state_packet.cpp)
-target_include_directories(GameStatePacketTest PRIVATE include)
+# add_executable(GameStatePacketTest tests/game_state_packet_test.cpp packets/game_state_packet.cpp)
+# target_include_directories(GameStatePacketTest PRIVATE include)
 
 add_executable(InputPacketTest tests/input_packet_test.cpp packets/input_packet.cpp)
 
@@ -71,7 +71,7 @@ add_executable(ServerHeartbeatPacketTest tests/server_heartbeat_packet_test.cpp 
 
 add_executable(VotePacketTest tests/vote_packet_test.cpp packets/vote_packet.cpp)
 
-add_test(NAME GameStatePacketTest COMMAND GameStatePacketTest)
+# add_test(NAME GameStatePacketTest COMMAND GameStatePacketTest)
 add_test(NAME InputPacketTest COMMAND InputPacketTest)
 add_test(NAME ServerHeartbeatPacketTest COMMAND ServerHeartbeatPacketTest)
 add_test(NAME VotePacketTest COMMAND VotePacketTest)

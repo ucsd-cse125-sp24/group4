@@ -3,9 +3,10 @@
 void GameState::updateScores()
 {
     // Implementation for updating scores
+    score += 1;
 }
 
-void GameState::moveStudent(StudentState &student, std::vector<PlayerState> players, const float stepSize, const float totalDistance)
+void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &players, const float stepSize, const float totalDistance)
 {
     // Extract current position from the world matrix
     glm::vec3 currentPos = glm::vec3(student.world[3]);
@@ -15,18 +16,19 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
     float minDistance = std::numeric_limits<float>::max();
     bool playerInRange = false;
 
-    for (const auto &p : players)
+    for (auto &p : players)
     {
         glm::vec3 playerPos = glm::vec3(p.world[3]);
         float distance = glm::distance(currentPos, playerPos);
 
-        if (distance < 0.5f) // Assuming this is the threshold for a collision
+        if (distance < 0.75f) // Assuming this is the threshold for a collision
         {
             student.hasCaughtPlayer = true;
+            p.lose();
             return;
         }
 
-        if (distance <= 5.0f && distance < minDistance)
+        if (distance <= 20.0f && distance < minDistance)
         {
             minDistance = distance;
             nearestPlayerPos = playerPos;
@@ -41,7 +43,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
         if (student.chaseDuration == 0)
         {
             // Check if player is still in range
-            if (glm::length(directionToPlayer) > 5.0f)
+            if (glm::length(directionToPlayer) > 20.0f)
             {
                 student.chasingPlayer = false;
             }
@@ -51,6 +53,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> play
         {
             // Move towards the player
             directionToPlayer = glm::normalize(directionToPlayer);
+            directionToPlayer.y = 0;
             currentPos += directionToPlayer * stepSize;
             student.chaseDuration -= 1;
 

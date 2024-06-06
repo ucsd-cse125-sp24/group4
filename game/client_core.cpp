@@ -1,5 +1,4 @@
 #include "../include/client_core.h"
-#include "../include/inih/INIReader.h"
 #include <iostream>
 
 #pragma comment(lib, "Winmm.lib")
@@ -17,6 +16,8 @@ ClientCore::~ClientCore()
 
 void ClientCore::initialize()
 {
+
+
     while (!client.is_connected()) {
         client.connect_to_server();
     }
@@ -28,10 +29,12 @@ void ClientCore::initialize()
     }
     this->id = *buffer - 1;
     connected = true;
+    
     printf("client connected with id %d\n", this->id);
-
     // Initialize graphics
     window = Graphics::set_up_window(this->id);
+
+
 }
 
 bool ClientCore::is_connected() {
@@ -48,18 +51,13 @@ void ClientCore::shutdown()
 
 void ClientCore::run()
 {
-    INIReader reader = INIReader("../config.ini");
-    if (reader.ParseError() != 0) {
-        std::cout << "Can't load 'config.ini'\n";
-    }
-
     PlaySound((LPCSTR)"../audio/sneaky_background.wav", GetModuleHandle(NULL), SND_LOOP | SND_ASYNC);
     
     printf("Successfully joined game! Be sure to vote to start once you're ready.");
     while (this->server_state == LOBBY) {
         // check if player has voted or rescinded vote to start; if either, send vote packet w deets
         // TODO: get actual input lmao
-        // send_vote(); // hard-coded to just vote READY immediately
+        send_vote(); // hard-coded to just vote READY immediately
 
         // check for progression to MAIN_LOOP
         receive_updates();
@@ -92,7 +90,7 @@ void ClientCore::send_vote() {
     char *buffer = new char[SERVER_RECV_BUFLEN];
 
     VotePacket::serialize(packet, buffer);
-    if (!client.sock_send((int)bufferSize, buffer)) {
+    if (!client.sock_send(SERVER_RECV_BUFLEN, buffer)) {
         shutdown();
     }
 
@@ -155,7 +153,7 @@ void ClientCore::receive_updates() {
                     break;
                 default: // shouldn't reach this
                     printf("Error: unexpected receipt of packet type %d\n", type);
-                    shutdown(); // not ideal but ehhh
+                    // shutdown(); // not ideal but ehhh
             }
 
             //printf("client got \"%s\" from server\n", received_data);
@@ -167,11 +165,22 @@ void ClientCore::receive_updates() {
 void ClientCore::process_server_data() {
     // Processed in Window
     Window::update_state(world_state);
+    //printf("%d\n", this->world_state.score);
 }
 
 void ClientCore::renderGameState()
 {
     // Render
-    Window::display_callback(window);
-    Window::idle_callback();
+    if (server_state == END_WIN) {
+        // render win screen
+    }
+    else if (server_state == END_LOSE) {
+        // render lose screen
+        Window::display_callback(window);
+        Window::idle_callback();
+    }
+    else {
+        Window::display_callback(window);
+        Window::idle_callback();
+    }
 }

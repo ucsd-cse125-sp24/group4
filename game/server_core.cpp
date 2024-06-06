@@ -2,8 +2,8 @@
 #include <chrono>
 #include "../include/server_core.h"
 
-#define TICK_MICROSECS 20000 // this gives 50 fps (fps = 1M / TICK_US)
-#define NUM_NPC 12
+#define TICK_MICROSECS 40000 // this gives 50 fps (fps = 1M / TICK_US)
+#define NUM_NPC 5
 
 ServerCore::ServerCore()
 {
@@ -47,7 +47,7 @@ void ServerCore::run()
     send_heartbeat();
 
     // start once max players is reached OR all (nonzero) players are ready anyway
-    while (server.get_num_clients() < reader.GetInteger("debug", "expected_clients", 4) &&
+    while (server.get_num_clients() < reader.GetInteger("debug", "expected_clients", 4) ||
            (this->ready_players < server.get_num_clients() || this->ready_players < 1))
     {
         this->listen();
@@ -257,11 +257,10 @@ void ServerCore::process_input(InputPacket packet, short id)
             float player_x = client_player->getPosition().x;
             float player_z = client_player->getPosition().z;
 
-            if (player_x <= -270.0f && player_x >= -290.0f && player_z <= -90.0f && player_z >= -110.0f)
-            {
-                printf("This player is ready!\n");
-                client_player->makeReady();
-            }
+                if (player_x <= -95.0f + 5 && player_x >= -95.0f - 5 && player_z <= 25.0f + 5 && player_z >= 25.0f - 5) {
+                    printf("This player is ready!\n");
+                    client_player->makeReady();
+                }
 
             continue;
         }
@@ -270,8 +269,7 @@ void ServerCore::process_input(InputPacket packet, short id)
         float player_x = client_player->getPosition().x;
         float player_z = client_player->getPosition().z;
 
-        if (!(player_x <= -270.0f && player_x >= -290.0f && player_z <= -90.0f && player_z >= -110.0f))
-        {
+        if (!(player_x <= -95.0f + 5 && player_x >= -95.0f - 5 && player_z <= 25.0f + 5 && player_z >= 25.0f - 5)) {
             client_player->makeUnready();
         }
 
@@ -358,14 +356,57 @@ void ServerCore::update_game_state()
             s.timeSinceLastUpdate = 0.0f;                                 // Reset the timer
         }
         s.lastUpdate = now; // Update the last update time
-
-        // if (s.hasCaughtPlayer)
+                // if (s.hasCaughtPlayer)
         // {
         //     this->state = END_LOSE;
         //     send_heartbeat();
         //     // break;
         // }
     }
+
+    int lost = 1;
+    for (size_t i = 0; i < serverState.players.size(); ++i) {
+        auto &p = serverState.players[i];
+        if (p.get_score() != -1) {
+            lost = 0;
+        } else {
+            handleLostPlayer(i);
+        }
+    }
+    if (lost == 1) {
+        this->state = END_TOTAL_LOSE;
+        send_heartbeat();
+    }
+}
+
+void ServerCore::handleLostPlayer(int client_i) {
+    PlayerObject *client_player = pWorld.findPlayer(client_i);
+    glm::vec3 dir = glm::vec3(0.0f, -1000.0f, 0.0f);
+    glm::mat4 t2 = glm::translate(glm::mat4(1.0), dir);
+    glm::mat4 world = glm::mat4(1.0f);
+    world = t2 * world;
+    world = glm::scale(world, glm::vec3(reader.GetReal("graphics", "player_model_scale", 0.01),
+                                                          reader.GetReal("graphics", "player_model_scale", 0.01),
+                                                          reader.GetReal("graphics", "player_model_scale", 0.01)));                                   
+    client_player->setPlayerWorld(world);
+    serverState.players[client_i].world = world;
+    client_player->makeReady();
+
+    ServerHeartbeatPacket packet;
+    if (this->state != END_WIN) {
+         packet.state = END_LOSE;
+    }
+    else {
+        return;
+    }
+    
+    size_t bufferSize = packet.calculateSize();
+    char *buffer = new char[CLIENT_RECV_BUFLEN];
+    ServerHeartbeatPacket::serialize(packet, buffer);
+
+    bool send_success = server.sock_send(clients_data[client_i]->sock, CLIENT_RECV_BUFLEN, buffer);
+
+    delete[] buffer;
 }
 
 void ServerCore::send_heartbeat()
@@ -439,6 +480,8 @@ void ServerCore::accept_new_clients(int i)
                                                           reader.GetReal("graphics", "player_model_scale", 0.01),
                                                           reader.GetReal("graphics", "player_model_scale", 0.01)));
 
+    p_state.world = glm::translate(glm::mat4(1.0f), glm::vec3(1.5f * client->id, 0.0f, 0.0f)) * p_state.world;
+
     p_state.score = 0;
 
     serverState.players.push_back(p_state);
@@ -470,7 +513,7 @@ glm::vec3 parseLine(std::string line) {
 }
 
 void ServerCore::readBoundingBoxes() {
-     std::ifstream file("../game/floor2Data");
+    std::ifstream file("../game/floor2");
     if (!file) {
         std::cerr << "Failed to open the file for reading.\n";
         return;
@@ -498,4 +541,38 @@ void ServerCore::readBoundingBoxes() {
     }
 
     file.close();
+
+    // building bounding box for batteries
+    bool contain_batteries = true;
+    if (contain_batteries){
+        std::ifstream file("../game/batteries_stat");
+        if (!file) {
+            std::cerr << "Failed to open the file for reading.\n";
+            return;
+        }
+        glm::vec3 minVec, maxVec;
+        std::string line;
+        int lineCount = 0;
+        while (std::getline(file, line)) {
+            if (lineCount % 2 == 0) {
+                minVec = parseLine(line);
+            } else {
+                maxVec = parseLine(line);
+                AABB* c = new AABB(minVec, maxVec);
+                printf("this is maxVec %f %f %f\n",maxVec.x, maxVec.y, maxVec.z);
+                printf("Added object to physics world with bounding box minExtents %f %f %f\n", c->minExtents.x, c->minExtents.y,c->minExtents.z);
+                printf("                                                maxExtents %f %f %f\n", c->maxExtents.x, c->maxExtents.y,c->maxExtents.z);
+                GameObject* newGameObject = new GameObject(c);
+                pWorld.addBatteries(newGameObject);
+            }
+            lineCount++;
+        }
+
+        if (lineCount % 2 != 0) {
+            std::cerr << "File has an odd number of lines." << std::endl;
+        }
+
+        file.close();
+    }
+
 }

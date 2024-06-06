@@ -30,7 +30,8 @@ public:
 	static std::vector<Drawable*> students;
 	static std::vector<bool> studentsChasing;
 	static Drawable* map;
-	static Drawable* obj;
+	static Drawable* exit_square;
+	static std::vector<Drawable*> batteries;
 
 	// Camera
 	static Camera* cam;
@@ -43,6 +44,7 @@ public:
 
 	// INITIALIZATION ----------------------------------------------------------
 	static GLFWwindow* create_window(int width, int height);
+	
 	static void setup_callbacks(GLFWwindow* window);
 	static void setup_scene();
 

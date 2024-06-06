@@ -39,6 +39,24 @@ void PhysicsWorld::removeNPC(GameObject *object)
     }
 }
 
+void PhysicsWorld::addBatteries(GameObject *object)
+{
+    b_objects.push_back(object);
+}
+
+void PhysicsWorld::removeBatteries(GameObject *object)
+{
+    // Find the object in the vector
+    auto it = std::find(b_objects.begin(), b_objects.end(), object);
+
+    // If the object is found, erase it
+    if (it != b_objects.end())
+    {
+        b_objects.erase(it);
+        delete object;
+    }
+}
+
 void PhysicsWorld::addPlayer(PlayerObject *player)
 {
     p_objects.push_back(player);
@@ -67,9 +85,13 @@ void PhysicsWorld::cleanup()
     for (auto it = m_objects.begin(); it != m_objects.end(); ++it) {
         delete *it;
     }
+    for (auto it = b_objects.begin(); it != b_objects.end(); ++it) {
+        delete *it;
+    }
 
     p_objects.clear();
     m_objects.clear();
+    b_objects.clear();
 }
 
 PlayerObject *PhysicsWorld::findPlayer(int id)
@@ -177,8 +199,8 @@ void PhysicsWorld::handleCollisions()
 
             if (collision)
             {
-                // std::cout << "Collision happened between player " << i << " and object " << j << std::endl;
-                
+                std::cout << "Collision happened between player " << i << " and object " << j << std::endl;
+
                 glm::vec3 collision_dir = playerCollider.getCollisionNormal(objectCollider);
 
                 if (collision_dir.y < -0.5) {
@@ -203,6 +225,32 @@ void PhysicsWorld::handleCollisions()
                     p_objects[i]->setPosition(p_objects[i]->getPosition() + 1.0f);
                 }
                 p_objects[i]->setForce(glm::vec3(0.0));
+            }
+        }
+    }
+
+    // collision between player and batteries
+    for (unsigned int i = 0; i < p_objects.size(); i++)
+    {
+        for (unsigned int j = i + 1; j < b_objects.size(); j++)
+        {
+            if (!p_objects[i] || !b_objects[j])
+            {
+                std::cout << "Error: Null player or object detected." << std::endl;
+                continue;
+            }
+
+            Collider &playerCollider = p_objects[i]->getCollider();
+            Collider &objectCollider = b_objects[j]->getCollider();
+
+            // Check for collision using references
+            // std::cout << "Checking collision between player " << i << " and object " << j << std::endl;
+            bool collision = playerCollider.collide(objectCollider);
+
+            if (collision)
+            {
+                std::cout << "Collision happened between player " << i << " and battery " << j << std::endl;
+                removeBatteries(b_objects[j]);
             }
         }
     }

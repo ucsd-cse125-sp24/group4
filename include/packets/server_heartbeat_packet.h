@@ -7,7 +7,8 @@ enum ServerState {
   LOBBY,
   MAIN_LOOP,
   END_WIN,
-  END_LOSE
+  END_LOSE,
+  END_TOTAL_LOSE
 };
 
 class ServerHeartbeatPacket : public Packet { // heartbeat to send to clients to confirm state etc.

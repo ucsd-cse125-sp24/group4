@@ -35,9 +35,11 @@ void Model::draw(const glm::mat4 &viewProjMtx, Shader *shader)
 
     for (unsigned int i = 0; i < meshes.size(); i++)
     {
-        meshes[i].draw(viewProjMtx, shader);
-		shader->set_vec3("DiffuseColor", &color[0]);
+        //glm::vec3 clr = meshes[i].vertices[0].diffuse;
+        //if (clr.r == clr.g && clr.g == clr.b) continue;
 
+		shader->set_vec3("DiffuseColor", &meshes[i].vertices[0].diffuse[0]);
+        meshes[i].draw(viewProjMtx, shader);
     }
 
     glUseProgram(0);
@@ -232,6 +234,33 @@ Mesh Model::process_mesh(aiMesh *mesh, const aiScene *scene, const glm::mat4 &tr
 
 	float mmin_x = INT_MAX, mmin_y = INT_MAX, mmin_z = INT_MAX, mmax_x = INT_MIN, mmax_y = INT_MIN, mmax_z = INT_MIN;
 
+    std::string name;
+    aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
+
+    // List all properties
+	//for (unsigned int i = 0; i < mat->mNumProperties; i++)
+	//{
+	//	aiMaterialProperty* prop = mat->mProperties[i];
+	//	std::string propName = prop->mKey.C_Str();
+	//	//aiPropertyTypeInfo type = prop->mType;
+	//	//std::string value = prop->mData;
+	//	//std::cout << "Property: " << propName << " Type: " << type << " Value: " << value << std::endl;
+ //       std::cout << "Property: " << propName << std::endl;
+	//}
+
+
+	aiColor3D color(0.f, 0.f, 0.f);
+    if (AI_SUCCESS != mat->Get(AI_MATKEY_COLOR_DIFFUSE, color)) {
+        std::cout << "Can't get diffuse\n";
+    }
+
+    // Get mesh name
+	//name = mesh->mName.C_Str();
+	//std::cout << "Mesh name: " << name << std::endl;
+
+    // Print color
+	//std::cout << "Color: " << color.r << " " << color.g << " " << color.b << std::endl;
+
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
         Vertex vertex;
@@ -241,6 +270,7 @@ Mesh Model::process_mesh(aiMesh *mesh, const aiScene *scene, const glm::mat4 &tr
         glm::vec3 norm = glm::mat3(transform) * glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
         vertex.normal = norm;
         vertex.texCoords = glm::vec2(0.0f, 0.0f);
+		vertex.diffuse = glm::vec3(color.r, color.g, color.b);
 
         vertices.push_back(vertex);
 

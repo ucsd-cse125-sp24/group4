@@ -12,6 +12,7 @@ class PhysicsWorld {
 		std::vector<GameObject*> m_objects;
 		std::vector<PlayerObject*> p_objects;
 		std::vector<GameObject*> s_objects;
+		std::vector<GameObject*> b_objects;
 	
 	public:
 		void addObject (GameObject* object);
@@ -19,6 +20,9 @@ class PhysicsWorld {
 
 		void addNPC (GameObject* object);
 		void removeNPC (GameObject* object);
+
+		void addBatteries (GameObject* object);
+		void removeBatteries (GameObject* object);
 
 		void addPlayer (PlayerObject* object);
 		void removePlayer (PlayerObject* object);

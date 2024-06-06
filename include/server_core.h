@@ -60,6 +60,7 @@ class ServerCore {
         void send_serial(char* to_send);    // Send updates to clients
         void accept_new_clients(int i);
         void readBoundingBoxes();
+        void handleLostPlayer(int client_i);
 
         bool running;                       // Server running state
         Server server;

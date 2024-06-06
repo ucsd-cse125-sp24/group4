@@ -9,6 +9,7 @@ struct Vertex
 {
 	glm::vec3 position;
 	glm::vec3 normal;
+	glm::vec3 diffuse;
 	glm::vec2 texCoords;
 	glm::ivec4 boneIndices;
 	glm::vec4 boneWeights;

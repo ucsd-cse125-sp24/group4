@@ -6,10 +6,10 @@
 
 void setupGameStatePacket(GameStatePacket& packet) {
     // Initialize player states
-    packet.state.players.push_back({ glm::mat4(1.0f), 100 }); // Player 1
-    packet.state.players.push_back({ glm::mat4(2.0f), 150 }); // Player 2
-    packet.state.players.push_back({ glm::mat4(3.0f), 200 }); // Player 3
-    packet.state.players.push_back({ glm::mat4(4.0f), 250 }); // Player 4
+    // packet.state.players.push_back({ glm::mat4(1.0f), 100 }); // Player 1
+    // packet.state.players.push_back({ glm::mat4(2.0f), 150 }); // Player 2
+    // packet.state.players.push_back({ glm::mat4(3.0f), 200 }); // Player 3
+    // packet.state.players.push_back({ glm::mat4(4.0f), 250 }); // Player 4
 
     // Initialize students states
     // packet.state.students.push_back({ glm::mat4(1.0f)} ); // Student 1

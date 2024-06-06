@@ -1,6 +1,6 @@
 #include "../include/physics/game_object.h"
 #include <cmath>
-#define step 20.0f
+#define step 45.0f
 #define mu 1.2f
 
 void PlayerObject::move() {
@@ -51,7 +51,7 @@ void PlayerObject::simulate_player(float dt) {
     
     // printf("forces: <%f, %f, %f>\n", force.x, force.y, force.z);
     // printf("velocity: <%f, %f, %f>\n", velocity.x, velocity.y, velocity.z);
-    // printf("positions: <%f, %f, %f>\n\n", position.x, position.y, position.z);
+    //printf("positions: <%f, %f, %f>\n\n", position.x, position.y, position.z);
 
     collider->setBoundingBox(position, TYPE_PLAYER); // update the bbox based on updated position
 
