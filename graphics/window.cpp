@@ -138,7 +138,11 @@ void Window::setup_callbacks(GLFWwindow *window)
 
 void Window::setup_scene()
 {
-	std::string alienPath = "art/models/animation/walking/purple_alien_walking.fbx";
+	std::string alienGreen = "art/models/animation/walking/green_alien_walking.fbx";
+	std::string alienMint = "art/models/animation/walking/mint_alien_walking.fbx";
+	std::string alienPink = "art/models/animation/walking/pink_alien_walking.fbx";
+	std::string alienPurple = "art/models/animation/walking/purple_alien_walking.fbx";
+
 	std::string boyPath = "art/models/character/boy_standing.fbx";
 	std::string girlPath = "art/models/character/girl_standing.fbx";
 
@@ -159,23 +163,23 @@ void Window::setup_scene()
 	glm::mat4 temp = glm::translate(glm::mat4(1.0f), glm::vec3(0, 100, 0));
 
 	std::cout << "Load player" << std::endl;
-	Model *player = new Model(alienPath, alienAnim);
-	player->set_color(glm::vec3(0, 1, 0)); // p1 - green
+	Model *player = new Model(alienGreen, alienAnim);
+	player->set_color(glm::vec3(0, 1, 0)); 
 	player->set_world(temp);
 	players.push_back(player);
 
-	Model *player2 = new Model(alienPath, alienAnim);
-	player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
+	Model *player2 = new Model(alienMint, alienAnim);
+	player2->set_color(glm::vec3(1, 0, 0)); 
 	player2->set_world(temp);
 	players.push_back(player2);
 
-	Model *player3 = new Model(alienPath, alienAnim);
-	player3->set_color(glm::vec3(1, 0, 1)); // p3 - purple
+	Model *player3 = new Model(alienPink, alienAnim);
+	player3->set_color(glm::vec3(1, 0, 1));
 	player3->set_world(temp);
 	players.push_back(player3);
 
-	Model *player4 = new Model(alienPath, alienAnim);
-	player4->set_color(glm::vec3(0, 0, 1)); // p4 - blue
+	Model *player4 = new Model(alienPurple, alienAnim);
+	player4->set_color(glm::vec3(0, 0, 1));
 	player4->set_world(temp);
 	players.push_back(player4);
 
