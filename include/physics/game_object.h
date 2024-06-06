@@ -85,4 +85,5 @@ class PlayerObject : public GameObject {
             score += increaseScore;
             return score;
         }
+        int getPlayerScore(){ return score;}
 };

@@ -324,6 +324,15 @@ void ServerCore::process_input(InputPacket packet, short id)
 void ServerCore::update_game_state()
 {
     int win = 1;
+
+    // Update player scores
+    int total_scores = 0;
+    for (int i = 0; i < serverState.players.size(); i++){
+        PlayerObject *client_player = pWorld.findPlayer(i);
+        total_scores += client_player->getPlayerScore();
+    }
+    serverState.setScores(total_scores);
+
     // Update parts of the game that don't depend on player input.
     for (int i = 0; i < serverState.players.size(); i++)
     {

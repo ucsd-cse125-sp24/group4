@@ -6,6 +6,11 @@ void GameState::updateScores()
     score += 1;
 }
 
+void GameState::setScores(int new_score)
+{
+    score = new_score;
+}
+
 void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &players, const float stepSize, const float totalDistance)
 {
     // Extract current position from the world matrix
