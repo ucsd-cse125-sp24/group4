@@ -16,6 +16,7 @@ add_library(physics OBJECT "${PROJECT_SOURCE_DIR}/game/physics_world.cpp" "${PRO
 link_directories(lib)
 
 file(COPY include/assimp/bin/libassimp-5.dll DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY include/freetype/bin/libfreetype-6.dll DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY art DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -26,8 +27,8 @@ target_include_directories(server_core PRIVATE include)
 target_link_libraries(server_core PRIVATE server client state physics ws2_32)
 
 add_executable(client_core game/game_logic_client.cpp game/client_core.cpp ${PACKET_SOURCES} ${GRAPHICS_SOURCES})
-target_include_directories(client_core PRIVATE include include/assimp/include)
-target_link_libraries(client_core PRIVATE server client ws2_32 winmm glfw3 assimp zlibstatic)
+target_include_directories(client_core PRIVATE include include/assimp/include include/freetype/include)
+target_link_libraries(client_core PRIVATE server client ws2_32 winmm glfw3 assimp zlibstatic freetype)
 
 # ----- Testing executables and tests below -----
 enable_testing()
