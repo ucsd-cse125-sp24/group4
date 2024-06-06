@@ -83,10 +83,10 @@ void ClientCore::send_vote() {
     VotePacket packet;
     packet.vote = READY; // TODO
     size_t bufferSize = packet.calculateSize();
-    char *buffer = new char[SERVER_RECV_BUFLEN];
+    char *buffer = new char[SERVER_RECV_BUFLEN/4];
 
     VotePacket::serialize(packet, buffer);
-    if (!client.sock_send(SERVER_RECV_BUFLEN, buffer)) {
+    if (!client.sock_send(SERVER_RECV_BUFLEN/4, buffer)) {
         shutdown();
     }
 
@@ -107,10 +107,10 @@ void ClientCore::send_input()
     }
 
     size_t bufferSize = packet.calculateSize();
-    char *buffer = new char[SERVER_RECV_BUFLEN];
+    char *buffer = new char[SERVER_RECV_BUFLEN/4];
 
     InputPacket::serialize(packet, buffer);
-    if (!client.sock_send(SERVER_RECV_BUFLEN, buffer)) {
+    if (!client.sock_send(SERVER_RECV_BUFLEN/4, buffer)) {
         shutdown();
     }
 

@@ -20,5 +20,5 @@ Specifically, "Getting started with Winsock" and "Initializing Winsock"
 
 #define DEFAULT_BUFLEN 512
 #define CLIENT_RECV_BUFLEN 4096
-#define SERVER_RECV_BUFLEN 32
+#define SERVER_RECV_BUFLEN 128
 #define CONNECT_TIMEOUT 1
