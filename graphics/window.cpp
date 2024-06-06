@@ -212,7 +212,7 @@ void Window::setup_scene()
 	end->set_world(glm::scale(end_loc, glm::vec3(0.05, 0.05, 0.05)));
 	exit_square = end;
 
-	glm::mat4 sign_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-95, 7, 25));
+	glm::mat4 sign_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-95, 2, 25));
 	Model* end_sign = new Model("art/models/exit_sign.fbx");
 	end_sign->set_world(sign_loc);
 	end_sign->set_world(glm::scale(sign_loc, glm::vec3(0.02, 0.02, 0.02)));
@@ -224,13 +224,13 @@ void Window::setup_scene()
 	bat1->set_world(glm::scale(bat1_loc, glm::vec3(0.01, 0.01, 0.01)));
 	batteries.push_back(bat1);
 
-	glm::mat4 bat2_loc = glm::translate(glm::mat4(1.0f), glm::vec3(40, 0, -2.5));
+	glm::mat4 bat2_loc = glm::translate(glm::mat4(1.0f), glm::vec3(37, 0, -2.5));
 	Model* bat2 = new Model("art/models/battery.fbx");
 	bat2->set_color(glm::vec3(1, 1, 0));
 	bat2->set_world(glm::scale(bat2_loc, glm::vec3(0.01, 0.01, 0.01)));
 	batteries.push_back(bat2);
 
-	glm::mat4 bat3_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-25, 0, 40));
+	glm::mat4 bat3_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-26, 0, 41));
 	Model* bat3 = new Model("art/models/battery.fbx");
 	bat3->set_color(glm::vec3(1, 1, 0));
 	bat3->set_world(glm::scale(bat3_loc, glm::vec3(0.01, 0.01, 0.01)));

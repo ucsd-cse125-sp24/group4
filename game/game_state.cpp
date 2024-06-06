@@ -28,14 +28,15 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
         if (distance < 0.75f) // Assuming this is the threshold for a collision
         {
             student.hasCaughtPlayer = true;
+            student.chasingPlayer = false;
             p.lose();
             return;
         }
 
-        if (distance <= 20.0f && distance < minDistance)
+        if (distance <= 15.0f && distance < minDistance)
         {
-            printf("positions: <%f, %f, %f>\n", playerPos.x, playerPos.y, playerPos.z);
-            printf("positions: <%f, %f, %f>\n\n", currentPos.x, currentPos.y, currentPos.z);
+            // printf("positions: <%f, %f, %f>\n", playerPos.x, playerPos.y, playerPos.z);
+            // printf("positions: <%f, %f, %f>\n\n", currentPos.x, currentPos.y, currentPos.z);
             minDistance = distance;
             nearestPlayerPos = playerPos;
             playerInRange = true;
@@ -45,12 +46,11 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
 
     if (student.chasingPlayer)
     {
-        printf("student chasing\n");
         glm::vec3 directionToPlayer = nearestPlayerPos - currentPos;
         if (student.chaseDuration == 0)
         {
             // Check if player is still in range
-            if (glm::length(directionToPlayer) > 20.0f)
+            if (glm::length(directionToPlayer) > 15.0f)
             {
                 student.chasingPlayer = false;
             }
@@ -96,18 +96,19 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
         glm::vec3 step(0.0f);
         switch (student.currentDir)
         {
-        case StudentState::Direction::NORTH: // decrement z
-            step = glm::vec3(0.0f, 0.0f, -stepSize);
-            break;
-        case StudentState::Direction::EAST: // increment x
-            step = glm::vec3(stepSize, 0.0f, 0.0f);
-            break;
-        case StudentState::Direction::SOUTH: // increment z
-            step = glm::vec3(0.0f, 0.0f, stepSize);
-            break;
-        case StudentState::Direction::WEST: // decrement x
-            step = glm::vec3(-stepSize, 0.0f, 0.0f);
-            break;
+            case StudentState::Direction::NORTH: // decrement z
+                step = glm::vec3(0.0f, 0.0f, -stepSize);
+                break;
+            case StudentState::Direction::EAST: // increment x
+                step = glm::vec3(stepSize, 0.0f, 0.0f);
+                break;
+            case StudentState::Direction::SOUTH: // increment z
+                step = glm::vec3(0.0f, 0.0f, stepSize);
+                break;
+            case StudentState::Direction::WEST: // decrement x
+                step = glm::vec3(-stepSize, 0.0f, 0.0f);
+                break;
+        
         }
         currentPos += step;
         student.distanceMoved += stepSize;
