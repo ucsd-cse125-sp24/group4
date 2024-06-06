@@ -24,9 +24,9 @@ class GameObject {
             mass(10.0),
             collider(collider) {}
 
-        // virtual ~GameObject() {
-        //     delete collider;
-        // }
+        virtual ~GameObject() {
+            delete collider;
+        }
         // update position of the object based on forces for delta time tick
         void simulate(float dt);
 
