@@ -3,7 +3,7 @@
 #include "../include/server_core.h"
 
 #define TICK_MICROSECS 40000 // this gives 50 fps (fps = 1M / TICK_US)
-#define NUM_NPC 5
+#define NUM_NPC 10
 
 ServerCore::ServerCore()
 {
@@ -490,6 +490,7 @@ void ServerCore::accept_new_clients(int i)
     PlayerObject *newPlayerObject = new PlayerObject(c);
 
     newPlayerObject->setPlayerId(client->id);
+    newPlayerObject->setPosition(glm::vec3(1.5f * client->id, 0.0f, 0.0f));
     
     // pWorld.addObject(newPlayerObject);
     pWorld.addPlayer(newPlayerObject);
@@ -559,9 +560,9 @@ void ServerCore::readBoundingBoxes() {
             } else {
                 maxVec = parseLine(line);
                 AABB* c = new AABB(minVec, maxVec);
-                printf("this is maxVec %f %f %f\n",maxVec.x, maxVec.y, maxVec.z);
-                printf("Added object to physics world with bounding box minExtents %f %f %f\n", c->minExtents.x, c->minExtents.y,c->minExtents.z);
-                printf("                                                maxExtents %f %f %f\n", c->maxExtents.x, c->maxExtents.y,c->maxExtents.z);
+                // printf("this is maxVec %f %f %f\n",maxVec.x, maxVec.y, maxVec.z);
+                // printf("Added object to physics world with bounding box minExtents %f %f %f\n", c->minExtents.x, c->minExtents.y,c->minExtents.z);
+                // printf("                                                maxExtents %f %f %f\n", c->maxExtents.x, c->maxExtents.y,c->maxExtents.z);
                 GameObject* newGameObject = new GameObject(c);
                 pWorld.addBatteries(newGameObject);
             }
