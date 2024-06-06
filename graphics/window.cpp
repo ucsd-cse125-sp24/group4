@@ -1,6 +1,7 @@
 #include "../include/window.h"
 #include <iostream>
-#include "window.h"
+
+#pragma comment(lib, "Winmm.lib")
 
 #define NUM_NPC 10
 
@@ -137,7 +138,7 @@ void Window::setup_callbacks(GLFWwindow *window)
 
 void Window::setup_scene()
 {
-	std::string alienPath = "art/models/character/green_alien_wbones.fbx";
+	std::string alienPath = "art/models/animation/walking/purple_alien_walking.fbx";
 	std::string boyPath = "art/models/character/boy_standing.fbx";
 	std::string girlPath = "art/models/character/girl_standing.fbx";
 
@@ -349,12 +350,11 @@ void Window::display_callback(GLFWwindow *window)
 		Model *model = dynamic_cast<Model *>(students[i]);
 		if (studentsChasing[i])
 		{
-			// std::cout << "chasing!" << std::endl;
+			//PlaySound((LPCSTR)"../audio/alert.wav", GetModuleHandle(NULL), SND_LOOP | SND_ASYNC);
 			model->updateAnimations(deltaTime, AnimationState::Running);
 		}
 		else
 		{
-			// std::cout << "walking" << std::endl;
 			model->updateAnimations(deltaTime, AnimationState::Walking);
 		}
 	}

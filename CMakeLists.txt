@@ -23,7 +23,7 @@ file(COPY ${PROJECT_SOURCE_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_executable(server_core game/game_logic_pg.cpp game/server_core.cpp ${PACKET_SOURCES})
 target_include_directories(server_core PRIVATE include)
-target_link_libraries(server_core PRIVATE server client state physics ws2_32)
+target_link_libraries(server_core PRIVATE server client state physics ws2_32 winmm)
 
 add_executable(client_core game/game_logic_client.cpp game/client_core.cpp ${PACKET_SOURCES} ${GRAPHICS_SOURCES})
 target_include_directories(client_core PRIVATE include include/assimp/include)
