@@ -480,6 +480,8 @@ void ServerCore::accept_new_clients(int i)
                                                           reader.GetReal("graphics", "player_model_scale", 0.01),
                                                           reader.GetReal("graphics", "player_model_scale", 0.01)));
 
+    p_state.world = glm::translate(glm::mat4(1.0f), glm::vec3(1.5f * client->id, 0.0f, 0.0f)) * p_state.world;
+
     p_state.score = 0;
 
     serverState.players.push_back(p_state);
