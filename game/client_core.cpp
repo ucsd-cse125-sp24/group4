@@ -90,7 +90,7 @@ void ClientCore::send_vote() {
     char *buffer = new char[SERVER_RECV_BUFLEN];
 
     VotePacket::serialize(packet, buffer);
-    if (!client.sock_send((int)bufferSize, buffer)) {
+    if (!client.sock_send(SERVER_RECV_BUFLEN, buffer)) {
         shutdown();
     }
 
