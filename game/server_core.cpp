@@ -470,9 +470,9 @@ void ServerCore::readBoundingBoxes() {
         } else {
             maxVec = parseLine(line);
             AABB* c = new AABB(minVec, maxVec);
-            printf("this is maxVec %f %f %f\n",maxVec.x, maxVec.y, maxVec.z);
-            printf("Added object to physics world with bounding box minExtents %f %f %f\n", c->minExtents.x, c->minExtents.y,c->minExtents.z);
-            printf("                                                maxExtents %f %f %f\n", c->maxExtents.x, c->maxExtents.y,c->maxExtents.z);
+            // printf("this is maxVec %f %f %f\n",maxVec.x, maxVec.y, maxVec.z);
+            // printf("Added object to physics world with bounding box minExtents %f %f %f\n", c->minExtents.x, c->minExtents.y,c->minExtents.z);
+            // printf("                                                maxExtents %f %f %f\n", c->maxExtents.x, c->maxExtents.y,c->maxExtents.z);
             GameObject* newGameObject = new GameObject(c);
             pWorld.addObject(newGameObject);
         }
