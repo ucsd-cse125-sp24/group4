@@ -179,12 +179,19 @@ void Window::setup_scene()
 	std::cout << "Load students\n";
 	for (int i = 0; i < 5; i++)
 	{
+		Model *boy = new Model(boyPath,boyAnim);
+		boy->set_color(glm::vec3(0, 0, 1));
+		boy->set_world(temp);
+		students.push_back(boy);
+		studentsChasing.push_back(false);
+		std::cout << "Done boy: " << i << "\n";
+
 		Model *girl = new Model(girlPath, girlAnim);
 		girl->set_color(glm::vec3(0, 0, 1));
 		girl->set_world(temp);
 		students.push_back(girl);
 		studentsChasing.push_back(false);
-		std::cout << "Done: " << i << "\n";
+		std::cout << "Done girl: " << i << "\n";
 	}
 
 	std::cout << "Load map\n";
