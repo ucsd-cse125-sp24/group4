@@ -18,11 +18,11 @@
 #include "server.h"
 #include "windows_socket.h"
 #include "game_state.h"
+#include "random_float.h"
 #include <iostream>
 #include <fstream> // Include this for std::ifstream
 #include <sstream>
 #include <string>
-#include "random_float.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/rotate_vector.hpp"

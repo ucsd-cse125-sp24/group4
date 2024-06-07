@@ -2,6 +2,8 @@
 #include <iostream>
 #include "window.h"
 
+#define NUM_NPC 10
+
 int Window::width;
 int Window::height;
 const char *Window::window_title = "Graphics Client";
@@ -27,18 +29,34 @@ short Window::player_id = 0; // 0 by default
 // Camera
 Camera *Window::cam;
 
-void writeBoundingBoxToTextFile(const glm::vec3 &minVec, const glm::vec3 &maxVec)
+void writeBoundingBoxToTextFile(const glm::vec3 &minVec, const glm::vec3 &maxVec, bool map=true)
 {
-	std::ofstream file("stat", std::ios::app); // Open in text mode to append data
-	if (!file)
-	{
-		std::cerr << "Failed to open the file for writing.\n";
-		return;
-	}
+	if (map){ 
+		std::ofstream file("../game/map_stat", std::ios::app); // Open in text mode to append data
+		if (!file)
+		{
+			std::cerr << "Failed to open the file for writing.\n";
+			return;
+		}
 
-	file << minVec.x << ", " << minVec.y << ", " << minVec.z << std::endl;
-	file << maxVec.x << ", " << maxVec.y << ", " << maxVec.z << "." << std::endl;
-	file.close();
+		file << minVec.x << ", " << minVec.y << ", " << minVec.z << std::endl;
+		file << maxVec.x << ", " << maxVec.y << ", " << maxVec.z << "." << std::endl;
+		file.close();
+	}
+	else{
+		std::ofstream file("../game/batteries_stat", std::ios::app); // Open in text mode to append data
+		if (!file)
+		{
+			std::cerr << "Failed to open the file for writing.\n";
+			return;
+		}
+
+		file << minVec.x << ", " << minVec.y << ", " << minVec.z << std::endl;
+		file << maxVec.x << ", " << maxVec.y << ", " << maxVec.z << "." << std::endl;
+		file.close();
+	}
+	
+
 }
 
 GLFWwindow *Window::create_window(int width, int height)
@@ -119,12 +137,16 @@ void Window::setup_callbacks(GLFWwindow *window)
 
 void Window::setup_scene()
 {
-	std::string alienPath = "art/models/character/green_alien_wbones.fbx";
+	std::string alienGreen = "art/models/character/green_alien.fbx";
+	std::string alienMint = "art/models/character/mint_alien.fbx";
+	std::string alienPink = "art/models/character/pink_alien.fbx";
+	std::string alienPurple = "art/models/character/purple_alien.fbx";
+
 	std::string boyPath = "art/models/character/boy_standing.fbx";
 	std::string girlPath = "art/models/character/girl_standing.fbx";
 
 	std::map<AnimationState, std::string> alienAnim = {
-		{AnimationState::Idle, "art/models/character/green_alien_wbones.fbx"},
+		{AnimationState::Idle, "art/models/character/green_alien.fbx"},
 		{AnimationState::Walking, "art/models/animation/walking/green_alien_walking.fbx"}};
 
 	std::map<AnimationState, std::string> boyAnim = {
@@ -140,35 +162,42 @@ void Window::setup_scene()
 	glm::mat4 temp = glm::translate(glm::mat4(1.0f), glm::vec3(0, 100, 0));
 
 	std::cout << "Load player" << std::endl;
-	Model *player = new Model(alienPath, alienAnim);
-	player->set_color(glm::vec3(0, 1, 0)); // p1 - green
+	Model *player = new Model(alienGreen, alienAnim);
+	player->set_color(glm::vec3(0, 1, 0)); 
 	player->set_world(temp);
 	players.push_back(player);
 
-	Model *player2 = new Model(alienPath, alienAnim);
-	player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
+	Model *player2 = new Model(alienMint, alienAnim);
+	player2->set_color(glm::vec3(1, 0, 0)); 
 	player2->set_world(temp);
 	players.push_back(player2);
 
-	Model *player3 = new Model(alienPath, alienAnim);
-	player3->set_color(glm::vec3(1, 0, 1)); // p3 - purple
+	Model *player3 = new Model(alienPink, alienAnim);
+	player3->set_color(glm::vec3(1, 0, 1));
 	player3->set_world(temp);
 	players.push_back(player3);
 
-	Model *player4 = new Model(alienPath, alienAnim);
-	player4->set_color(glm::vec3(0, 0, 1)); // p4 - blue
+	Model *player4 = new Model(alienPurple, alienAnim);
+	player4->set_color(glm::vec3(0, 0, 1));
 	player4->set_world(temp);
 	players.push_back(player4);
 
 	std::cout << "Load students\n";
-	for (int i = 0; i < 50; i++)
+	for (int i = 0; i < NUM_NPC/2; i++)
 	{
+		Model *boy = new Model(boyPath,boyAnim);
+		boy->set_color(glm::vec3(0, 0, 1));
+		boy->set_world(temp);
+		students.push_back(boy);
+		studentsChasing.push_back(false);
+		std::cout << "Done boy: " << i << "\n";
+
 		Model *girl = new Model(girlPath, girlAnim);
 		girl->set_color(glm::vec3(0, 0, 1));
 		girl->set_world(temp);
 		students.push_back(girl);
 		studentsChasing.push_back(false);
-		std::cout << "Done: " << i << "\n";
+		std::cout << "Done girl: " << i << "\n";
 	}
 
 	std::cout << "Load map\n";
@@ -214,6 +243,18 @@ void Window::setup_scene()
 				writeBoundingBoxToTextFile(glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMin, 1.0f)), glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMax, 1.0f)));
 			}
 		}
+
+		for (auto drawable_bat : batteries){
+			Model* battery = dynamic_cast<Model*>(drawable_bat);
+			for (const Mesh &mesh : battery->meshes)
+			{
+				if (mesh.hitbox != nullptr)
+				{
+					writeBoundingBoxToTextFile(glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMin, 1.0f)), glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMax, 1.0f)), false);
+				}
+			}
+		}
+
 		std::cout << "Written\n";
 	}
 

@@ -2,8 +2,8 @@
 #include <chrono>
 #include "../include/server_core.h"
 
-#define TICK_MICROSECS 20000 // this gives 50 fps (fps = 1M / TICK_US)
-#define NUM_NPC 50
+#define TICK_MICROSECS 40000 // this gives 50 fps (fps = 1M / TICK_US)
+#define NUM_NPC 10
 
 ServerCore::ServerCore()
 {
@@ -47,7 +47,7 @@ void ServerCore::run()
     send_heartbeat();
 
     // start once max players is reached OR all (nonzero) players are ready anyway
-    while (server.get_num_clients() < reader.GetInteger("debug", "expected_clients", 4) &&
+    while (server.get_num_clients() < reader.GetInteger("debug", "expected_clients", 4) ||
            (this->ready_players < server.get_num_clients() || this->ready_players < 1))
     {
         this->listen();
@@ -122,7 +122,18 @@ void ServerCore::initialize_npcs()
         randomY = 0.0f; // same level so Y=0 for now
 
         student.world = glm::translate(glm::mat4(1.0f), glm::vec3(randomX, randomY, randomZ)) * student.world;
+
+        // create collider for npc student and add to physics world
+        AABB* c = new AABB(student.world[3], TYPE_NPC);
+        GameObject* newStudentObject = new GameObject(c);
+        newStudentObject->setPosition(student.world[3]);
+        pWorld.addNPC(newStudentObject);
+        
+        //StudentState student;
+        student.physicalObject = newStudentObject;
+        //student.world = world;
         serverState.students.push_back(student);
+
     }
 }
 
@@ -235,8 +246,9 @@ void ServerCore::process_input(InputPacket packet, short id)
         case JUMP:
         {
             jumping = true;
-            if (client_player->getPosition().y == 0)
+            if (client_player->getPosition().y < 5 || client_player->getVelocity().y == 0)
                 client_player->jump();
+            // client_player->jump();
             break;
         }
         case INTERACT:
@@ -338,9 +350,18 @@ void ServerCore::update_game_state()
         if (s.timeSinceLastUpdate >= 0.1f)
         {                                                                 // Check if 0.1 second has passed
             serverState.moveStudent(s, serverState.players, 1.0f, 10.0f); // Move student
+            // s.physicalObject->getCollider().setBoundingBox(s.world[3], TYPE_NPC);               // set npc student bounding box in pWorld
+            // pWorld.step_student(s);
+
             s.timeSinceLastUpdate = 0.0f;                                 // Reset the timer
         }
         s.lastUpdate = now; // Update the last update time
+                // if (s.hasCaughtPlayer)
+        // {
+        //     this->state = END_LOSE;
+        //     send_heartbeat();
+        //     // break;
+        // }
     }
 
     int lost = 1;
@@ -459,15 +480,17 @@ void ServerCore::accept_new_clients(int i)
                                                           reader.GetReal("graphics", "player_model_scale", 0.01),
                                                           reader.GetReal("graphics", "player_model_scale", 0.01)));
 
+    p_state.world = glm::translate(glm::mat4(1.0f), glm::vec3(1.5f * client->id, 0.0f, 0.0f)) * p_state.world;
+
     p_state.score = 0;
 
     serverState.players.push_back(p_state);
 
-    AABB *c = new AABB();
+    AABB *c = new AABB(glm::vec3(0.0f), TYPE_PLAYER); // create a collider for the player at position 0,0,0
     PlayerObject *newPlayerObject = new PlayerObject(c);
 
     newPlayerObject->setPlayerId(client->id);
-    newPlayerObject->makeCollider();
+    newPlayerObject->setPosition(glm::vec3(1.5f * client->id, 0.0f, 0.0f));
     
     // pWorld.addObject(newPlayerObject);
     pWorld.addPlayer(newPlayerObject);
@@ -491,7 +514,7 @@ glm::vec3 parseLine(std::string line) {
 }
 
 void ServerCore::readBoundingBoxes() {
-     std::ifstream file("../game/floor2");
+    std::ifstream file("../game/floor2");
     if (!file) {
         std::cerr << "Failed to open the file for reading.\n";
         return;
@@ -520,25 +543,37 @@ void ServerCore::readBoundingBoxes() {
 
     file.close();
 
-    // while (true) {
-    //     glm::vec3 minVec, maxVec;
-    //     if (!std::getline(file, line)) break;
-    //     std::istringstream iss(line);
-    //     iss >> minVec.x >> minVec.y >> minVec.z;
+    // building bounding box for batteries
+    bool contain_batteries = true;
+    if (contain_batteries){
+        std::ifstream file("../game/batteries_stat");
+        if (!file) {
+            std::cerr << "Failed to open the file for reading.\n";
+            return;
+        }
+        glm::vec3 minVec, maxVec;
+        std::string line;
+        int lineCount = 0;
+        while (std::getline(file, line)) {
+            if (lineCount % 2 == 0) {
+                minVec = parseLine(line);
+            } else {
+                maxVec = parseLine(line);
+                AABB* c = new AABB(minVec, maxVec);
+                // printf("this is maxVec %f %f %f\n",maxVec.x, maxVec.y, maxVec.z);
+                // printf("Added object to physics world with bounding box minExtents %f %f %f\n", c->minExtents.x, c->minExtents.y,c->minExtents.z);
+                // printf("                                                maxExtents %f %f %f\n", c->maxExtents.x, c->maxExtents.y,c->maxExtents.z);
+                GameObject* newGameObject = new GameObject(c);
+                pWorld.addBatteries(newGameObject);
+            }
+            lineCount++;
+        }
 
-    //     if (!std::getline(file, line)) {
-    //         std::cerr << "File has an odd number of lines." << std::endl;
-    //         break;
-    //     }
-    //     std::istringstream iss2(line);
-    //     iss2 >> maxVec.x >> maxVec.y >> maxVec.z;
+        if (lineCount % 2 != 0) {
+            std::cerr << "File has an odd number of lines." << std::endl;
+        }
 
-    //     AABB* c = new AABB(minVec, maxVec);
-    //     printf("this is maxVec %f %f %f\n",maxVec.x, maxVec.y, maxVec.z);
-    //     printf("Added object to physics world with bounding box minExtents %f %f %f\n", c->minExtents.x, c->minExtents.y,c->minExtents.z);
-    //     printf("                                                maxExtents %f %f %f\n", c->maxExtents.x, c->maxExtents.y,c->maxExtents.z);
-    //     GameObject* newGameObject = new GameObject(c);
-    //     pWorld.addObject(newGameObject);
-    // }
+        file.close();
+    }
 
 }
