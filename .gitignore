@@ -32,5 +32,7 @@ lib/glfw3.lib
 
 # CMake
 build/*
+build2/*
+out/*
 
 **/.DS_Store
