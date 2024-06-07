@@ -255,9 +255,9 @@ void ServerCore::process_input(InputPacket packet, short id)
             float player_x = client_player->getPosition().x;
             float player_z = client_player->getPosition().z;
 
-                if (player_x <= -95.0f + 5 && player_x >= -95.0f - 5 && player_z <= 25.0f + 5 && player_z >= 25.0f - 5 && serverState.score == 10) {
-                    client_player->makeReady();
-                }
+            if (player_x <= -95.0f + 5 && player_x >= -95.0f - 5 && player_z <= 25.0f + 5 && player_z >= 25.0f - 5 && serverState.score == 10) {
+                client_player->makeReady();
+            }
 
             continue;
         }
