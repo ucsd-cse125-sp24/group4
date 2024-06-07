@@ -367,16 +367,16 @@ void Window::setup_scene()
 
 	// TODO set up all 10 progress bars, then somehow figure out which one to render based on the game state
 	//progress.push_back(new Image("art/2D/battery_0.png", -0.5, 0.90, 0.5, 1));
-	progress.push_back(new Image("art/2D/batteries/battery_1.png", -0.4, 0.80, 0.4, 1));										
-	progress.push_back(new Image("art/2D/batteries/battery_2.png", -0.4, 0.80, 0.4, 1));										
-	progress.push_back(new Image("art/2D/batteries/battery_3.png", -0.4, 0.80, 0.4, 1));										
-	progress.push_back(new Image("art/2D/batteries/battery_4.png", -0.4, 0.80, 0.4, 1));										
-	progress.push_back(new Image("art/2D/batteries/battery_5.png", -0.4, 0.80, 0.4, 1));										
-	progress.push_back(new Image("art/2D/batteries/battery_6.png", -0.4, 0.80, 0.4, 1));										
-	progress.push_back(new Image("art/2D/batteries/battery_7.png", -0.4, 0.80, 0.4, 1));										
-	progress.push_back(new Image("art/2D/batteries/battery_8.png", -0.4, 0.80, 0.4, 1));										
-	progress.push_back(new Image("art/2D/batteries/battery_9.png", -0.4, 0.80, 0.4, 1));										
-	progress.push_back(new Image("art/2D/batteries/battery_10.png", -0.4, 0.80, 0.4, 1));
+	progress.push_back(new Image("art/2D/batteries/battery_1.png", -0.3, 0.65, 0.3, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_2.png", -0.3, 0.65, 0.3, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_3.png", -0.3, 0.65, 0.3, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_4.png", -0.3, 0.65, 0.3, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_5.png", -0.3, 0.65, 0.3, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_6.png", -0.3, 0.65, 0.3, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_7.png", -0.3, 0.65, 0.3, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_8.png", -0.3, 0.65, 0.3, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_9.png", -0.3, 0.65, 0.3, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_10.png", -0.3, 0.65, 0.3, 1));
 }
 
 AnimationState Window::getAnimationState(Input *input)
