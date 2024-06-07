@@ -219,6 +219,11 @@ void PhysicsWorld::handleCollisions()
                 if (p_objects[i]->getPosition() != m_objects[j]->getPosition())
                 {
                     p_objects[i]->setPosition(p_objects[i]->getOldPosition() - collision_dir * 0.5f);
+                    if (p_objects[i]->getPosition().y < 0) {
+                        glm::vec3 newPosition = p_objects[i]->getPosition();
+                        newPosition.y = 0;
+                        p_objects[i]->setPosition(newPosition);
+                    }
                 }
                 else
                 {
