@@ -6,6 +6,7 @@
 ClientCore::ClientCore() {
     this->connected = false;
     this->server_state = LOBBY;
+    PlaySound((LPCSTR)"../audio/start_loading.wav", GetModuleHandle(NULL), SND_LOOP | SND_ASYNC);
 }
 
 ClientCore::~ClientCore()
@@ -53,7 +54,7 @@ void ClientCore::run()
 {
     PlaySound((LPCSTR)"../audio/sneaky_background.wav", GetModuleHandle(NULL), SND_LOOP | SND_ASYNC);
     
-    printf("Successfully joined game! Be sure to vote to start once you're ready.");
+    printf("Successfully joined game! Be sure to vote to start once you're ready.\n");
     while (this->server_state == LOBBY) {
         // check if player has voted or rescinded vote to start; if either, send vote packet w deets
         // TODO: get actual input lmao
