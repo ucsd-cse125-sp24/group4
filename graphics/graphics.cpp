@@ -7,6 +7,9 @@ void Graphics::setup_opengl_settings() {
 	// Related to shaders and z value comparisons for the depth buffer.
 	glDepthFunc(GL_LEQUAL);
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	// Polygon drawing mode
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 

@@ -8,6 +8,7 @@
 #include "game_state.h"
 #include "model.h"
 #include "windows.h"
+#include "image.h"
 
 enum CurrentAudio {
 	NONE,
@@ -32,6 +33,7 @@ public:
 	static Input* input;
 	static Shader* shader_program;
 	static Shader* shader_anim_program;
+	static Shader* shader_image_program;
 
 	static short player_id;
 	// Objects to draw - TODO
@@ -42,6 +44,11 @@ public:
 	static Drawable* exit_square;
 	static Drawable* exit_sign;
 	static std::vector<Drawable*> batteries;
+
+	static Image* winScreen;
+	static Image* loseScreen;
+	static std::vector<Image*> progress;
+	static int score;
 
 	// Camera
 	static Camera* cam;
@@ -80,4 +87,7 @@ public:
 
 	static void update_state(GameState& state);
     static float calculateDeltaTime();
+
+	static void draw_lose(GLFWwindow* window);
+	static void draw_win(GLFWwindow* window);
 };

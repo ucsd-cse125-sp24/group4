@@ -173,10 +173,11 @@ void ClientCore::renderGameState()
     // Render
     if (server_state == END_WIN) {
         // render win screen
+        Window::draw_win(window);
     }
-    else if (server_state == END_LOSE) {
+    else if (server_state == END_LOSE || server_state == END_TOTAL_LOSE) {
         // render lose screen
-        Window::display_callback(window);
+        Window::draw_lose(window);
         Window::idle_callback();
     }
     else {

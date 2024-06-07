@@ -7,7 +7,6 @@
 #include <string>
 #include <Winsock2.h>
 
-
 #include "client.h"
 #include "game_state.h"
 #include "packets/game_state_packet.h"

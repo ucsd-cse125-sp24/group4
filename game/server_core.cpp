@@ -3,7 +3,7 @@
 #include "../include/server_core.h"
 
 #define TICK_MICROSECS 40000 // this gives 50 fps (fps = 1M / TICK_US)
-#define NUM_NPC 10
+#define NUM_NPC 6
 
 ServerCore::ServerCore()
 {
@@ -86,7 +86,7 @@ void ServerCore::run()
 void ServerCore::shutdown()
 {
     for (ClientData *c : clients_data)
-        free(c);
+        delete c;
     clients_data.clear(); // Clear the client data vector
     // pWorld.cleanup();
     server.sock_shutdown();
@@ -255,9 +255,9 @@ void ServerCore::process_input(InputPacket packet, short id)
             float player_x = client_player->getPosition().x;
             float player_z = client_player->getPosition().z;
 
-                if (player_x <= -95.0f + 5 && player_x >= -95.0f - 5 && player_z <= 25.0f + 5 && player_z >= 25.0f - 5 && serverState.score == 10) {
-                    client_player->makeReady();
-                }
+            if (player_x <= -95.0f + 5 && player_x >= -95.0f - 5 && player_z <= 25.0f + 5 && player_z >= 25.0f - 5 && serverState.score == 10) {
+                client_player->makeReady();
+            }
 
             continue;
         }
@@ -391,6 +391,9 @@ void ServerCore::update_game_state()
     }
     if (lost == 1) {
         this->state = END_TOTAL_LOSE;
+        for(int i = 0; i < serverState.players.size(); i++) {
+            handleLostPlayer(i);
+        }
         send_heartbeat();
     }
 }
@@ -400,10 +403,11 @@ void ServerCore::handleLostPlayer(int client_i) {
     glm::vec3 dir = glm::vec3(0.0f, -1000.0f, 0.0f);
     glm::mat4 t2 = glm::translate(glm::mat4(1.0), dir);
     glm::mat4 world = glm::mat4(1.0f);
-    world = t2 * world;
     world = glm::scale(world, glm::vec3(reader.GetReal("graphics", "player_model_scale", 0.01),
-                                                          reader.GetReal("graphics", "player_model_scale", 0.01),
-                                                          reader.GetReal("graphics", "player_model_scale", 0.01)));                                   
+        reader.GetReal("graphics", "player_model_scale", 0.01),
+        reader.GetReal("graphics", "player_model_scale", 0.01)));
+    world = t2 * world;
+                                  
     client_player->setPlayerWorld(world);
     serverState.players[client_i].world = world;
     client_player->makeReady();
@@ -462,7 +466,7 @@ void ServerCore::send_serial(char *to_send)
             this->available_ids.push_back(clients_data[i]->id); // reclaim id as available
             std::sort(this->available_ids.begin(), this->available_ids.end());
             server.close_client(clients_data[i]->sock);
-            free(clients_data[i]);
+            delete clients_data[i];
             clients_data.erase(clients_data.begin() + i);
             serverState.players.erase(serverState.players.begin() + i);
             i--;
@@ -484,7 +488,7 @@ void ServerCore::accept_new_clients(int i)
     if (!send_success)
     {
         server.close_client(clientSock); // abort conn
-        free(client);
+        delete client;
         return;
     }
     delete[] buffer;

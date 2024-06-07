@@ -17,7 +17,6 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
     glm::vec3 currentPos = glm::vec3(student.world[3]);
 
     // Check for the nearest player within a range of 5 units
-    glm::vec3 nearestPlayerPos;
     float minDistance = std::numeric_limits<float>::max();
     bool playerInRange = false;
 
@@ -35,7 +34,6 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
         
         if (x_diff < 1.0f && z_diff < 1.0f && playerPos.y < 6) // Assuming this is the threshold for a collision
         {
-            student.hasCaughtPlayer = true;
             student.chasingPlayer = false;
             p.lose();
             return;
@@ -47,7 +45,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
             // printf("positions: <%f, %f, %f>\n", playerPos.x, playerPos.y, playerPos.z);
             // printf("positions: <%f, %f, %f>\n\n", currentPos.x, currentPos.y, currentPos.z);
             minDistance = distance;
-            nearestPlayerPos = playerPos;
+            student.nearestPlayerPos = playerPos;
             playerInRange = true;
             student.chasingPlayer = true;
         }
@@ -55,15 +53,44 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
 
     if (student.chasingPlayer)
     {
-        glm::vec3 directionToPlayer = nearestPlayerPos - currentPos;
+        //std::cout << "The number is: " << student.chaseDuration << std::endl;
+        glm::vec3 directionToPlayer = student.nearestPlayerPos - currentPos;
         if (student.chaseDuration == 0)
         {
             // Check if player is still in range
-            if (glm::length(directionToPlayer) > 20.0f)
+            if (glm::length(directionToPlayer) > 20.0f  || glm::length(directionToPlayer) < 0.9f)
             {
+                student.currentDir = StudentState::Direction::NORTH;
+                // Define the forward direction (north direction)
+                glm::vec3 northDirection = glm::vec3(0.0f, 0.0f, 1.0f);
+
+                // Determine the current direction of the student
+                glm::vec3 currentDirection = glm::vec3(student.world[2]);
+
+                // Normalize directions
+                northDirection = glm::normalize(northDirection);
+                currentDirection = glm::normalize(currentDirection);
+
+                // Calculate the rotation needed to face north
+                glm::vec3 rotationAxis = glm::cross(currentDirection, northDirection);
+                float dotProduct = glm::dot(currentDirection, northDirection);
+                float angle = acos(dotProduct); // Angle in radians
+
+                // Create the rotation matrix
+                glm::mat4 rotationMatrix;
+                if (glm::length(rotationAxis) > 0.0001f) {
+                    rotationMatrix = glm::rotate(glm::mat4(1.0f), angle, rotationAxis);
+                } else {
+                    // If the rotation axis is very small, avoid unnecessary rotation
+                    rotationMatrix = glm::mat4(1.0f);
+                }
+
+                // Apply the rotation to the world matrix
+                student.world = rotationMatrix * student.world;
+
                 student.chasingPlayer = false;
             }
-            student.chaseDuration = 10.0f;
+            student.chaseDuration = 8.0f;
         }
         else
         {
@@ -92,7 +119,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
             // Apply the scale to the rotation matrix
             rotationMatrix = glm::scale(rotationMatrix, currentScale);
 
-            // Set the student's world matrix with the new rotation and the current position
+            // // Set the student's world matrix with the new rotation and the current position
             student.world[0] = rotationMatrix[0];
             student.world[1] = rotationMatrix[1];
             student.world[2] = rotationMatrix[2];

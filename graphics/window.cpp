@@ -3,14 +3,17 @@
 
 #pragma comment(lib, "Winmm.lib")
 
-#define NUM_NPC 10
+#define NUM_NPC 6
 
 int Window::width;
 int Window::height;
 const char *Window::window_title = "Graphics Client";
 Shader *Window::shader_program = nullptr;
 Shader *Window::shader_anim_program = nullptr;
+Shader *Window::shader_image_program = nullptr;
 Input *Window::input = nullptr;
+
+int Window::score = 0;
 
 // Mouse
 float Window::lastX = 400, Window::lastY = 300; // TODO: change if resolution changes
@@ -27,6 +30,10 @@ Drawable *Window::exit_sign;
 std::vector<Drawable *> Window::batteries;
 
 short Window::player_id = 0; // 0 by default
+
+Image *Window::winScreen = nullptr;
+Image *Window::loseScreen = nullptr;
+std::vector<Image*> Window::progress;
 
 // Camera
 Camera *Window::cam;
@@ -86,8 +93,16 @@ GLFWwindow *Window::create_window(int width, int height)
 	// 4x antialiasing?
 	// glfwWindowHint(GLFW_SAMPLES, 4);
 
+	GLFWmonitor* primary = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(primary);
+
 	// Create the GLFW window
-	GLFWwindow *window = glfwCreateWindow(width, height, window_title, NULL, NULL);
+	// Trying to set the window as the current one makes it freak out
+	//GLFWwindow *window = glfwCreateWindow(mode->width, mode->height, window_title, primary, NULL);
+	GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, window_title, NULL, NULL);
+
+	glfwGetWindowSize(window, &Window::width, &Window::height);
+	std::cout << "Window size: " << Window::width << ", " << Window::height << std::endl;
 
 	// Check if the window could not be created
 	if (!window)
@@ -106,24 +121,25 @@ GLFWwindow *Window::create_window(int width, int height)
 		return NULL;
 	}
 
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, Window::width, Window::height);
 
 	// Shader program - maybe move somewhere else?
 	// Initialize shader
 	shader_program = new Shader("shaders/shader.vert", "shaders/shader.frag");
 	shader_anim_program = new Shader("shaders/shader_anim.vert", "shaders/shader.frag");
+	shader_image_program = new Shader("shaders/static_image.vert", "shaders/static_image.frag");
 	// Initialize input
 	input = new Input();
 
 	// TODO: Set up camera here
 	// Origin by default - should snap to player once scene is set up
 	cam = new Camera(glm::mat4(1.0));
-	cam->set_aspect(float(width) / float(height));
+	cam->set_aspect(float(Window::width) / float(Window::height));
 
 	// TODO: Initialize the interaction variables?
 
 	// Call the resize callback to make sure things get drawn immediately.
-	Window::resize_callback(window, width, height);
+	Window::resize_callback(window, Window::width, Window::height);
 
 	// Capture mouse
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -345,6 +361,23 @@ void Window::setup_scene()
 		std::cout << "Written\n";
 	}
 
+	// Win screen
+	winScreen = new Image("art/2D/winning_screen.png", -1, -1, 1, 1);
+	loseScreen = new Image("art/2D/losing_screen.png", -1, -1, 1, 1);
+
+	// TODO set up all 10 progress bars, then somehow figure out which one to render based on the game state
+	//progress.push_back(new Image("art/2D/battery_0.png", -0.5, 0.90, 0.5, 1));
+	progress.push_back(new Image("art/2D/batteries/battery_0.png", -0.3, 0.65, 0.3, 1));	
+	progress.push_back(new Image("art/2D/batteries/battery_1.png", -0.3, 0.65, 0.3, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_2.png", -0.3, 0.65, 0.3, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_3.png", -0.3, 0.65, 0.3, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_4.png", -0.3, 0.65, 0.3, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_5.png", -0.3, 0.65, 0.3, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_6.png", -0.3, 0.65, 0.3, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_7.png", -0.3, 0.65, 0.3, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_8.png", -0.3, 0.65, 0.3, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_9.png", -0.3, 0.65, 0.3, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_10.png", -0.3, 0.65, 0.3, 1));
 }
 
 AnimationState Window::getAnimationState(Input *input)
@@ -358,7 +391,8 @@ AnimationState Window::getAnimationState(Input *input)
 
 float ::Window::calculateDeltaTime()
 {
-	float currentFrameTime = glfwGetTime();
+	float currentFrameTime 
+		= glfwGetTime();
 	float deltaTime = currentFrameTime - lastFrameTime;
 	lastFrameTime = currentFrameTime;
 	return deltaTime;
@@ -392,6 +426,10 @@ void Window::clean_up()
 	// Delete the shader program
 	delete shader_program;
 	delete shader_anim_program;
+	delete shader_image_program;
+
+	delete winScreen;
+	delete loseScreen;
 }
 
 // CALLBACKS -------------------------------------------------------------------
@@ -417,6 +455,7 @@ void Window::display_callback(GLFWwindow *window)
 	// TODO: Render any objects you need to here
 	// First set the camera to the right location
 	cam->update(players[player_id]->get_world());
+
 
 	float deltaTime = calculateDeltaTime();
 
@@ -476,6 +515,10 @@ void Window::display_callback(GLFWwindow *window)
 	exit_square->draw(cam->get_view_project_mtx(), shader_program);
 	exit_sign->draw(cam->get_view_project_mtx(), shader_program);
 	//map->debug_draw(cam->get_view_project_mtx(), shader_program);
+
+	// Progress bar - TODO - render progress[0-9] based on game state
+	progress[score]->draw(shader_image_program);
+
 
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
@@ -571,4 +614,30 @@ void Window::update_state(GameState &state)
 			state.batteries[i].collected = 0;
 		}
 	}
+
+	// Score
+	score = state.score;
+}
+
+void Window::draw_lose(GLFWwindow* window) {
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	loseScreen->draw(shader_image_program);
+	// Gets events, including input such as keyboard and mouse or window resizing
+	glfwPollEvents();
+
+	// Swap buffers
+	glfwSwapBuffers(window);
+}
+
+void Window::draw_win(GLFWwindow* window) {
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	winScreen->draw(shader_image_program);
+	// Gets events, including input such as keyboard and mouse or window resizing
+	glfwPollEvents();
+
+	// Swap buffers
+	glfwSwapBuffers(window);
+
 }

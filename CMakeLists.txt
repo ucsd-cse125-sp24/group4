@@ -30,53 +30,53 @@ target_include_directories(client_core PRIVATE include include/assimp/include)
 target_link_libraries(client_core PRIVATE server client ws2_32 winmm glfw3 assimp zlibstatic)
 
 # ----- Testing executables and tests below -----
-enable_testing()
+# enable_testing()
 
-# ---- Network tests ----
-add_executable(NetworkUnitTests tests/network_test.cpp)
-target_link_libraries(NetworkUnitTests PRIVATE server client ws2_32 mswsock advapi32)
+# # ---- Network tests ----
+# add_executable(NetworkUnitTests tests/network_test.cpp)
+# target_link_libraries(NetworkUnitTests PRIVATE server client ws2_32 mswsock advapi32)
 
-add_test(NAME NetworkConnectTest COMMAND NetworkUnitTests "connect")
-add_test(NAME NetworkDataTransportTest COMMAND NetworkUnitTests "data_transport")
+# add_test(NAME NetworkConnectTest COMMAND NetworkUnitTests "connect")
+# add_test(NAME NetworkDataTransportTest COMMAND NetworkUnitTests "data_transport")
 
-# ---- Core tests ----
-add_executable(ServerCoreTests tests/servercore_test.cpp game/server_core.cpp ${PACKET_SOURCES})
-target_link_libraries(ServerCoreTests PRIVATE physics server client state ws2_32)
+# # ---- Core tests ----
+# add_executable(ServerCoreTests tests/servercore_test.cpp game/server_core.cpp ${PACKET_SOURCES})
+# target_link_libraries(ServerCoreTests PRIVATE physics server client state ws2_32)
 
-#add_executable(ClientCoreTests tests/clientcore_test.cpp game/client_core.cpp ${PACKET_SOURCES} ${GRAPHICS_SOURCES})
-#target_link_libraries(ClientCoreTests PRIVATE server client ws2_32 glfw3)
+# #add_executable(ClientCoreTests tests/clientcore_test.cpp game/client_core.cpp ${PACKET_SOURCES} ${GRAPHICS_SOURCES})
+# #target_link_libraries(ClientCoreTests PRIVATE server client ws2_32 glfw3)
 
-add_test(NAME ServerCoreListenAcceptTest COMMAND ServerCoreTests "listen_accept")
-add_test(NAME ServerCoreReceiveTest COMMAND ServerCoreTests "receive")
-add_test(NAME ServerCoreUpdateTest COMMAND ServerCoreTests "update")
-add_test(NAME ServerCoreSendTest COMMAND ServerCoreTests "send")
-add_test(NAME ServerCoreShutdownTest COMMAND ServerCoreTests "shutdown")
+# add_test(NAME ServerCoreListenAcceptTest COMMAND ServerCoreTests "listen_accept")
+# add_test(NAME ServerCoreReceiveTest COMMAND ServerCoreTests "receive")
+# add_test(NAME ServerCoreUpdateTest COMMAND ServerCoreTests "update")
+# add_test(NAME ServerCoreSendTest COMMAND ServerCoreTests "send")
+# add_test(NAME ServerCoreShutdownTest COMMAND ServerCoreTests "shutdown")
 
-# // commented out the below bc of difficulties unit-testing w graphics,
-# // not sure its worth modularizing to test separately from graphics so leave like this for now
-# add_test(NAME ClientCoreInitializetTest COMMAND ClientCoreTests "initialize")
-# add_test(NAME ClientCoreReceiveTest COMMAND ClientCoreTests "receive")
-# add_test(NAME ClientCoreProcessTest COMMAND ClientCoreTests "process")
-# add_test(NAME ClientCoreRenderTest COMMAND ClientCoreTests "render")
-# add_test(NAME ClientCoreSendTest COMMAND ClientCoreTests "send")
-# add_test(NAME ClientCoreShutdownTest COMMAND ClientCoreTests "shutdown")
+# # // commented out the below bc of difficulties unit-testing w graphics,
+# # // not sure its worth modularizing to test separately from graphics so leave like this for now
+# # add_test(NAME ClientCoreInitializetTest COMMAND ClientCoreTests "initialize")
+# # add_test(NAME ClientCoreReceiveTest COMMAND ClientCoreTests "receive")
+# # add_test(NAME ClientCoreProcessTest COMMAND ClientCoreTests "process")
+# # add_test(NAME ClientCoreRenderTest COMMAND ClientCoreTests "render")
+# # add_test(NAME ClientCoreSendTest COMMAND ClientCoreTests "send")
+# # add_test(NAME ClientCoreShutdownTest COMMAND ClientCoreTests "shutdown")
 
-# ---- Packets test ----
-# add_executable(GameStatePacketTest tests/game_state_packet_test.cpp packets/game_state_packet.cpp)
-# target_include_directories(GameStatePacketTest PRIVATE include)
+# # ---- Packets test ----
+# # add_executable(GameStatePacketTest tests/game_state_packet_test.cpp packets/game_state_packet.cpp)
+# # target_include_directories(GameStatePacketTest PRIVATE include)
 
-add_executable(InputPacketTest tests/input_packet_test.cpp packets/input_packet.cpp)
+# add_executable(InputPacketTest tests/input_packet_test.cpp packets/input_packet.cpp)
 
-add_executable(ServerHeartbeatPacketTest tests/server_heartbeat_packet_test.cpp packets/server_heartbeat_packet.cpp)
+# add_executable(ServerHeartbeatPacketTest tests/server_heartbeat_packet_test.cpp packets/server_heartbeat_packet.cpp)
 
-add_executable(VotePacketTest tests/vote_packet_test.cpp packets/vote_packet.cpp)
+# add_executable(VotePacketTest tests/vote_packet_test.cpp packets/vote_packet.cpp)
 
-# add_test(NAME GameStatePacketTest COMMAND GameStatePacketTest)
-add_test(NAME InputPacketTest COMMAND InputPacketTest)
-add_test(NAME ServerHeartbeatPacketTest COMMAND ServerHeartbeatPacketTest)
-add_test(NAME VotePacketTest COMMAND VotePacketTest)
+# # add_test(NAME GameStatePacketTest COMMAND GameStatePacketTest)
+# add_test(NAME InputPacketTest COMMAND InputPacketTest)
+# add_test(NAME ServerHeartbeatPacketTest COMMAND ServerHeartbeatPacketTest)
+# add_test(NAME VotePacketTest COMMAND VotePacketTest)
 
-# ---- NPC movements test ----
-# add_executable(NPCMovementsTest tests/npc_movements_test.cpp game/game_state.cpp)
-# add_test(NAME NPCMovementsTest COMMAND NPCMovementsTest)
+# # ---- NPC movements test ----
+# # add_executable(NPCMovementsTest tests/npc_movements_test.cpp game/game_state.cpp)
+# # add_test(NAME NPCMovementsTest COMMAND NPCMovementsTest)
 

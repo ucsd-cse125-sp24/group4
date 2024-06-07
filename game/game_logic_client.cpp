@@ -22,11 +22,11 @@ int main() {
 
         if (clientCore.server_state == END_TOTAL_LOSE) {
             printf("oh no, your team lost\n");
-            clientCore.shutdown();
+            //clientCore.shutdown();
         }
         if (clientCore.server_state == END_WIN) {
             printf("congrats your team won\n");
-            clientCore.shutdown();
+            //clientCore.shutdown();
         }
     }
 
