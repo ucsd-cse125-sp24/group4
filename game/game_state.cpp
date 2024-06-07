@@ -57,7 +57,6 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
         glm::vec3 directionToPlayer = student.nearestPlayerPos - currentPos;
         if (student.chaseDuration == 0)
         {
-            printf("distance: %f\n", glm::length(directionToPlayer));
             // Check if player is still in range
             if (glm::length(directionToPlayer) > 20.0f  || glm::length(directionToPlayer) < 0.9f)
             {
