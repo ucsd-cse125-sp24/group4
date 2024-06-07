@@ -79,8 +79,8 @@ void ServerCore::run()
         }
     }
 
-    this->state = END_WIN; // future todo to implement logic handling win and lose states
-    send_heartbeat();
+    // this->state = END_WIN; // future todo to implement logic handling win and lose states
+    // send_heartbeat();
 }
 
 void ServerCore::shutdown()
@@ -383,7 +383,7 @@ void ServerCore::update_game_state()
     int lost = 1;
     for (size_t i = 0; i < serverState.players.size(); ++i) {
         auto &p = serverState.players[i];
-        if (p.get_score() != -1) {
+        if (p.get_score() != -1 || this->state == END_WIN) {
             lost = 0;
         } else {
             handleLostPlayer(i);
