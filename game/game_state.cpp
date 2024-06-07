@@ -35,7 +35,6 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
         
         if (x_diff < 1.0f && z_diff < 1.0f && playerPos.y < 6) // Assuming this is the threshold for a collision
         {
-            student.hasCaughtPlayer = true;
             student.chasingPlayer = false;
             p.lose();
             return;
@@ -55,6 +54,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
 
     if (student.chasingPlayer)
     {
+        //std::cout << "The number is: " << student.chaseDuration << std::endl;
         glm::vec3 directionToPlayer = nearestPlayerPos - currentPos;
         if (student.chaseDuration == 0)
         {
@@ -63,7 +63,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
             {
                 student.chasingPlayer = false;
             }
-            student.chaseDuration = 10.0f;
+            student.chaseDuration = 20.0f;
         }
         else
         {
@@ -92,11 +92,11 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
             // Apply the scale to the rotation matrix
             rotationMatrix = glm::scale(rotationMatrix, currentScale);
 
-            // Set the student's world matrix with the new rotation and the current position
+            // // Set the student's world matrix with the new rotation and the current position
             student.world[0] = rotationMatrix[0];
             student.world[1] = rotationMatrix[1];
             student.world[2] = rotationMatrix[2];
-            student.world[3] = glm::vec4(currentPos, 1.0f);
+            // student.world[3] = glm::vec4(currentPos, 1.0f);
         }
     }
     else
