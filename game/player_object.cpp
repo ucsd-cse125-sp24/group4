@@ -31,8 +31,12 @@ void GameObject::applyGravity() {
 }
 
 void PlayerObject::jump() {
-    if (this->getPosition().y == 0 || this->on_table == 1)
-        velocity.y = 35.0f;
+    if (this->getPosition().y == 0)
+        velocity.y = 40.0f;
+    if (this->on_table == 1) {
+        velocity.y = 30.0f;
+        this->off();
+    }
 }
 
 void PlayerObject::simulate_player(float dt) {
