@@ -182,7 +182,7 @@ void PhysicsWorld::handleCollisions()
     // collision between player and game objects
     for (unsigned int i = 0; i < p_objects.size(); i++)
     {
-        for (unsigned int j = i + 1; j < m_objects.size(); j++)
+        for (unsigned int j = 0; j < m_objects.size(); j++)
         {
             if (!p_objects[i] || !m_objects[j])
             {
@@ -232,11 +232,14 @@ void PhysicsWorld::handleCollisions()
     // collision between player and batteries
     for (unsigned int i = 0; i < p_objects.size(); i++)
     {
-        for (unsigned int j = i + 1; j < b_objects.size(); j++)
+        for (unsigned int j = 0; j < b_objects.size(); j++)
         {
             if (!p_objects[i] || !b_objects[j])
             {
                 std::cout << "Error: Null player or object detected." << std::endl;
+                continue;
+            }
+            if (b_objects[j]->object_collected == 1){
                 continue;
             }
 
@@ -252,7 +255,9 @@ void PhysicsWorld::handleCollisions()
                 //std::cout << "Collision happened between player " << i << " and battery " << j << std::endl;
                 int score = p_objects[i]->updateScore(); // update score for single player
                 std::cout << "Player " << i << " collected " << score << " batteries!" << std::endl;
-                removeBatteries(b_objects[j]);
+                b_objects[j]->object_collected = 1;
+                printf("battery %i has obj_collected to %i\n", j, b_objects[j]->object_collected);
+                // removeBatteries(b_objects[j]);
             }
         }
     }

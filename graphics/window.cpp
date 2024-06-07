@@ -30,6 +30,9 @@ short Window::player_id = 0; // 0 by default
 // Camera
 Camera *Window::cam;
 
+// World matrix for removing stuff
+glm::mat4 remove_battery = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, -500.0f, 0.0f));
+
 void writeBoundingBoxToTextFile(const glm::vec3 &minVec, const glm::vec3 &maxVec, bool map=true)
 {
 	if (map){ 
@@ -417,7 +420,7 @@ void Window::display_callback(GLFWwindow *window)
 	for (Drawable *battery : batteries)
 	{
 		battery->draw(cam->get_view_project_mtx(), shader_anim_program);
-		//battery->debug_draw(cam->get_view_project_mtx(), shader_program);
+
 	}
 
 	map->draw(cam->get_view_project_mtx(), shader_program);
@@ -508,5 +511,15 @@ void Window::update_state(GameState &state)
 		studentsChasing[i] = state.students[i].chasingPlayer;
 
 		// std::cout << "result: " << state.students[i].world[3][0] << ", " << state.students[i].world[3][1] << ", " << state.students[i].world[3][2] << std::endl;
+	}
+
+	for (int i = 0; i < state.batteries.size(); i++)
+	{
+		// printf("checking %i battery stored in serverState\n", i);
+		if (state.batteries[i].collected == 1){
+
+			batteries[i]->set_world(remove_battery);
+			state.batteries[i].collected = 0;
+		}
 	}
 }

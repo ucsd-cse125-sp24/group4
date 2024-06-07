@@ -15,6 +15,7 @@ class GameObject {
         Collider* collider;
 
     public:
+        int object_collected; //used by battery game objects and its bad practice to put it here but yeah
 
         GameObject(Collider* collider) :
             position(glm::vec3(0.0f)),
@@ -55,6 +56,7 @@ class GameObject {
         }
         void moveNPC(const glm::vec3 directionToPlayer, const float stepSize);
 };
+
 
 class PlayerObject : public GameObject {
     private: 

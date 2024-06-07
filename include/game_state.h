@@ -21,6 +21,13 @@ struct PlayerState
     }
 };
 
+struct BatteryState
+{
+    int collected;
+    GameObject* physicalObject;
+};
+
+
 struct StudentState
 {
     enum Direction
@@ -54,6 +61,7 @@ struct GameState
 {
     std::vector<PlayerState> players;
     std::vector<StudentState> students;
+    std::vector<BatteryState> batteries;
     int level;
     int score = 0;
 

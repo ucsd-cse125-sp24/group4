@@ -310,6 +310,16 @@ void ServerCore::process_input(InputPacket packet, short id)
     }
     pWorld.step();
     client_player->setPlayerWorld(world);
+    
+    for (unsigned int j = 0; j < serverState.batteries.size(); j++){
+        // if in physics world is set, but in serverState is not set
+        if ( (serverState.batteries[j].physicalObject->object_collected == 1) && (serverState.batteries[j].collected == 0)){ 
+            serverState.batteries[j].collected = 1;
+            // pWorld.removeBatteries(serverState.batteries[j].physicalObject);
+            // serverState.batteries[j].physicalObject
+            // serverState.batteries[j].physicalObject->object_collected = 0;
+        }
+    }
 
     // world = glm::translate(world, (client_player->getPosition() - client_player->getOldPosition()) * SCALE);
     // printf("world m %f,%f,%f\n", world[3][0], world[3][1], world[3][2]);
@@ -572,6 +582,12 @@ void ServerCore::readBoundingBoxes() {
                 // printf("Added object to physics world with bounding box minExtents %f %f %f\n", c->minExtents.x, c->minExtents.y,c->minExtents.z);
                 // printf("                                                maxExtents %f %f %f\n", c->maxExtents.x, c->maxExtents.y,c->maxExtents.z);
                 GameObject* newGameObject = new GameObject(c);
+                BatteryState newBatteryState;
+
+                newBatteryState.physicalObject = newGameObject;
+                newBatteryState.collected = 0;
+
+                serverState.batteries.push_back(newBatteryState);
                 pWorld.addBatteries(newGameObject);
             }
             lineCount++;

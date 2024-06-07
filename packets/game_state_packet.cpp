@@ -76,6 +76,18 @@ void GameStatePacket::serialize(const GameStatePacket &packet, char *&outData)
         temp += sizeof(student.chasingPlayer);
     }
 
+    // batteries
+    size_t numBatteries = packet.state.batteries.size();
+    memcpy(temp, &numBatteries, sizeof(numBatteries));
+    temp += sizeof(numBatteries);
+
+    for (const BatteryState &battery : packet.state.batteries)
+    {
+
+        memcpy(temp, &battery.collected, sizeof(battery.collected));
+        temp += sizeof(battery.collected);
+    }
+
     // Serialize level
     memcpy(temp, &packet.state.level, sizeof(packet.state.level));
     temp += sizeof(packet.state.level);
@@ -136,6 +148,19 @@ void GameStatePacket::deserialize(const char *inData, GameStatePacket &packet)
 
         memcpy(&student.chasingPlayer, inData, sizeof(student.chasingPlayer));
         inData += sizeof(student.chasingPlayer);
+    }
+
+        // batteries
+    size_t numBatteries;
+    memcpy(&numBatteries, inData, sizeof(numBatteries));
+    inData += sizeof(numBatteries);
+    packet.state.batteries.clear();
+    packet.state.batteries.resize(numBatteries);
+    
+    for (BatteryState &battery : packet.state.batteries)
+    {
+        memcpy(&battery.collected, inData, sizeof(battery.collected));
+        inData += sizeof(battery.collected);
     }
 
     // Deserialize level
