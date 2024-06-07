@@ -47,7 +47,7 @@ glm::mat4 remove_battery = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, -500.0
 void writeBoundingBoxToTextFile(const glm::vec3 &minVec, const glm::vec3 &maxVec, bool map=true)
 {
 	if (map){ 
-		std::ofstream file("../game/map_stat", std::ios::app); // Open in text mode to append data
+		std::ofstream file("../game/floor2_reduced", std::ios::app); // Open in text mode to append data
 		if (!file)
 		{
 			std::cerr << "Failed to open the file for writing.\n";
@@ -227,7 +227,7 @@ void Window::setup_scene()
 
 	std::cout << "Load map\n";
 	// Model* mp = new Model("art/models/chair.fbx");
-	Model* mp = new Model("art/models/environment/floor2.fbx");
+	Model* mp = new Model("art/models/environment/floor2_reduced.fbx");
 	mp->set_color(glm::vec3(0.5, 0.5, 0.5));
 
 	// Scale by half
