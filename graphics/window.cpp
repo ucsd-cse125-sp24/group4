@@ -87,12 +87,12 @@ GLFWwindow *Window::create_window(int width, int height)
 
 	GLFWmonitor* primary = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(primary);
-	Window::width = mode->width;
-	Window::height = mode->height;
 
 	// Create the GLFW window
 	// Trying to set the window as the current one makes it freak out
-	GLFWwindow *window = glfwCreateWindow(Window::width, Window::height, window_title, NULL, NULL);
+	GLFWwindow *window = glfwCreateWindow(mode->width, mode->height, window_title, primary, NULL);
+
+	glfwGetWindowSize(window, &Window::width, &Window::height);
 
 	// Check if the window could not be created
 	if (!window)
