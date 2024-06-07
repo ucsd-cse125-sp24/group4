@@ -7,6 +7,7 @@
 #include "enums.h"
 #include "game_state.h"
 #include "model.h"
+#include "image.h"
 
 /*
  * Window.h
@@ -23,6 +24,7 @@ public:
 	static Input* input;
 	static Shader* shader_program;
 	static Shader* shader_anim_program;
+	static Shader* shader_image_program;
 
 	static short player_id;
 	// Objects to draw - TODO
@@ -32,6 +34,9 @@ public:
 	static Drawable* map;
 	static Drawable* exit_square;
 	static std::vector<Drawable*> batteries;
+
+	static Image* winScreen;
+	static Image* loseScreen;
 
 	// Camera
 	static Camera* cam;
@@ -66,4 +71,7 @@ public:
 
 	static void update_state(GameState& state);
     static float calculateDeltaTime();
+
+	static void draw_lose(GLFWwindow* window);
+	static void draw_win(GLFWwindow* window);
 };

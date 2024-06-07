@@ -375,6 +375,9 @@ void ServerCore::update_game_state()
     }
     if (lost == 1) {
         this->state = END_TOTAL_LOSE;
+        for(int i = 0; i < serverState.players.size(); i++) {
+            handleLostPlayer(i);
+        }
         send_heartbeat();
     }
 }
@@ -384,10 +387,11 @@ void ServerCore::handleLostPlayer(int client_i) {
     glm::vec3 dir = glm::vec3(0.0f, -1000.0f, 0.0f);
     glm::mat4 t2 = glm::translate(glm::mat4(1.0), dir);
     glm::mat4 world = glm::mat4(1.0f);
-    world = t2 * world;
     world = glm::scale(world, glm::vec3(reader.GetReal("graphics", "player_model_scale", 0.01),
-                                                          reader.GetReal("graphics", "player_model_scale", 0.01),
-                                                          reader.GetReal("graphics", "player_model_scale", 0.01)));                                   
+        reader.GetReal("graphics", "player_model_scale", 0.01),
+        reader.GetReal("graphics", "player_model_scale", 0.01)));
+    world = t2 * world;
+                                  
     client_player->setPlayerWorld(world);
     serverState.players[client_i].world = world;
     client_player->makeReady();

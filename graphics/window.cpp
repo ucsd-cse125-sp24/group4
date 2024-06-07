@@ -9,6 +9,7 @@ int Window::height;
 const char *Window::window_title = "Graphics Client";
 Shader *Window::shader_program = nullptr;
 Shader *Window::shader_anim_program = nullptr;
+Shader *Window::shader_image_program = nullptr;
 Input *Window::input = nullptr;
 
 // Mouse
@@ -25,6 +26,9 @@ Drawable *Window::exit_square;
 std::vector<Drawable *> Window::batteries;
 
 short Window::player_id = 0; // 0 by default
+
+Image *Window::winScreen = nullptr;
+Image *Window::loseScreen = nullptr;
 
 // Camera
 Camera *Window::cam;
@@ -106,6 +110,7 @@ GLFWwindow *Window::create_window(int width, int height)
 	// Initialize shader
 	shader_program = new Shader("shaders/shader.vert", "shaders/shader.frag");
 	shader_anim_program = new Shader("shaders/shader_anim.vert", "shaders/shader.frag");
+	shader_image_program = new Shader("shaders/static_image.vert", "shaders/static_image.frag");
 	// Initialize input
 	input = new Input();
 
@@ -137,6 +142,7 @@ void Window::setup_callbacks(GLFWwindow *window)
 
 void Window::setup_scene()
 {
+
 	std::string alienPath = "art/models/character/green_alien_wbones.fbx";
 	std::string boyPath = "art/models/character/boy_standing.fbx";
 	std::string girlPath = "art/models/character/girl_standing.fbx";
@@ -254,6 +260,9 @@ void Window::setup_scene()
 		std::cout << "Written\n";
 	}
 
+	// Win screen
+	winScreen = new Image("art/2D/winning_screen.png");
+	loseScreen = new Image("art/2D/losing_screen.png");
 }
 
 AnimationState Window::getAnimationState(Input *input)
@@ -267,7 +276,8 @@ AnimationState Window::getAnimationState(Input *input)
 
 float ::Window::calculateDeltaTime()
 {
-	float currentFrameTime = glfwGetTime();
+	float currentFrameTime 
+		= glfwGetTime();
 	float deltaTime = currentFrameTime - lastFrameTime;
 	lastFrameTime = currentFrameTime;
 	return deltaTime;
@@ -300,6 +310,10 @@ void Window::clean_up()
 	// Delete the shader program
 	delete shader_program;
 	delete shader_anim_program;
+	delete shader_image_program;
+
+	delete winScreen;
+	delete loseScreen;
 }
 
 // CALLBACKS -------------------------------------------------------------------
@@ -453,4 +467,26 @@ void Window::update_state(GameState &state)
 
 		// std::cout << "result: " << state.students[i].world[3][0] << ", " << state.students[i].world[3][1] << ", " << state.students[i].world[3][2] << std::endl;
 	}
+}
+
+void Window::draw_lose(GLFWwindow* window) {
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	loseScreen->draw(shader_image_program);
+	// Gets events, including input such as keyboard and mouse or window resizing
+	glfwPollEvents();
+
+	// Swap buffers
+	glfwSwapBuffers(window);
+}
+
+void Window::draw_win(GLFWwindow* window) {
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	loseScreen->draw(shader_image_program);
+	// Gets events, including input such as keyboard and mouse or window resizing
+	glfwPollEvents();
+
+	// Swap buffers
+	glfwSwapBuffers(window);
 }
