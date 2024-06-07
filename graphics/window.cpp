@@ -632,7 +632,7 @@ void Window::draw_lose(GLFWwindow* window) {
 void Window::draw_win(GLFWwindow* window) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	loseScreen->draw(shader_image_program);
+	winScreen->draw(shader_image_program);
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
 
