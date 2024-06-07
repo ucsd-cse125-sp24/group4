@@ -3,7 +3,7 @@
 in vec3 fragNormal;  // Input from the vertex shader
 
 // Uniforms for lighting
-uniform vec3 AmbientColor = vec3(0.2); // Ambient light color
+uniform vec3 AmbientColor = vec3(0.6); // Ambient light color
 uniform vec3 LightDirection = normalize(vec3(0, -1, 2)); // Direction of the light source
 uniform vec3 LightColor = vec3(1); // Light color (white)
 uniform vec3 DiffuseColor; // Diffuse color of the material
