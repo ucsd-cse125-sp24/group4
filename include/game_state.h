@@ -21,6 +21,13 @@ struct PlayerState
     }
 };
 
+struct BatteryState
+{
+    int collected;
+    GameObject* physicalObject;
+};
+
+
 struct StudentState
 {
     enum Direction
@@ -40,6 +47,7 @@ struct StudentState
     bool chasingPlayer;
     float chaseDuration;
     bool hasCaughtPlayer;
+    glm::vec3 nearestPlayerPos;
     GameObject* physicalObject;
 
     StudentState() : timeSinceLastUpdate(0.0f), distanceMoved(0.0f), rotating(0.0f), chasingPlayer(false), chaseDuration(20.0f), hasCaughtPlayer(false)
@@ -54,9 +62,11 @@ struct GameState
 {
     std::vector<PlayerState> players;
     std::vector<StudentState> students;
+    std::vector<BatteryState> batteries;
     int level;
     int score = 0;
 
     void updateScores();
+    void setScores(int new_score);
     void moveStudent(StudentState &student, std::vector<PlayerState> &players, const float stepSize, const float totalDistance);
 };
