@@ -30,6 +30,9 @@ short Window::player_id = 0; // 0 by default
 // Camera
 Camera *Window::cam;
 
+CurrentAudio Window::currAudio = NONE;
+time_t Window::audio_finish_time = 0;
+
 void writeBoundingBoxToTextFile(const glm::vec3 &minVec, const glm::vec3 &maxVec, bool map=true)
 {
 	if (map){ 
@@ -122,6 +125,9 @@ GLFWwindow *Window::create_window(int width, int height)
 
 	// Capture mouse
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+	Window::currAudio = SNEAKY_BACKGROUND;
+	Window::audio_finish_time = 0;
 
 	return window;
 }
@@ -344,13 +350,24 @@ void Window::display_callback(GLFWwindow *window)
 		}
 	}
 
+	bool some_chasing = false;
 	for (int i = 0; i < students.size(); i++)
 	{
 		students[i]->draw(cam->get_view_project_mtx(), shader_anim_program);
 		Model *model = dynamic_cast<Model *>(students[i]);
 		if (studentsChasing[i])
 		{
-			PlaySound((LPCSTR)"../audio/alert.wav", GetModuleHandle(NULL), SND_LOOP | SND_ASYNC);
+			if (Window::currAudio != ALERT_CHASE && Window::currAudio != INTENSE && !Window::audio_finish_time) {
+				Window::audio_finish_time = time(0) + 2;
+				PlaySound((LPCSTR)"../audio/alert.wav", GetModuleHandle(NULL), SND_ASYNC | SND_FILENAME);
+				Window::currAudio = ALERT_CHASE;
+			}
+			else if (Window::currAudio != INTENSE && Window::audio_finish_time < time(0)) {
+				PlaySound((LPCSTR)"../audio/peaches.wav", GetModuleHandle(NULL), SND_ASYNC | SND_FILENAME);
+				Window::currAudio = INTENSE;
+				Window::audio_finish_time = 0;
+			}
+			some_chasing = true;
 			model->updateAnimations(deltaTime, AnimationState::Running);
 		}
 		else
@@ -358,6 +375,10 @@ void Window::display_callback(GLFWwindow *window)
 			model->updateAnimations(deltaTime, AnimationState::Walking);
 		}
 	}
+	if (Window::currAudio != SNEAKY_BACKGROUND && !some_chasing) {
+			PlaySound((LPCSTR)"../audio/sneaky_background.wav", GetModuleHandle(NULL), SND_LOOP | SND_ASYNC | SND_FILENAME);
+			Window::currAudio = SNEAKY_BACKGROUND;
+		}
 
 	for (Drawable *battery : batteries)
 	{

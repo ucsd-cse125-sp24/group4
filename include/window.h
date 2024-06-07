@@ -9,6 +9,14 @@
 #include "model.h"
 #include "windows.h"
 
+enum CurrentAudio {
+	NONE,
+	LOADING,
+	SNEAKY_BACKGROUND,
+	ALERT_CHASE,
+	INTENSE
+};
+
 /*
  * Window.h
  */
@@ -36,6 +44,10 @@ public:
 
 	// Camera
 	static Camera* cam;
+
+	// Audio
+	static CurrentAudio currAudio;
+	static time_t audio_finish_time;
 
 	// For tracking the mouse
 	static float lastX;
