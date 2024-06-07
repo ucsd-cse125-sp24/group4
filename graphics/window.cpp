@@ -500,9 +500,11 @@ void Window::display_callback(GLFWwindow *window)
 			model->updateAnimations(deltaTime, AnimationState::Walking);
 		}
 	}
-	if (Window::currAudio != SNEAKY_BACKGROUND && !some_chasing && Window::currAudio != END) {
+	if (Window::currAudio != SNEAKY_BACKGROUND && !some_chasing && Window::currAudio != END
+		&& Window::audio_finish_time < time(0)) {
 			PlaySound((LPCSTR)"../audio/sneaky_background.wav", GetModuleHandle(NULL), SND_LOOP | SND_ASYNC | SND_FILENAME);
 			Window::currAudio = SNEAKY_BACKGROUND;
+			Window::audio_finish_time = 0;
 		}
 
 	int firstBattery = 1;
@@ -621,8 +623,10 @@ void Window::update_state(GameState &state)
 }
 
 void Window::draw_lose(GLFWwindow* window) {
-	PlaySound((LPCSTR)"../audio/losing.wav", GetModuleHandle(NULL), SND_LOOP | SND_ASYNC | SND_FILENAME);
+	if (Window::currAudio != END) {
+		PlaySound((LPCSTR)"../audio/losing.wav", GetModuleHandle(NULL), SND_ASYNC | SND_FILENAME);
 	Window::currAudio = END;
+	}
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	loseScreen->draw(shader_image_program);
@@ -634,9 +638,10 @@ void Window::draw_lose(GLFWwindow* window) {
 }
 
 void Window::draw_win(GLFWwindow* window) {
-
-	PlaySound((LPCSTR)"../audio/winning_happy.wav", GetModuleHandle(NULL), SND_LOOP | SND_ASYNC | SND_FILENAME);
+	if (Window::currAudio != END) {
+		PlaySound((LPCSTR)"../audio/winning_happy.wav", GetModuleHandle(NULL), SND_ASYNC | SND_FILENAME);
 	Window::currAudio = END;
+	}
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	winScreen->draw(shader_image_program);
