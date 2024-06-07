@@ -113,11 +113,11 @@ void ServerCore::initialize_npcs()
         // Make sure npc is not around players when starting the game
         do {
             randomX = getRandomFloat(-100.0f, 100.0f);
-        } while(randomX > -20.0f && randomX < 20.0f);
+        } while(randomX > -30.0f && randomX < 30.0f);
 
         do {
             randomZ = getRandomFloat(-100.0f, 100.0f);
-        } while(randomZ > -20.0f && randomZ < 20.0f);
+        } while(randomZ > -30.0f && randomZ < 30.0f);
 
         randomY = 0.0f; // same level so Y=0 for now
 
@@ -352,8 +352,26 @@ void ServerCore::update_game_state()
     }
     if (win)
     {
-        this->state = END_WIN;
-        send_heartbeat();
+        int lost = 1;
+        for (size_t i = 0; i < serverState.players.size(); ++i) {
+            auto &p = serverState.players[i];
+            if (p.get_score() != -1 || this->state == END_WIN) {
+                lost = 0;
+            } else {
+                handleLostPlayer(i);
+            }
+        }
+        if (lost == 1) {
+            this->state = END_TOTAL_LOSE;
+            for(int i = 0; i < serverState.players.size(); i++) {
+                handleLostPlayer(i);
+            }
+            send_heartbeat();
+        }
+        else {
+            this->state = END_WIN;
+            send_heartbeat();
+        }
     }
 
     auto now = std::chrono::high_resolution_clock::now();

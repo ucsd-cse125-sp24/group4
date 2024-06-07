@@ -23,7 +23,7 @@ void GameObject::applyFriction() {
 }
 
 void GameObject::applyGravity() {
-    glm::vec3 m_gravity = glm::vec3(0, -20.0f, 0);
+    glm::vec3 m_gravity = glm::vec3(0, -10.0f, 0);
 
     if (position.y > 0) {
         setForce(force + m_gravity);
@@ -32,9 +32,9 @@ void GameObject::applyGravity() {
 
 void PlayerObject::jump() {
     if (this->getPosition().y == 0)
-        velocity.y = 60.0f;
+        velocity.y = 40.0f;
     if (this->on_table == 1) {
-        velocity.y = 45.0f;
+        velocity.y = 30.0f;
         this->off();
     }
 }
