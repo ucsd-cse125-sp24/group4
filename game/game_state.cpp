@@ -17,7 +17,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
     glm::vec3 currentPos = glm::vec3(student.world[3]);
 
     // Check for the nearest player within a range of 5 units
-    glm::vec3 nearestPlayerPos;
+    glm::vec3 nearestPlayerPos = glm::vec3(0.0);
     float minDistance = std::numeric_limits<float>::max();
     bool playerInRange = false;
 
@@ -54,6 +54,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
 
     if (student.chasingPlayer)
     {
+        printf("positions: <%f, %f, %f>\n", nearestPlayerPos.x, nearestPlayerPos.y, nearestPlayerPos.z);
         //std::cout << "The number is: " << student.chaseDuration << std::endl;
         glm::vec3 directionToPlayer = nearestPlayerPos - currentPos;
         if (student.chaseDuration == 0)
@@ -96,7 +97,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
             student.world[0] = rotationMatrix[0];
             student.world[1] = rotationMatrix[1];
             student.world[2] = rotationMatrix[2];
-            // student.world[3] = glm::vec4(currentPos, 1.0f);
+            student.world[3] = glm::vec4(currentPos, 1.0f);
         }
     }
     else
