@@ -84,7 +84,7 @@ void Server::sock_listen() {
     timeout.tv_usec = 100;
 
     if (this->get_num_clients() >= MAX_CLIENTS) {
-        printf("Maximum clients reached, cannot connect more\n");
+        // printf("Maximum clients reached, cannot connect more\n");
         return;
     }
     if (select(FD_SETSIZE, &readFdSet, NULL, NULL, &timeout) > 0) {

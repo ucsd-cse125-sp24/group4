@@ -1,6 +1,7 @@
 #include "../include/window.h"
 #include <iostream>
-#include "window.h"
+
+#pragma comment(lib, "Winmm.lib")
 
 #define NUM_NPC 10
 
@@ -34,6 +35,9 @@ std::vector<Image*> Window::progress;
 // Camera
 Camera *Window::cam;
 
+CurrentAudio Window::currAudio = NONE;
+time_t Window::audio_finish_time = 0;
+
 void writeBoundingBoxToTextFile(const glm::vec3 &minVec, const glm::vec3 &maxVec, bool map=true)
 {
 	if (map){ 
@@ -60,8 +64,6 @@ void writeBoundingBoxToTextFile(const glm::vec3 &minVec, const glm::vec3 &maxVec
 		file << maxVec.x << ", " << maxVec.y << ", " << maxVec.z << "." << std::endl;
 		file.close();
 	}
-	
-
 }
 
 GLFWwindow *Window::create_window(int width, int height)
@@ -134,6 +136,9 @@ GLFWwindow *Window::create_window(int width, int height)
 	// Capture mouse
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+	Window::currAudio = SNEAKY_BACKGROUND;
+	Window::audio_finish_time = 0;
+
 	return window;
 }
 
@@ -149,13 +154,16 @@ void Window::setup_callbacks(GLFWwindow *window)
 
 void Window::setup_scene()
 {
+	std::string alienGreen = "art/models/character/green_alien.fbx";
+	std::string alienMint = "art/models/character/mint_alien.fbx";
+	std::string alienPink = "art/models/character/pink_alien.fbx";
+	std::string alienPurple = "art/models/character/purple_alien.fbx";
 
-	std::string alienPath = "art/models/character/green_alien_wbones.fbx";
 	std::string boyPath = "art/models/character/boy_standing.fbx";
 	std::string girlPath = "art/models/character/girl_standing.fbx";
 
 	std::map<AnimationState, std::string> alienAnim = {
-		{AnimationState::Idle, "art/models/character/green_alien_wbones.fbx"},
+		{AnimationState::Idle, "art/models/character/green_alien.fbx"},
 		{AnimationState::Walking, "art/models/animation/walking/green_alien_walking.fbx"}};
 
 	std::map<AnimationState, std::string> boyAnim = {
@@ -171,23 +179,23 @@ void Window::setup_scene()
 	glm::mat4 temp = glm::translate(glm::mat4(1.0f), glm::vec3(0, 100, 0));
 
 	std::cout << "Load player" << std::endl;
-	Model *player = new Model(alienPath, alienAnim);
-	player->set_color(glm::vec3(0, 1, 0)); // p1 - green
+	Model *player = new Model(alienGreen, alienAnim);
+	player->set_color(glm::vec3(0, 1, 0)); 
 	player->set_world(temp);
 	players.push_back(player);
 
-	Model *player2 = new Model(alienPath, alienAnim);
-	player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
+	Model *player2 = new Model(alienMint, alienAnim);
+	player2->set_color(glm::vec3(1, 0, 0)); 
 	player2->set_world(temp);
 	players.push_back(player2);
 
-	Model *player3 = new Model(alienPath, alienAnim);
-	player3->set_color(glm::vec3(1, 0, 1)); // p3 - purple
+	Model *player3 = new Model(alienPink, alienAnim);
+	player3->set_color(glm::vec3(1, 0, 1));
 	player3->set_world(temp);
 	players.push_back(player3);
 
-	Model *player4 = new Model(alienPath, alienAnim);
-	player4->set_color(glm::vec3(0, 0, 1)); // p4 - blue
+	Model *player4 = new Model(alienPurple, alienAnim);
+	player4->set_color(glm::vec3(0, 0, 1));
 	player4->set_world(temp);
 	players.push_back(player4);
 
@@ -367,21 +375,35 @@ void Window::display_callback(GLFWwindow *window)
 		}
 	}
 
+	bool some_chasing = false;
 	for (int i = 0; i < students.size(); i++)
 	{
 		students[i]->draw(cam->get_view_project_mtx(), shader_anim_program);
 		Model *model = dynamic_cast<Model *>(students[i]);
 		if (studentsChasing[i])
 		{
-			// std::cout << "chasing!" << std::endl;
+			if (Window::currAudio != ALERT_CHASE && Window::currAudio != INTENSE && !Window::audio_finish_time) {
+				Window::audio_finish_time = time(0) + 2;
+				PlaySound((LPCSTR)"../audio/alert.wav", GetModuleHandle(NULL), SND_ASYNC | SND_FILENAME);
+				Window::currAudio = ALERT_CHASE;
+			}
+			else if (Window::currAudio != INTENSE && Window::audio_finish_time < time(0)) {
+				PlaySound((LPCSTR)"../audio/running.wav", GetModuleHandle(NULL), SND_LOOP | SND_ASYNC | SND_FILENAME);
+				Window::currAudio = INTENSE;
+				Window::audio_finish_time = 0;
+			}
+			some_chasing = true;
 			model->updateAnimations(deltaTime, AnimationState::Running);
 		}
 		else
 		{
-			// std::cout << "walking" << std::endl;
 			model->updateAnimations(deltaTime, AnimationState::Walking);
 		}
 	}
+	if (Window::currAudio != SNEAKY_BACKGROUND && !some_chasing) {
+			PlaySound((LPCSTR)"../audio/sneaky_background.wav", GetModuleHandle(NULL), SND_LOOP | SND_ASYNC | SND_FILENAME);
+			Window::currAudio = SNEAKY_BACKGROUND;
+		}
 
 	for (Drawable *battery : batteries)
 	{
