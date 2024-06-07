@@ -259,7 +259,7 @@ void ServerCore::process_input(InputPacket packet, short id)
 
                 if (player_x <= -95.0f + 5 && player_x >= -95.0f - 5 && player_z <= 25.0f + 5 && player_z >= 25.0f - 5) {
                     printf("This player is ready!\n");
-                    client_player->makeReady();
+                    client_player->makeReady4Elevator();
                 }
 
             continue;
@@ -270,7 +270,7 @@ void ServerCore::process_input(InputPacket packet, short id)
         float player_z = client_player->getPosition().z;
 
         if (!(player_x <= -95.0f + 5 && player_x >= -95.0f - 5 && player_z <= 25.0f + 5 && player_z >= 25.0f - 5)) {
-            client_player->makeUnready();
+            client_player->makeUnready4Elevator();
         }
 
         dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
@@ -328,7 +328,7 @@ void ServerCore::update_game_state()
     for (int i = 0; i < serverState.players.size(); i++)
     {
         PlayerObject *client_player = pWorld.findPlayer(i);
-        if (client_player->getReady() == 0)
+        if (client_player->getReady4Elevator() == 0)
         {
             win = 0;
             break;
@@ -390,7 +390,7 @@ void ServerCore::handleLostPlayer(int client_i) {
                                                           reader.GetReal("graphics", "player_model_scale", 0.01)));                                   
     client_player->setPlayerWorld(world);
     serverState.players[client_i].world = world;
-    client_player->makeReady();
+    client_player->makeReady4Elevator();
 
     ServerHeartbeatPacket packet;
     if (this->state != END_WIN) {
@@ -543,8 +543,9 @@ void ServerCore::readBoundingBoxes() {
 
     file.close();
 
+
     // building bounding box for batteries
-    bool contain_batteries = true;
+    bool contain_batteries = false;
     if (contain_batteries){
         std::ifstream file("../game/batteries_stat");
         if (!file) {

@@ -60,7 +60,8 @@ class PlayerObject : public GameObject {
     private: 
         short playerId;
         glm::mat4 playerWorld;
-        int ready = 0;
+        int ready_for_elevator = 0;
+        int floor = 2;
 
     public:
 
@@ -77,7 +78,7 @@ class PlayerObject : public GameObject {
         glm::mat4 getPlayerWorld() { return playerWorld; }
         void jump();
         void simulate_player(float dt);
-        void makeReady() { ready = 1; }
-        void makeUnready() { ready = 0; }
-        int getReady() { return ready; }
+        void makeReady4Elevator() { ready_for_elevator = 1; }
+        void makeUnready4Elevator() { ready_for_elevator = 0; }
+        int getReady4Elevator() { return ready_for_elevator; }
 };
