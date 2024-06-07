@@ -98,7 +98,8 @@ GLFWwindow *Window::create_window(int width, int height)
 
 	// Create the GLFW window
 	// Trying to set the window as the current one makes it freak out
-	GLFWwindow *window = glfwCreateWindow(mode->width, mode->height, window_title, primary, NULL);
+	//GLFWwindow *window = glfwCreateWindow(mode->width, mode->height, window_title, primary, NULL);
+	GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, window_title, NULL, NULL);
 
 	glfwGetWindowSize(window, &Window::width, &Window::height);
 	std::cout << "Window size: " << Window::width << ", " << Window::height << std::endl;
@@ -366,16 +367,16 @@ void Window::setup_scene()
 
 	// TODO set up all 10 progress bars, then somehow figure out which one to render based on the game state
 	//progress.push_back(new Image("art/2D/battery_0.png", -0.5, 0.90, 0.5, 1));
-	progress.push_back(new Image("art/2D/battery_1.png", -0.5, 0.90, 0.5, 1));
-	progress.push_back(new Image("art/2D/battery_2.png", -0.5, 0.90, 0.5, 1));
-	progress.push_back(new Image("art/2D/battery_3.png", -0.5, 0.90, 0.5, 1));
-	progress.push_back(new Image("art/2D/battery_4.png", -0.5, 0.90, 0.5, 1));
-	progress.push_back(new Image("art/2D/battery_5.png", -0.5, 0.90, 0.5, 1));
-	progress.push_back(new Image("art/2D/battery_6.png", -0.5, 0.90, 0.5, 1));
-	progress.push_back(new Image("art/2D/battery_7.png", -0.5, 0.90, 0.5, 1));
-	progress.push_back(new Image("art/2D/battery_8.png", -0.5, 0.90, 0.5, 1));
-	progress.push_back(new Image("art/2D/battery_9.png", -0.5, 0.90, 0.5, 1));
-	progress.push_back(new Image("art/2D/battery_10.png", -0.5, 0.90, 0.5, 1));
+	progress.push_back(new Image("art/2D/batteries/battery_1.png", -0.4, 0.80, 0.4, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_2.png", -0.4, 0.80, 0.4, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_3.png", -0.4, 0.80, 0.4, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_4.png", -0.4, 0.80, 0.4, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_5.png", -0.4, 0.80, 0.4, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_6.png", -0.4, 0.80, 0.4, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_7.png", -0.4, 0.80, 0.4, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_8.png", -0.4, 0.80, 0.4, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_9.png", -0.4, 0.80, 0.4, 1));										
+	progress.push_back(new Image("art/2D/batteries/battery_10.png", -0.4, 0.80, 0.4, 1));
 }
 
 AnimationState Window::getAnimationState(Input *input)
@@ -454,6 +455,10 @@ void Window::display_callback(GLFWwindow *window)
 	// First set the camera to the right location
 	cam->update(players[player_id]->get_world());
 
+
+	// Progress bar - TODO - render progress[0-9] based on game state
+	progress[score]->draw(shader_image_program);
+
 	float deltaTime = calculateDeltaTime();
 
 	for (Drawable *player : players)
@@ -513,8 +518,6 @@ void Window::display_callback(GLFWwindow *window)
 	exit_sign->draw(cam->get_view_project_mtx(), shader_program);
 	//map->debug_draw(cam->get_view_project_mtx(), shader_program);
 
-	// Progress bar - TODO - render progress[0-9] based on game state
-	progress[score]->draw(shader_image_program);
 
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
