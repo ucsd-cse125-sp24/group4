@@ -27,6 +27,7 @@ std::vector<bool> Window::studentsChasing;
 Drawable *Window::map;
 Drawable *Window::exit_square;
 Drawable *Window::exit_sign;
+Drawable *Window::exit_square2;
 std::vector<Drawable *> Window::batteries;
 
 short Window::player_id = 0; // 0 by default
@@ -47,7 +48,7 @@ glm::mat4 remove_battery = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, -500.0
 void writeBoundingBoxToTextFile(const glm::vec3 &minVec, const glm::vec3 &maxVec, bool map=true)
 {
 	if (map){ 
-		std::ofstream file("../game/map_stat", std::ios::app); // Open in text mode to append data
+		std::ofstream file("../game/floor2_8", std::ios::app); // Open in text mode to append data
 		if (!file)
 		{
 			std::cerr << "Failed to open the file for writing.\n";
@@ -227,7 +228,7 @@ void Window::setup_scene()
 
 	std::cout << "Load map\n";
 	// Model* mp = new Model("art/models/chair.fbx");
-	Model* mp = new Model("art/models/environment/floor2.fbx");
+	Model* mp = new Model("art/models/environment/floor2_and_8_walls.fbx");
 	mp->set_color(glm::vec3(0.5, 0.5, 0.5));
 
 	// Scale by half
@@ -239,6 +240,12 @@ void Window::setup_scene()
 	end->set_color(glm::vec3(0, 1, 0));
 	end->set_world(glm::scale(end_loc, glm::vec3(0.05, 0.05, 0.05)));
 	exit_square = end;
+
+	glm::mat4 end_loc2 = glm::translate(glm::mat4(1.0f), glm::vec3(86.84, 0, 383));
+	Model* end2 = new Model("art/models/exit_square.fbx");
+	end2->set_color(glm::vec3(0, 1, 0));
+	end2->set_world(glm::scale(end_loc2, glm::vec3(0.05, 0.05, 0.05)));
+	exit_square2 = end2;
 
 	glm::mat4 sign_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-95, 2, 25));
 	Model* end_sign = new Model("art/models/exit_sign.fbx");
@@ -415,6 +422,7 @@ void Window::clean_up()
 
 	delete map;
 	delete exit_square;
+	delete exit_square2;
 	delete exit_sign;
 	
 	for (Drawable *battery : batteries)
@@ -512,6 +520,7 @@ void Window::display_callback(GLFWwindow *window)
 
 	map->draw(cam->get_view_project_mtx(), shader_program);
 	exit_square->draw(cam->get_view_project_mtx(), shader_program);
+	exit_square2->draw(cam->get_view_project_mtx(), shader_program);
 	exit_sign->draw(cam->get_view_project_mtx(), shader_program);
 	//map->debug_draw(cam->get_view_project_mtx(), shader_program);
 

@@ -80,3 +80,10 @@ void GameObject::simulate(float dt, glm::mat4 NPC_world) {
     force = glm::vec3(0, 0, 0); // reset net force at the end
 
 }
+
+void PlayerObject::goToFloor8(){
+    printf("floor 8..?\n");
+    floor = 8;
+    glm::vec3 prev = getPosition();
+    setPosition(prev + glm::vec3(0.0f,0.0f,500.0f));
+}

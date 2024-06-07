@@ -62,7 +62,9 @@ class PlayerObject : public GameObject {
     private: 
         short playerId;
         glm::mat4 playerWorld;
+        int ready_for_elevator = 0;
         int ready = 0;
+        int floor = 2;
         int score = 0;
         int on_table = 0;
 
@@ -74,13 +76,17 @@ class PlayerObject : public GameObject {
         virtual ~PlayerObject() {
             delete collider;
         }
-         void move();
+        void move();
         void setPlayerId(short id) { playerId = id; }
         short getPlayerId() { return playerId; }
         void setPlayerWorld(glm::mat4 world){ playerWorld = world; }
         glm::mat4 getPlayerWorld() { return playerWorld; }
         void jump();
         void simulate_player(float dt);
+        void makeReady4Elevator() { ready_for_elevator = 1; }
+        void makeUnready4Elevator() { ready_for_elevator = 0; }
+        int getReady4Elevator() { return ready_for_elevator; }
+
         void makeReady() { ready = 1; }
         void makeUnready() { ready = 0; }
         int getReady() { return ready; }
@@ -95,4 +101,8 @@ class PlayerObject : public GameObject {
         void off() {
             on_table = 0;
         }
+
+
+        int getFloor() { return floor; }
+        void goToFloor8();
 };

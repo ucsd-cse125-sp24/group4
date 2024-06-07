@@ -79,8 +79,8 @@ void ServerCore::run()
         }
     }
 
-    this->state = END_WIN; // future todo to implement logic handling win and lose states
-    send_heartbeat();
+    // this->state = END_WIN; // future todo to implement logic handling win and lose states
+    // send_heartbeat();
 }
 
 void ServerCore::shutdown()
@@ -100,8 +100,9 @@ bool ServerCore::isRunning() const
 
 void ServerCore::initialize_npcs()
 {
-    while (serverState.students.size() < NUM_NPC)
+    while (serverState.students.size() < NUM_NPC / 2)
     {
+
         StudentState student;
         student.world = glm::scale(glm::mat4(1.0f), glm::vec3(reader.GetReal("graphics", "student_model_scale", 0.02f)));
 
@@ -111,32 +112,50 @@ void ServerCore::initialize_npcs()
         float randomZ = 0.0f;
 
         // Make sure npc is not around players when starting the game
-        do {
+        do
+        {
             randomX = getRandomFloat(-100.0f, 100.0f);
         } while(randomX > -20.0f && randomX < 20.0f);
 
-        do {
+        do
+        {
             randomZ = getRandomFloat(-100.0f, 100.0f);
         } while(randomZ > -20.0f && randomZ < 20.0f);
 
         randomY = 0.0f; // same level so Y=0 for now
 
         student.world = glm::translate(glm::mat4(1.0f), glm::vec3(randomX, randomY, randomZ)) * student.world;
-
-        // create collider for npc student and add to physics world
-        AABB* c = new AABB(student.world[3], TYPE_NPC);
-        GameObject* newStudentObject = new GameObject(c);
-        newStudentObject->setPosition(student.world[3]);
-        pWorld.addNPC(newStudentObject);
-        
-        //StudentState student;
-        student.physicalObject = newStudentObject;
-        //student.world = world;
         serverState.students.push_back(student);
+    }
 
+    while (serverState.students.size() < NUM_NPC)
+    {
+
+        StudentState student;
+        student.world = glm::scale(glm::mat4(1.0f), glm::vec3(reader.GetReal("graphics", "student_model_scale", 0.02f)));
+
+        // Generate random positions
+        float randomX = 0.0f;
+        float randomY = 0.0f;
+        float randomZ = 0.0f;
+
+        // Make sure npc is not around players when starting the game
+        do
+        {
+            randomX = getRandomFloat(-100.0f, 100.0f);
+        } while (randomX > -10.0f && randomX < 10.0f);
+
+        do
+        {
+            randomZ = getRandomFloat(350.0f, 530.0f);
+        } while (randomZ > -10.0f && randomZ < 10.0f);
+
+        randomY = 0.0f; // same level so Y=0 for now
+
+        student.world = glm::translate(glm::mat4(1.0f), glm::vec3(randomX, randomY, randomZ)) * student.world;
+        serverState.students.push_back(student);
     }
 }
-
 
 void ServerCore::receive_data()
 {
@@ -225,6 +244,15 @@ void ServerCore::process_input(InputPacket packet, short id)
     {
         int event = packet.events[j];
         bool jumping = false;
+                
+        int live_players = 0;
+        for (PlayerState &p : serverState.players) {
+            if (p.get_score() != -1) {
+                live_players++;
+            }
+        }
+        bool allOn8 = (num_player_on_8_floor() == live_players);
+
         switch (event)
         {
         case MOVE_FORWARD:
@@ -255,8 +283,19 @@ void ServerCore::process_input(InputPacket packet, short id)
             float player_x = client_player->getPosition().x;
             float player_z = client_player->getPosition().z;
 
-            if (player_x <= -95.0f + 5 && player_x >= -95.0f - 5 && player_z <= 25.0f + 5 && player_z >= 25.0f - 5 && serverState.score == 10) {
-                client_player->makeReady();
+            if (!allOn8) {
+                if (player_x <= -95.0f + 5 && player_x >= -95.0f - 5 && player_z <= 25.0f + 5 && player_z >= 25.0f - 5)
+                {
+                    printf("This player is ready!\n");
+                    client_player->makeReady4Elevator();
+                }
+            }
+            else {
+                if (player_x <= 86.84f + 5 && player_x >= 86.84f - 5 && player_z <= 383.0f + 5 && player_z >= 383.0f - 5)
+                {
+                    printf("This player is done!\n");
+                    client_player->makeReady();
+                }
             }
 
             continue;
@@ -266,8 +305,19 @@ void ServerCore::process_input(InputPacket packet, short id)
         float player_x = client_player->getPosition().x;
         float player_z = client_player->getPosition().z;
 
-        if (!(player_x <= -95.0f + 5 && player_x >= -95.0f - 5 && player_z <= 25.0f + 5 && player_z >= 25.0f - 5)) {
-            client_player->makeUnready();
+        if (!allOn8) {
+            if (!(player_x <= -95.0f + 5 && player_x >= -95.0f - 5 && player_z <= 25.0f + 5 && player_z >= 25.0f - 5))
+            {
+                //printf("This player is ready!\n");
+                client_player->makeUnready4Elevator();
+            }
+        }
+        else {
+            if (!(player_x <= 86.84f + 5 && player_x >= 86.84f - 5 && player_z <= 383.0f + 5 && player_z >= 383.0f - 5))
+            {
+                //printf("This player is undone!\n");
+                client_player->makeUnready();
+            }
         }
 
         dir = glm::normalize(glm::rotateY(dir, packet.cam_angle));
@@ -344,16 +394,27 @@ void ServerCore::update_game_state()
     for (int i = 0; i < serverState.players.size(); i++)
     {
         PlayerObject *client_player = pWorld.findPlayer(i);
-        if (client_player->getReady() == 0)
+        if (client_player->getReady4Elevator() == 0)
         {
             win = 0;
             break;
         }
     }
-    if (win)
+
+    bool allOn8 = (num_player_on_8_floor() == serverState.players.size());
+    if (win && allOn8) // if all players are on the 8 floor and ready
     {
         this->state = END_WIN;
         send_heartbeat();
+    }
+    else if (win)
+    { // if all players are ready and NOT on 8 floor, they can all go to 8 floor
+        for (int i = 0; i < serverState.players.size(); i++)
+        {
+            PlayerObject *client_player = pWorld.findPlayer(i);
+            client_player->goToFloor8();
+            client_player->makeUnready4Elevator();
+        }
     }
 
     auto now = std::chrono::high_resolution_clock::now();
@@ -369,10 +430,10 @@ void ServerCore::update_game_state()
             // s.physicalObject->getCollider().setBoundingBox(s.world[3], TYPE_NPC);               // set npc student bounding box in pWorld
             // pWorld.step_student(s);
 
-            s.timeSinceLastUpdate = 0.0f;                                 // Reset the timer
+            s.timeSinceLastUpdate = 0.0f; // Reset the timer
         }
         s.lastUpdate = now; // Update the last update time
-                // if (s.hasCaughtPlayer)
+                            // if (s.hasCaughtPlayer)
         // {
         //     this->state = END_LOSE;
         //     send_heartbeat();
@@ -381,15 +442,20 @@ void ServerCore::update_game_state()
     }
 
     int lost = 1;
-    for (size_t i = 0; i < serverState.players.size(); ++i) {
+    for (size_t i = 0; i < serverState.players.size(); ++i)
+    {
         auto &p = serverState.players[i];
-        if (p.get_score() != -1) {
+        if (p.get_score() != -1)
+        {
             lost = 0;
-        } else {
+        }
+        else
+        {
             handleLostPlayer(i);
         }
     }
-    if (lost == 1) {
+    if (lost == 1)
+    {
         this->state = END_TOTAL_LOSE;
         for(int i = 0; i < serverState.players.size(); i++) {
             handleLostPlayer(i);
@@ -398,7 +464,8 @@ void ServerCore::update_game_state()
     }
 }
 
-void ServerCore::handleLostPlayer(int client_i) {
+void ServerCore::handleLostPlayer(int client_i)
+{
     PlayerObject *client_player = pWorld.findPlayer(client_i);
     glm::vec3 dir = glm::vec3(0.0f, -1000.0f, 0.0f);
     glm::mat4 t2 = glm::translate(glm::mat4(1.0), dir);
@@ -410,16 +477,18 @@ void ServerCore::handleLostPlayer(int client_i) {
                                   
     client_player->setPlayerWorld(world);
     serverState.players[client_i].world = world;
-    client_player->makeReady();
+    client_player->makeReady4Elevator();
 
     ServerHeartbeatPacket packet;
-    if (this->state != END_WIN) {
-         packet.state = END_LOSE;
+    if (this->state != END_WIN)
+    {
+        packet.state = END_LOSE;
     }
-    else {
+    else
+    {
         return;
     }
-    
+
     size_t bufferSize = packet.calculateSize();
     char *buffer = new char[CLIENT_RECV_BUFLEN];
     ServerHeartbeatPacket::serialize(packet, buffer);
@@ -427,6 +496,20 @@ void ServerCore::handleLostPlayer(int client_i) {
     bool send_success = server.sock_send(clients_data[client_i]->sock, CLIENT_RECV_BUFLEN, buffer);
 
     delete[] buffer;
+}
+
+int ServerCore::num_player_on_8_floor()
+{
+    int count = 0;
+    for (int i = 0; i < serverState.players.size(); i++)
+    {
+        PlayerObject *client_player = pWorld.findPlayer(i);
+        if (client_player->getFloor() == 8)
+        {
+            count++;
+        }
+    }
+    return count;
 }
 
 void ServerCore::send_heartbeat()
@@ -511,16 +594,18 @@ void ServerCore::accept_new_clients(int i)
 
     newPlayerObject->setPlayerId(client->id);
     newPlayerObject->setPosition(glm::vec3(1.5f * client->id, 0.0f, 0.0f));
-    
+
     // pWorld.addObject(newPlayerObject);
     pWorld.addPlayer(newPlayerObject);
 
     printf("added new client data\n");
 }
 
-glm::vec3 parseLine(std::string line) {
+glm::vec3 parseLine(std::string line)
+{
     // Remove trailing period if present
-    if (line.back() == '.') {
+    if (line.back() == '.')
+    {
         line.pop_back();
     }
 
@@ -533,31 +618,38 @@ glm::vec3 parseLine(std::string line) {
     return vec;
 }
 
-void ServerCore::readBoundingBoxes() {
-    std::ifstream file("../game/floor2");
-    if (!file) {
+void ServerCore::readBoundingBoxes()
+{
+    std::ifstream file("../game/floor2_8");
+    if (!file)
+    {
         std::cerr << "Failed to open the file for reading.\n";
         return;
     }
     glm::vec3 minVec, maxVec;
     std::string line;
     int lineCount = 0;
-    while (std::getline(file, line)) {
-        if (lineCount % 2 == 0) {
+    while (std::getline(file, line))
+    {
+        if (lineCount % 2 == 0)
+        {
             minVec = parseLine(line);
-        } else {
+        }
+        else
+        {
             maxVec = parseLine(line);
-            AABB* c = new AABB(minVec, maxVec);
+            AABB *c = new AABB(minVec, maxVec);
             // printf("this is maxVec %f %f %f\n",maxVec.x, maxVec.y, maxVec.z);
             // printf("Added object to physics world with bounding box minExtents %f %f %f\n", c->minExtents.x, c->minExtents.y,c->minExtents.z);
             // printf("                                                maxExtents %f %f %f\n", c->maxExtents.x, c->maxExtents.y,c->maxExtents.z);
-            GameObject* newGameObject = new GameObject(c);
+            GameObject *newGameObject = new GameObject(c);
             pWorld.addObject(newGameObject);
         }
         lineCount++;
     }
 
-    if (lineCount % 2 != 0) {
+    if (lineCount % 2 != 0)
+    {
         std::cerr << "File has an odd number of lines." << std::endl;
     }
 
@@ -565,21 +657,27 @@ void ServerCore::readBoundingBoxes() {
 
     // building bounding box for batteries
     bool contain_batteries = true;
-    if (contain_batteries){
+    if (contain_batteries)
+    {
         std::ifstream file("../game/batteries_stat");
-        if (!file) {
+        if (!file)
+        {
             std::cerr << "Failed to open the file for reading.\n";
             return;
         }
         glm::vec3 minVec, maxVec;
         std::string line;
         int lineCount = 0;
-        while (std::getline(file, line)) {
-            if (lineCount % 2 == 0) {
+        while (std::getline(file, line))
+        {
+            if (lineCount % 2 == 0)
+            {
                 minVec = parseLine(line);
-            } else {
+            }
+            else
+            {
                 maxVec = parseLine(line);
-                AABB* c = new AABB(minVec, maxVec);
+                AABB *c = new AABB(minVec, maxVec);
                 // printf("this is maxVec %f %f %f\n",maxVec.x, maxVec.y, maxVec.z);
                 // printf("Added object to physics world with bounding box minExtents %f %f %f\n", c->minExtents.x, c->minExtents.y,c->minExtents.z);
                 // printf("                                                maxExtents %f %f %f\n", c->maxExtents.x, c->maxExtents.y,c->maxExtents.z);
@@ -595,7 +693,8 @@ void ServerCore::readBoundingBoxes() {
             lineCount++;
         }
 
-        if (lineCount % 2 != 0) {
+        if (lineCount % 2 != 0)
+        {
             std::cerr << "File has an odd number of lines." << std::endl;
         }
 
