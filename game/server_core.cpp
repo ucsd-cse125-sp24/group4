@@ -257,8 +257,7 @@ void ServerCore::process_input(InputPacket packet, short id)
             float player_x = client_player->getPosition().x;
             float player_z = client_player->getPosition().z;
 
-                if (player_x <= -95.0f + 5 && player_x >= -95.0f - 5 && player_z <= 25.0f + 5 && player_z >= 25.0f - 5) {
-                    printf("This player is ready!\n");
+                if (player_x <= -95.0f + 5 && player_x >= -95.0f - 5 && player_z <= 25.0f + 5 && player_z >= 25.0f - 5 && serverState.score == 10) {
                     client_player->makeReady();
                 }
 
@@ -324,6 +323,15 @@ void ServerCore::process_input(InputPacket packet, short id)
 void ServerCore::update_game_state()
 {
     int win = 1;
+
+    // Update player scores
+    int total_scores = 0;
+    for (int i = 0; i < serverState.players.size(); i++){
+        PlayerObject *client_player = pWorld.findPlayer(i);
+        total_scores += client_player->getPlayerScore();
+    }
+    serverState.setScores(total_scores);
+        
     // Update parts of the game that don't depend on player input.
     for (int i = 0; i < serverState.players.size(); i++)
     {
@@ -575,5 +583,4 @@ void ServerCore::readBoundingBoxes() {
 
         file.close();
     }
-
 }

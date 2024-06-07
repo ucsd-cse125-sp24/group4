@@ -199,7 +199,7 @@ void PhysicsWorld::handleCollisions()
 
             if (collision)
             {
-                std::cout << "Collision happened between player " << i << " and object " << j << std::endl;
+                //std::cout << "Collision happened between player " << i << " and object " << j << std::endl;
 
                 glm::vec3 collision_dir = playerCollider.getCollisionNormal(objectCollider);
 
@@ -249,7 +249,9 @@ void PhysicsWorld::handleCollisions()
 
             if (collision)
             {
-                std::cout << "Collision happened between player " << i << " and battery " << j << std::endl;
+                //std::cout << "Collision happened between player " << i << " and battery " << j << std::endl;
+                int score = p_objects[i]->updateScore(); // update score for single player
+                std::cout << "Player " << i << " collected " << score << " batteries!" << std::endl;
                 removeBatteries(b_objects[j]);
             }
         }

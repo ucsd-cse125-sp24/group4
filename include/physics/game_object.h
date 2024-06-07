@@ -61,6 +61,7 @@ class PlayerObject : public GameObject {
         short playerId;
         glm::mat4 playerWorld;
         int ready = 0;
+        int score = 0;
 
     public:
 
@@ -80,4 +81,9 @@ class PlayerObject : public GameObject {
         void makeReady() { ready = 1; }
         void makeUnready() { ready = 0; }
         int getReady() { return ready; }
+        int updateScore( int increaseScore = 1){
+            score += increaseScore;
+            return score;
+        }
+        int getPlayerScore(){ return score;}
 };

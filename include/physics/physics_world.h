@@ -28,6 +28,10 @@ class PhysicsWorld {
 		void removePlayer (PlayerObject* object);
 		PlayerObject* findPlayer(int id);
 
+		int getLenBatteries () {
+			return b_objects.size();
+		}
+
 		void step();
 		void step_student(StudentState &student); // step for a single student
 		void handleCollisions();

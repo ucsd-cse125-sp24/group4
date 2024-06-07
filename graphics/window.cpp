@@ -413,6 +413,7 @@ void Window::display_callback(GLFWwindow *window)
 		}
 	}
 
+	int firstBattery = 1;
 	for (Drawable *battery : batteries)
 	{
 		battery->draw(cam->get_view_project_mtx(), shader_anim_program);

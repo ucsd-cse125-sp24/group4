@@ -6,6 +6,11 @@ void GameState::updateScores()
     score += 1;
 }
 
+void GameState::setScores(int new_score)
+{
+    score = new_score;
+}
+
 void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &players, const float stepSize, const float totalDistance)
 {
     // Extract current position from the world matrix
@@ -25,7 +30,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
             distance = std::numeric_limits<float>::max();
         }
 
-        if (distance < 0.75f) // Assuming this is the threshold for a collision
+        if (distance < 1.0f) // Assuming this is the threshold for a collision
         {
             student.hasCaughtPlayer = true;
             student.chasingPlayer = false;
@@ -33,7 +38,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
             return;
         }
 
-        if (distance <= 15.0f && distance < minDistance)
+        if (distance <= 20.0f && distance < minDistance)
         {
             // printf("positions: <%f, %f, %f>\n", playerPos.x, playerPos.y, playerPos.z);
             // printf("positions: <%f, %f, %f>\n\n", currentPos.x, currentPos.y, currentPos.z);
@@ -50,7 +55,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
         if (student.chaseDuration == 0)
         {
             // Check if player is still in range
-            if (glm::length(directionToPlayer) > 15.0f)
+            if (glm::length(directionToPlayer) > 20.0f)
             {
                 student.chasingPlayer = false;
             }

@@ -58,5 +58,6 @@ struct GameState
     int score = 0;
 
     void updateScores();
+    void setScores(int new_score);
     void moveStudent(StudentState &student, std::vector<PlayerState> &players, const float stepSize, const float totalDistance);
 };
