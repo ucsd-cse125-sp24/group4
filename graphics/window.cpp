@@ -3,7 +3,7 @@
 
 #pragma comment(lib, "Winmm.lib")
 
-#define NUM_NPC 10
+#define NUM_NPC 6
 
 int Window::width;
 int Window::height;
@@ -208,7 +208,7 @@ void Window::setup_scene()
 	players.push_back(player4);
 
 	std::cout << "Load students\n";
-	for (int i = 0; i < NUM_NPC; i++)
+	for (int i = 0; i < NUM_NPC/2; i++)
 	{
 		Model *boy = new Model(boyPath,boyAnim);
 		boy->set_color(glm::vec3(0, 0, 1));
@@ -367,6 +367,7 @@ void Window::setup_scene()
 
 	// TODO set up all 10 progress bars, then somehow figure out which one to render based on the game state
 	//progress.push_back(new Image("art/2D/battery_0.png", -0.5, 0.90, 0.5, 1));
+	progress.push_back(new Image("art/2D/batteries/battery_0.png", -0.3, 0.65, 0.3, 1));	
 	progress.push_back(new Image("art/2D/batteries/battery_1.png", -0.3, 0.65, 0.3, 1));										
 	progress.push_back(new Image("art/2D/batteries/battery_2.png", -0.3, 0.65, 0.3, 1));										
 	progress.push_back(new Image("art/2D/batteries/battery_3.png", -0.3, 0.65, 0.3, 1));										
