@@ -6,6 +6,11 @@ void GameState::updateScores()
     score += 1;
 }
 
+void GameState::setScores(int new_score)
+{
+    score = new_score;
+}
+
 void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &players, const float stepSize, const float totalDistance)
 {
     // Extract current position from the world matrix
@@ -21,15 +26,26 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
         glm::vec3 playerPos = glm::vec3(p.world[3]);
         float distance = glm::distance(currentPos, playerPos);
 
-        if (distance < 0.75f) // Assuming this is the threshold for a collision
+        if (p.score == -1) {
+            distance = std::numeric_limits<float>::max();
+        }
+        
+        float x_diff = abs(currentPos.x - playerPos.x);
+        float z_diff = abs(currentPos.z - playerPos.z);
+        
+        if (x_diff < 1.0f && z_diff < 1.0f && playerPos.y < 6) // Assuming this is the threshold for a collision
         {
             student.hasCaughtPlayer = true;
+            student.chasingPlayer = false;
             p.lose();
             return;
         }
 
         if (distance <= 20.0f && distance < minDistance)
         {
+            // printf("positions: <%f, %f, %f>\n\n", x_diff, z_diff, playerPos.y);
+            // printf("positions: <%f, %f, %f>\n", playerPos.x, playerPos.y, playerPos.z);
+            // printf("positions: <%f, %f, %f>\n\n", currentPos.x, currentPos.y, currentPos.z);
             minDistance = distance;
             nearestPlayerPos = playerPos;
             playerInRange = true;
@@ -47,7 +63,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
             {
                 student.chasingPlayer = false;
             }
-            student.chaseDuration = 20.0f;
+            student.chaseDuration = 10.0f;
         }
         else
         {
@@ -89,18 +105,19 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
         glm::vec3 step(0.0f);
         switch (student.currentDir)
         {
-        case StudentState::Direction::NORTH: // decrement z
-            step = glm::vec3(0.0f, 0.0f, -stepSize);
-            break;
-        case StudentState::Direction::EAST: // increment x
-            step = glm::vec3(stepSize, 0.0f, 0.0f);
-            break;
-        case StudentState::Direction::SOUTH: // increment z
-            step = glm::vec3(0.0f, 0.0f, stepSize);
-            break;
-        case StudentState::Direction::WEST: // decrement x
-            step = glm::vec3(-stepSize, 0.0f, 0.0f);
-            break;
+            case StudentState::Direction::NORTH: // decrement z
+                step = glm::vec3(0.0f, 0.0f, -stepSize);
+                break;
+            case StudentState::Direction::EAST: // increment x
+                step = glm::vec3(stepSize, 0.0f, 0.0f);
+                break;
+            case StudentState::Direction::SOUTH: // increment z
+                step = glm::vec3(0.0f, 0.0f, stepSize);
+                break;
+            case StudentState::Direction::WEST: // decrement x
+                step = glm::vec3(-stepSize, 0.0f, 0.0f);
+                break;
+        
         }
         currentPos += step;
         student.distanceMoved += stepSize;

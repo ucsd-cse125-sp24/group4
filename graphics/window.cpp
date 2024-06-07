@@ -23,6 +23,7 @@ std::vector<bool> Window::studentsChasing;
 
 Drawable *Window::map;
 Drawable *Window::exit_square;
+Drawable *Window::exit_sign;
 std::vector<Drawable *> Window::batteries;
 
 short Window::player_id = 0; // 0 by default
@@ -32,6 +33,9 @@ Camera *Window::cam;
 
 CurrentAudio Window::currAudio = NONE;
 time_t Window::audio_finish_time = 0;
+
+// World matrix for removing stuff
+glm::mat4 remove_battery = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, -500.0f, 0.0f));
 
 void writeBoundingBoxToTextFile(const glm::vec3 &minVec, const glm::vec3 &maxVec, bool map=true)
 {
@@ -220,23 +224,101 @@ void Window::setup_scene()
 	end->set_world(glm::scale(end_loc, glm::vec3(0.05, 0.05, 0.05)));
 	exit_square = end;
 
-	glm::mat4 bat1_loc = glm::translate(glm::mat4(1.0f), glm::vec3(1, 0, 1));
+	glm::mat4 sign_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-95, 2, 25));
+	Model* end_sign = new Model("art/models/exit_sign.fbx");
+	end_sign->set_world(sign_loc);
+	end_sign->set_world(glm::scale(sign_loc, glm::vec3(0.02, 0.02, 0.02)));
+	exit_sign = end_sign;
+
+	glm::mat4 bat1_loc = glm::translate(glm::mat4(1.0f), glm::vec3(3, 0, -3));
 	Model* bat1 = new Model("art/models/battery.fbx");
 	bat1->set_color(glm::vec3(1, 1, 0));
 	bat1->set_world(glm::scale(bat1_loc, glm::vec3(0.01, 0.01, 0.01)));
 	batteries.push_back(bat1);
 
-	glm::mat4 bat2_loc = glm::translate(glm::mat4(1.0f), glm::vec3(40, 0, -2.5));
+	glm::mat4 bat2_loc = glm::translate(glm::mat4(1.0f), glm::vec3(31, 0, -2.5));
 	Model* bat2 = new Model("art/models/battery.fbx");
 	bat2->set_color(glm::vec3(1, 1, 0));
 	bat2->set_world(glm::scale(bat2_loc, glm::vec3(0.01, 0.01, 0.01)));
 	batteries.push_back(bat2);
 
-	glm::mat4 bat3_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-25, 0, 40));
+	glm::mat4 bat3_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-40, 0, 42));
 	Model* bat3 = new Model("art/models/battery.fbx");
 	bat3->set_color(glm::vec3(1, 1, 0));
 	bat3->set_world(glm::scale(bat3_loc, glm::vec3(0.01, 0.01, 0.01)));
 	batteries.push_back(bat3);
+
+	glm::mat4 bat4_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-49, 0, 100));
+	Model* bat4 = new Model("art/models/battery.fbx");
+	bat4->set_color(glm::vec3(1, 1, 0));
+	bat4->set_world(glm::scale(bat4_loc, glm::vec3(0.01, 0.01, 0.01)));
+	batteries.push_back(bat4);
+
+	glm::mat4 bat5_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-89, 0, -46));
+	Model* bat5 = new Model("art/models/battery.fbx");
+	bat5->set_color(glm::vec3(1, 1, 0));
+	bat5->set_world(glm::scale(bat5_loc, glm::vec3(0.01, 0.01, 0.01)));
+	batteries.push_back(bat5);
+
+	glm::mat4 bat6_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-41.82, 0, -112.8));
+	Model* bat6 = new Model("art/models/battery.fbx");
+	bat6->set_color(glm::vec3(1, 1, 0));
+	bat6->set_world(glm::scale(bat6_loc, glm::vec3(0.01, 0.01, 0.01)));
+	batteries.push_back(bat6);
+
+	glm::mat4 bat7_loc = glm::translate(glm::mat4(1.0f), glm::vec3(52.65, 0, -2.6));
+	Model* bat7 = new Model("art/models/battery.fbx");
+	bat7->set_color(glm::vec3(1, 1, 0));
+	bat7->set_world(glm::scale(bat7_loc, glm::vec3(0.01, 0.01, 0.01)));
+	batteries.push_back(bat7);
+
+	glm::mat4 bat8_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-54, 8.13, -54));
+	Model* bat8 = new Model("art/models/battery.fbx");
+	bat8->set_color(glm::vec3(1, 1, 0));
+	bat8->set_world(glm::scale(bat8_loc, glm::vec3(0.01, 0.01, 0.01)));
+	batteries.push_back(bat8);
+
+	glm::mat4 bat9_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-73.12, 7.14, -21));
+	Model* bat9 = new Model("art/models/battery.fbx");
+	bat9->set_color(glm::vec3(1, 1, 0));
+	bat9->set_world(glm::scale(bat9_loc, glm::vec3(0.01, 0.01, 0.01)));
+	batteries.push_back(bat9);
+
+	glm::mat4 bat10_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-48.66, 0, 17.5));
+	Model* bat10 = new Model("art/models/battery.fbx");
+	bat10->set_color(glm::vec3(1, 1, 0));
+	bat10->set_world(glm::scale(bat10_loc, glm::vec3(0.01, 0.01, 0.01)));
+	batteries.push_back(bat10);
+
+	// glm::mat4 bat11_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-109, 0, -37));
+	// Model* bat11 = new Model("art/models/battery.fbx");
+	// bat11->set_color(glm::vec3(1, 1, 0));
+	// bat11->set_world(glm::scale(bat11_loc, glm::vec3(0.01, 0.01, 0.01)));
+	// batteries.push_back(bat11);
+
+	// glm::mat4 bat12_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-84, 9, -73));
+	// Model* bat12 = new Model("art/models/battery.fbx");
+	// bat12->set_color(glm::vec3(1, 1, 0));
+	// bat12->set_world(glm::scale(bat12_loc, glm::vec3(0.01, 0.01, 0.01)));
+	// batteries.push_back(bat12);
+
+	// glm::mat4 bat13_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-48.67, 0, -18.4));
+	// Model* bat13 = new Model("art/models/battery.fbx");
+	// bat13->set_color(glm::vec3(1, 1, 0));
+	// bat13->set_world(glm::scale(bat13_loc, glm::vec3(0.01, 0.01, 0.01)));
+	// batteries.push_back(bat13);
+
+	// glm::mat4 bat14_loc = glm::translate(glm::mat4(1.0f), glm::vec3(17.5, 0, 46.5));
+	// Model* bat14 = new Model("art/models/battery.fbx");
+	// bat14->set_color(glm::vec3(1, 1, 0));
+	// bat14->set_world(glm::scale(bat14_loc, glm::vec3(0.01, 0.01, 0.01)));
+	// batteries.push_back(bat14);
+
+	// glm::mat4 bat15_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-74, 7.13, -6.5));
+	// Model* bat15 = new Model("art/models/battery.fbx");
+	// bat15->set_color(glm::vec3(1, 1, 0));
+	// bat15->set_world(glm::scale(bat15_loc, glm::vec3(0.01, 0.01, 0.01)));
+	// batteries.push_back(bat15);
 
 	bool write_to_stat = false;
 	if (write_to_stat)
@@ -255,7 +337,7 @@ void Window::setup_scene()
 			{
 				if (mesh.hitbox != nullptr)
 				{
-					writeBoundingBoxToTextFile(glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMin, 1.0f)), glm::vec3(mp->get_world() * glm::vec4(mesh.hitbox->cubeMax, 1.0f)), false);
+					writeBoundingBoxToTextFile(glm::vec3(battery->get_world() * glm::vec4(mesh.hitbox->cubeMin, 1.0f)), glm::vec3(battery->get_world() * glm::vec4(mesh.hitbox->cubeMax, 1.0f)), false);
 				}
 			}
 		}
@@ -300,6 +382,7 @@ void Window::clean_up()
 
 	delete map;
 	delete exit_square;
+	delete exit_sign;
 	
 	for (Drawable *battery : batteries)
 	{
@@ -382,14 +465,16 @@ void Window::display_callback(GLFWwindow *window)
 			Window::currAudio = SNEAKY_BACKGROUND;
 		}
 
+	int firstBattery = 1;
 	for (Drawable *battery : batteries)
 	{
 		battery->draw(cam->get_view_project_mtx(), shader_anim_program);
-		//battery->debug_draw(cam->get_view_project_mtx(), shader_program);
+
 	}
 
 	map->draw(cam->get_view_project_mtx(), shader_program);
 	exit_square->draw(cam->get_view_project_mtx(), shader_program);
+	exit_sign->draw(cam->get_view_project_mtx(), shader_program);
 	//map->debug_draw(cam->get_view_project_mtx(), shader_program);
 
 	// Gets events, including input such as keyboard and mouse or window resizing
@@ -475,5 +560,15 @@ void Window::update_state(GameState &state)
 		studentsChasing[i] = state.students[i].chasingPlayer;
 
 		// std::cout << "result: " << state.students[i].world[3][0] << ", " << state.students[i].world[3][1] << ", " << state.students[i].world[3][2] << std::endl;
+	}
+
+	for (int i = 0; i < state.batteries.size(); i++)
+	{
+		// printf("checking %i battery stored in serverState\n", i);
+		if (state.batteries[i].collected == 1){
+
+			batteries[i]->set_world(remove_battery);
+			state.batteries[i].collected = 0;
+		}
 	}
 }

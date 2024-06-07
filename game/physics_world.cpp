@@ -182,7 +182,7 @@ void PhysicsWorld::handleCollisions()
     // collision between player and game objects
     for (unsigned int i = 0; i < p_objects.size(); i++)
     {
-        for (unsigned int j = i + 1; j < m_objects.size(); j++)
+        for (unsigned int j = 0; j < m_objects.size(); j++)
         {
             if (!p_objects[i] || !m_objects[j])
             {
@@ -199,7 +199,7 @@ void PhysicsWorld::handleCollisions()
 
             if (collision)
             {
-                std::cout << "Collision happened between player " << i << " and object " << j << std::endl;
+                //std::cout << "Collision happened between player " << i << " and object " << j << std::endl;
 
                 glm::vec3 collision_dir = playerCollider.getCollisionNormal(objectCollider);
 
@@ -208,8 +208,10 @@ void PhysicsWorld::handleCollisions()
                     glm::vec3 maxExt = objectCollider.maxExtents;
                     p_objects[i]->setPosition(glm::vec3(p_objects[i]->getPosition().x, maxExt.y, p_objects[i]->getPosition().z));
                     p_objects[i]->setForce(glm::vec3(0.0));
+                    p_objects[i]->on();
                     continue;
                 }
+                p_objects[i]->off();
 
                 p_objects[i]->setVelocity(-collision_dir * 20.0f);
                 // glm::vec3 tempVel = p_objects[i]->getVelocity();
@@ -219,6 +221,11 @@ void PhysicsWorld::handleCollisions()
                 if (p_objects[i]->getPosition() != m_objects[j]->getPosition())
                 {
                     p_objects[i]->setPosition(p_objects[i]->getOldPosition() - collision_dir * 0.5f);
+                    if (p_objects[i]->getPosition().y < 0) {
+                        glm::vec3 newPosition = p_objects[i]->getPosition();
+                        newPosition.y = 0;
+                        p_objects[i]->setPosition(newPosition);
+                    }
                 }
                 else
                 {
@@ -232,11 +239,14 @@ void PhysicsWorld::handleCollisions()
     // collision between player and batteries
     for (unsigned int i = 0; i < p_objects.size(); i++)
     {
-        for (unsigned int j = i + 1; j < b_objects.size(); j++)
+        for (unsigned int j = 0; j < b_objects.size(); j++)
         {
             if (!p_objects[i] || !b_objects[j])
             {
                 std::cout << "Error: Null player or object detected." << std::endl;
+                continue;
+            }
+            if (b_objects[j]->object_collected == 1){
                 continue;
             }
 
@@ -249,8 +259,12 @@ void PhysicsWorld::handleCollisions()
 
             if (collision)
             {
-                std::cout << "Collision happened between player " << i << " and battery " << j << std::endl;
-                removeBatteries(b_objects[j]);
+                //std::cout << "Collision happened between player " << i << " and battery " << j << std::endl;
+                int score = p_objects[i]->updateScore(); // update score for single player
+                std::cout << "Player " << i << " collected " << score << " batteries!" << std::endl;
+                b_objects[j]->object_collected = 1;
+                printf("battery %i has obj_collected to %i\n", j, b_objects[j]->object_collected);
+                // removeBatteries(b_objects[j]);
             }
         }
     }

@@ -15,6 +15,7 @@ class GameObject {
         Collider* collider;
 
     public:
+        int object_collected; //used by battery game objects and its bad practice to put it here but yeah
 
         GameObject(Collider* collider) :
             position(glm::vec3(0.0f)),
@@ -56,11 +57,14 @@ class GameObject {
         void moveNPC(const glm::vec3 directionToPlayer, const float stepSize);
 };
 
+
 class PlayerObject : public GameObject {
     private: 
         short playerId;
         glm::mat4 playerWorld;
         int ready = 0;
+        int score = 0;
+        int on_table = 0;
 
     public:
 
@@ -80,4 +84,15 @@ class PlayerObject : public GameObject {
         void makeReady() { ready = 1; }
         void makeUnready() { ready = 0; }
         int getReady() { return ready; }
+        int updateScore( int increaseScore = 1){
+            score += increaseScore;
+            return score;
+        }
+        int getPlayerScore(){ return score;}
+        void on() {
+            on_table = 1;
+        }
+        void off() {
+            on_table = 0;
+        }
 };

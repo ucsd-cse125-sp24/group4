@@ -113,11 +113,11 @@ void ServerCore::initialize_npcs()
         // Make sure npc is not around players when starting the game
         do {
             randomX = getRandomFloat(-100.0f, 100.0f);
-        } while(randomX > -10.0f && randomX < 10.0f);
+        } while(randomX > -20.0f && randomX < 20.0f);
 
         do {
             randomZ = getRandomFloat(-100.0f, 100.0f);
-        } while(randomZ > -10.0f && randomZ < 10.0f);
+        } while(randomZ > -20.0f && randomZ < 20.0f);
 
         randomY = 0.0f; // same level so Y=0 for now
 
@@ -246,9 +246,7 @@ void ServerCore::process_input(InputPacket packet, short id)
         case JUMP:
         {
             jumping = true;
-            if (client_player->getPosition().y < 5 || client_player->getVelocity().y == 0)
-                client_player->jump();
-            // client_player->jump();
+            client_player->jump();
             break;
         }
         case INTERACT:
@@ -257,8 +255,7 @@ void ServerCore::process_input(InputPacket packet, short id)
             float player_x = client_player->getPosition().x;
             float player_z = client_player->getPosition().z;
 
-                if (player_x <= -95.0f + 5 && player_x >= -95.0f - 5 && player_z <= 25.0f + 5 && player_z >= 25.0f - 5) {
-                    printf("This player is ready!\n");
+                if (player_x <= -95.0f + 5 && player_x >= -95.0f - 5 && player_z <= 25.0f + 5 && player_z >= 25.0f - 5 && serverState.score == 10) {
                     client_player->makeReady();
                 }
 
@@ -311,6 +308,16 @@ void ServerCore::process_input(InputPacket packet, short id)
     }
     pWorld.step();
     client_player->setPlayerWorld(world);
+    
+    for (unsigned int j = 0; j < serverState.batteries.size(); j++){
+        // if in physics world is set, but in serverState is not set
+        if ( (serverState.batteries[j].physicalObject->object_collected == 1) && (serverState.batteries[j].collected == 0)){ 
+            serverState.batteries[j].collected = 1;
+            // pWorld.removeBatteries(serverState.batteries[j].physicalObject);
+            // serverState.batteries[j].physicalObject
+            // serverState.batteries[j].physicalObject->object_collected = 0;
+        }
+    }
 
     // world = glm::translate(world, (client_player->getPosition() - client_player->getOldPosition()) * SCALE);
     // printf("world m %f,%f,%f\n", world[3][0], world[3][1], world[3][2]);
@@ -324,6 +331,15 @@ void ServerCore::process_input(InputPacket packet, short id)
 void ServerCore::update_game_state()
 {
     int win = 1;
+
+    // Update player scores
+    int total_scores = 0;
+    for (int i = 0; i < serverState.players.size(); i++){
+        PlayerObject *client_player = pWorld.findPlayer(i);
+        total_scores += client_player->getPlayerScore();
+    }
+    serverState.setScores(total_scores);
+        
     // Update parts of the game that don't depend on player input.
     for (int i = 0; i < serverState.players.size(); i++)
     {
@@ -564,6 +580,12 @@ void ServerCore::readBoundingBoxes() {
                 // printf("Added object to physics world with bounding box minExtents %f %f %f\n", c->minExtents.x, c->minExtents.y,c->minExtents.z);
                 // printf("                                                maxExtents %f %f %f\n", c->maxExtents.x, c->maxExtents.y,c->maxExtents.z);
                 GameObject* newGameObject = new GameObject(c);
+                BatteryState newBatteryState;
+
+                newBatteryState.physicalObject = newGameObject;
+                newBatteryState.collected = 0;
+
+                serverState.batteries.push_back(newBatteryState);
                 pWorld.addBatteries(newGameObject);
             }
             lineCount++;
@@ -575,5 +597,4 @@ void ServerCore::readBoundingBoxes() {
 
         file.close();
     }
-
 }
