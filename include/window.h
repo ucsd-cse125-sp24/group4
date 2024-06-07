@@ -37,6 +37,7 @@ public:
 
 	static Image* winScreen;
 	static Image* loseScreen;
+	static std::vector<Image*> progress;
 
 	// Camera
 	static Camera* cam;

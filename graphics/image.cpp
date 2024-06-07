@@ -1,16 +1,15 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "image.h"
 
-Image::Image(const std::string& path) {
+Image::Image(const std::string& path, float minX, float minY, float maxX, float maxY) {
 
 	// Set up the VAO, VBO, EBO
 	vertices = {
 		// Positions	// texCoords
-		1.0f, 1.0f,		1.0f, 1.0f, // top right
-		1.0f, -1.0f,	1.0f, 0.0f, // bottom right
-		-1.0f, -1.0f,	0.0f, 0.0f, // bottom left
-
-		-1.0f, 1.0f,	0.0f, 1.0f,   // top left
+		maxX, maxY,		1.0f, 1.0f,		// top right
+		maxX, minY,		1.0f, 0.0f,		// bottom right
+		minX, minY,		0.0f, 0.0f,		// bottom left
+		minX, maxY,		0.0f, 1.0f,		// top left
 	};
 
 	indices = {

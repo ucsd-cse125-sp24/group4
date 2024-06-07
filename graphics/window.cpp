@@ -29,6 +29,7 @@ short Window::player_id = 0; // 0 by default
 
 Image *Window::winScreen = nullptr;
 Image *Window::loseScreen = nullptr;
+std::vector<Image*> Window::progress;
 
 // Camera
 Camera *Window::cam;
@@ -261,8 +262,11 @@ void Window::setup_scene()
 	}
 
 	// Win screen
-	winScreen = new Image("art/2D/winning_screen.png");
-	loseScreen = new Image("art/2D/losing_screen.png");
+	winScreen = new Image("art/2D/winning_screen.png", -1, -1, 1, 1);
+	loseScreen = new Image("art/2D/losing_screen.png", -1, -1, 1, 1);
+
+	// TODO set up all 10 progress bars, then somehow figure out which one to render based on the game state
+	progress.push_back(new Image("art/2D/losing_screen.png", -0.75, 0.90, 0.75, 1));
 }
 
 AnimationState Window::getAnimationState(Input *input)
@@ -382,6 +386,9 @@ void Window::display_callback(GLFWwindow *window)
 	map->draw(cam->get_view_project_mtx(), shader_program);
 	exit_square->draw(cam->get_view_project_mtx(), shader_program);
 	//map->debug_draw(cam->get_view_project_mtx(), shader_program);
+
+	// Progress bar - TODO - render progress[0-9] based on game state
+	progress[0]->draw(shader_image_program);
 
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();

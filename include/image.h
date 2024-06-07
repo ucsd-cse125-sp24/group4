@@ -14,7 +14,8 @@ private:
 	std::vector<unsigned int> indices;
 
 public:
-	Image(const std::string& path);
+	Image(const std::string&path, float minX, float minY, float maxX, float maxY);
+	// -1, -1 to 1, 1 is full screen
 	void draw(Shader* shader);
 
 };
