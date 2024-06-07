@@ -85,8 +85,14 @@ GLFWwindow *Window::create_window(int width, int height)
 	// 4x antialiasing?
 	// glfwWindowHint(GLFW_SAMPLES, 4);
 
+	GLFWmonitor* primary = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(primary);
+	Window::width = mode->width;
+	Window::height = mode->height;
+
 	// Create the GLFW window
-	GLFWwindow *window = glfwCreateWindow(width, height, window_title, NULL, NULL);
+	// Trying to set the window as the current one makes it freak out
+	GLFWwindow *window = glfwCreateWindow(Window::width, Window::height, window_title, NULL, NULL);
 
 	// Check if the window could not be created
 	if (!window)
@@ -105,7 +111,7 @@ GLFWwindow *Window::create_window(int width, int height)
 		return NULL;
 	}
 
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, Window::width, Window::height);
 
 	// Shader program - maybe move somewhere else?
 	// Initialize shader
@@ -118,12 +124,12 @@ GLFWwindow *Window::create_window(int width, int height)
 	// TODO: Set up camera here
 	// Origin by default - should snap to player once scene is set up
 	cam = new Camera(glm::mat4(1.0));
-	cam->set_aspect(float(width) / float(height));
+	cam->set_aspect(float(Window::width) / float(Window::height));
 
 	// TODO: Initialize the interaction variables?
 
 	// Call the resize callback to make sure things get drawn immediately.
-	Window::resize_callback(window, width, height);
+	Window::resize_callback(window, Window::width, Window::height);
 
 	// Capture mouse
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -170,20 +176,20 @@ void Window::setup_scene()
 	player->set_world(temp);
 	players.push_back(player);
 
-	Model *player2 = new Model(alienPath, alienAnim);
-	player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
-	player2->set_world(temp);
-	players.push_back(player2);
+	//Model *player2 = new Model(alienPath, alienAnim);
+	//player2->set_color(glm::vec3(1, 0, 0)); // p2 - red
+	//player2->set_world(temp);
+	//players.push_back(player2);
 
-	Model *player3 = new Model(alienPath, alienAnim);
-	player3->set_color(glm::vec3(1, 0, 1)); // p3 - purple
-	player3->set_world(temp);
-	players.push_back(player3);
+	//Model *player3 = new Model(alienPath, alienAnim);
+	//player3->set_color(glm::vec3(1, 0, 1)); // p3 - purple
+	//player3->set_world(temp);
+	//players.push_back(player3);
 
-	Model *player4 = new Model(alienPath, alienAnim);
-	player4->set_color(glm::vec3(0, 0, 1)); // p4 - blue
-	player4->set_world(temp);
-	players.push_back(player4);
+	//Model *player4 = new Model(alienPath, alienAnim);
+	//player4->set_color(glm::vec3(0, 0, 1)); // p4 - blue
+	//player4->set_world(temp);
+	//players.push_back(player4);
 
 	std::cout << "Load students\n";
 	for (int i = 0; i < NUM_NPC; i++)
