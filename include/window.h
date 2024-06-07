@@ -40,6 +40,7 @@ public:
 	static std::vector<bool> studentsChasing;
 	static Drawable* map;
 	static Drawable* exit_square;
+	static Drawable* exit_square2;
 	static std::vector<Drawable*> batteries;
 
 	// Camera

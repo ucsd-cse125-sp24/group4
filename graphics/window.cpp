@@ -23,6 +23,7 @@ std::vector<bool> Window::studentsChasing;
 
 Drawable *Window::map;
 Drawable *Window::exit_square;
+Drawable *Window::exit_square2;
 std::vector<Drawable *> Window::batteries;
 
 short Window::player_id = 0; // 0 by default
@@ -220,6 +221,12 @@ void Window::setup_scene()
 	end->set_world(glm::scale(end_loc, glm::vec3(0.05, 0.05, 0.05)));
 	exit_square = end;
 
+	glm::mat4 end_loc2 = glm::translate(glm::mat4(1.0f), glm::vec3(86.84, 0, 383));
+	Model* end2 = new Model("art/models/exit_square.fbx");
+	end2->set_color(glm::vec3(0, 1, 0));
+	end2->set_world(glm::scale(end_loc2, glm::vec3(0.05, 0.05, 0.05)));
+	exit_square2 = end2;
+
 	glm::mat4 bat1_loc = glm::translate(glm::mat4(1.0f), glm::vec3(1, 0, 1));
 	Model* bat1 = new Model("art/models/battery.fbx");
 	bat1->set_color(glm::vec3(1, 1, 0));
@@ -300,6 +307,7 @@ void Window::clean_up()
 
 	delete map;
 	delete exit_square;
+	delete exit_square2;
 	
 	for (Drawable *battery : batteries)
 	{
@@ -390,6 +398,7 @@ void Window::display_callback(GLFWwindow *window)
 
 	map->draw(cam->get_view_project_mtx(), shader_program);
 	exit_square->draw(cam->get_view_project_mtx(), shader_program);
+	exit_square2->draw(cam->get_view_project_mtx(), shader_program);
 	//map->debug_draw(cam->get_view_project_mtx(), shader_program);
 
 	// Gets events, including input such as keyboard and mouse or window resizing

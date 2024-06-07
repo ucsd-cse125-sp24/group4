@@ -61,6 +61,7 @@ class PlayerObject : public GameObject {
         short playerId;
         glm::mat4 playerWorld;
         int ready_for_elevator = 0;
+        int ready = 0;
         int floor = 2;
 
     public:
@@ -81,6 +82,11 @@ class PlayerObject : public GameObject {
         void makeReady4Elevator() { ready_for_elevator = 1; }
         void makeUnready4Elevator() { ready_for_elevator = 0; }
         int getReady4Elevator() { return ready_for_elevator; }
+
+        void makeReady() { ready = 1; }
+        void makeUnready() { ready = 0; }
+        int getReady() { return ready; }
+
 
         int getFloor() { return floor; }
         void goToFloor8();
