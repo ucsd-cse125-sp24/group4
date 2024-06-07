@@ -138,7 +138,7 @@ void Window::setup_callbacks(GLFWwindow *window)
 
 void Window::setup_scene()
 {
-	std::string alienGreen = "art/models/animation/walking/green_alien_walking.fbx";
+	std::string alienGreen = "art/models/character/green_alien_wbones.fbx";
 	std::string alienMint = "art/models/animation/walking/mint_alien_walking.fbx";
 	std::string alienPink = "art/models/animation/walking/pink_alien_walking.fbx";
 	std::string alienPurple = "art/models/animation/walking/purple_alien_walking.fbx";
