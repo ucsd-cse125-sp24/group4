@@ -79,8 +79,8 @@ void ServerCore::run()
         }
     }
 
-    this->state = END_WIN; // future todo to implement logic handling win and lose states
-    send_heartbeat();
+    // this->state = END_WIN; // future todo to implement logic handling win and lose states
+    // send_heartbeat();
 }
 
 void ServerCore::shutdown()
@@ -334,10 +334,20 @@ void ServerCore::update_game_state()
             break;
         }
     }
-    if (win)
+
+    bool allOn8 = (num_player_on_8_floor() == serverState.players.size());
+    if (win && allOn8) // if all players are on the 8 floor and ready
     {
         this->state = END_WIN;
         send_heartbeat();
+    }
+    else if (win){ // if all players are ready and NOT on 8 floor, they can all go to 8 floor
+        for (int i = 0; i < serverState.players.size(); i++)
+        {
+            PlayerObject *client_player = pWorld.findPlayer(i);
+            client_player->goToFloor8();
+            client_player->makeUnready4Elevator();
+        }
     }
 
     auto now = std::chrono::high_resolution_clock::now();
@@ -407,6 +417,18 @@ void ServerCore::handleLostPlayer(int client_i) {
     bool send_success = server.sock_send(clients_data[client_i]->sock, CLIENT_RECV_BUFLEN, buffer);
 
     delete[] buffer;
+}
+
+int ServerCore::num_player_on_8_floor(){
+    int count = 0;
+    for (int i = 0; i < serverState.players.size(); i++)
+    {
+        PlayerObject *client_player = pWorld.findPlayer(i);
+        if (client_player->getFloor() == 8){
+            count++;
+        }
+    }
+    return count;
 }
 
 void ServerCore::send_heartbeat()
@@ -514,7 +536,7 @@ glm::vec3 parseLine(std::string line) {
 }
 
 void ServerCore::readBoundingBoxes() {
-    std::ifstream file("../game/floor2");
+    std::ifstream file("../game/floor2_8");
     if (!file) {
         std::cerr << "Failed to open the file for reading.\n";
         return;

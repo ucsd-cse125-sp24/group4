@@ -62,6 +62,8 @@ class ServerCore {
         void readBoundingBoxes();
         void handleLostPlayer(int client_i);
 
+        int num_player_on_8_floor();        // the number of players on 8th floor
+
         bool running;                       // Server running state
         Server server;
         std::vector<ClientData*> clients_data;

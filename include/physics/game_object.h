@@ -71,7 +71,7 @@ class PlayerObject : public GameObject {
         virtual ~PlayerObject() {
             delete collider;
         }
-         void move();
+        void move();
         void setPlayerId(short id) { playerId = id; }
         short getPlayerId() { return playerId; }
         void setPlayerWorld(glm::mat4 world){ playerWorld = world; }
@@ -81,4 +81,7 @@ class PlayerObject : public GameObject {
         void makeReady4Elevator() { ready_for_elevator = 1; }
         void makeUnready4Elevator() { ready_for_elevator = 0; }
         int getReady4Elevator() { return ready_for_elevator; }
+
+        int getFloor() { return floor; }
+        void goToFloor8();
 };
