@@ -282,6 +282,36 @@ void Window::setup_scene()
 	bat10->set_world(glm::scale(bat10_loc, glm::vec3(0.01, 0.01, 0.01)));
 	batteries.push_back(bat10);
 
+	// glm::mat4 bat11_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-109, 0, -37));
+	// Model* bat11 = new Model("art/models/battery.fbx");
+	// bat11->set_color(glm::vec3(1, 1, 0));
+	// bat11->set_world(glm::scale(bat11_loc, glm::vec3(0.01, 0.01, 0.01)));
+	// batteries.push_back(bat11);
+
+	// glm::mat4 bat12_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-84, 9, -73));
+	// Model* bat12 = new Model("art/models/battery.fbx");
+	// bat12->set_color(glm::vec3(1, 1, 0));
+	// bat12->set_world(glm::scale(bat12_loc, glm::vec3(0.01, 0.01, 0.01)));
+	// batteries.push_back(bat12);
+
+	// glm::mat4 bat13_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-48.67, 0, -18.4));
+	// Model* bat13 = new Model("art/models/battery.fbx");
+	// bat13->set_color(glm::vec3(1, 1, 0));
+	// bat13->set_world(glm::scale(bat13_loc, glm::vec3(0.01, 0.01, 0.01)));
+	// batteries.push_back(bat13);
+
+	// glm::mat4 bat14_loc = glm::translate(glm::mat4(1.0f), glm::vec3(17.5, 0, 46.5));
+	// Model* bat14 = new Model("art/models/battery.fbx");
+	// bat14->set_color(glm::vec3(1, 1, 0));
+	// bat14->set_world(glm::scale(bat14_loc, glm::vec3(0.01, 0.01, 0.01)));
+	// batteries.push_back(bat14);
+
+	// glm::mat4 bat15_loc = glm::translate(glm::mat4(1.0f), glm::vec3(-74, 7.13, -6.5));
+	// Model* bat15 = new Model("art/models/battery.fbx");
+	// bat15->set_color(glm::vec3(1, 1, 0));
+	// bat15->set_world(glm::scale(bat15_loc, glm::vec3(0.01, 0.01, 0.01)));
+	// batteries.push_back(bat15);
+
 	bool write_to_stat = false;
 	if (write_to_stat)
 	{

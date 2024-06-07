@@ -182,7 +182,7 @@ void PhysicsWorld::handleCollisions()
     // collision between player and game objects
     for (unsigned int i = 0; i < p_objects.size(); i++)
     {
-        for (unsigned int j = i + 1; j < m_objects.size(); j++)
+        for (unsigned int j = 0; j < m_objects.size(); j++)
         {
             if (!p_objects[i] || !m_objects[j])
             {
@@ -239,7 +239,7 @@ void PhysicsWorld::handleCollisions()
     // collision between player and batteries
     for (unsigned int i = 0; i < p_objects.size(); i++)
     {
-        for (unsigned int j = i + 1; j < b_objects.size(); j++)
+        for (unsigned int j = 0; j < b_objects.size(); j++)
         {
             if (!p_objects[i] || !b_objects[j])
             {
