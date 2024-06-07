@@ -57,12 +57,41 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
         glm::vec3 directionToPlayer = student.nearestPlayerPos - currentPos;
         if (student.chaseDuration == 0)
         {
+            printf("distance: %f\n", glm::length(directionToPlayer));
             // Check if player is still in range
-            if (glm::length(directionToPlayer) > 20.0f  || glm::length(directionToPlayer) < 0.6f)
+            if (glm::length(directionToPlayer) > 20.0f  || glm::length(directionToPlayer) < 0.9f)
             {
+                student.currentDir = StudentState::Direction::NORTH;
+                // Define the forward direction (north direction)
+                glm::vec3 northDirection = glm::vec3(0.0f, 0.0f, 1.0f);
+
+                // Determine the current direction of the student
+                glm::vec3 currentDirection = glm::vec3(student.world[2]);
+
+                // Normalize directions
+                northDirection = glm::normalize(northDirection);
+                currentDirection = glm::normalize(currentDirection);
+
+                // Calculate the rotation needed to face north
+                glm::vec3 rotationAxis = glm::cross(currentDirection, northDirection);
+                float dotProduct = glm::dot(currentDirection, northDirection);
+                float angle = acos(dotProduct); // Angle in radians
+
+                // Create the rotation matrix
+                glm::mat4 rotationMatrix;
+                if (glm::length(rotationAxis) > 0.0001f) {
+                    rotationMatrix = glm::rotate(glm::mat4(1.0f), angle, rotationAxis);
+                } else {
+                    // If the rotation axis is very small, avoid unnecessary rotation
+                    rotationMatrix = glm::mat4(1.0f);
+                }
+
+                // Apply the rotation to the world matrix
+                student.world = rotationMatrix * student.world;
+
                 student.chasingPlayer = false;
             }
-            student.chaseDuration = 10.0f;
+            student.chaseDuration = 8.0f;
         }
         else
         {
