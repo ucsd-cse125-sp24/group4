@@ -456,9 +456,6 @@ void Window::display_callback(GLFWwindow *window)
 	cam->update(players[player_id]->get_world());
 
 
-	// Progress bar - TODO - render progress[0-9] based on game state
-	progress[score]->draw(shader_image_program);
-
 	float deltaTime = calculateDeltaTime();
 
 	for (Drawable *player : players)
@@ -517,6 +514,9 @@ void Window::display_callback(GLFWwindow *window)
 	exit_square->draw(cam->get_view_project_mtx(), shader_program);
 	exit_sign->draw(cam->get_view_project_mtx(), shader_program);
 	//map->debug_draw(cam->get_view_project_mtx(), shader_program);
+
+	// Progress bar - TODO - render progress[0-9] based on game state
+	progress[score]->draw(shader_image_program);
 
 
 	// Gets events, including input such as keyboard and mouse or window resizing
