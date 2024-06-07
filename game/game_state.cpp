@@ -17,7 +17,6 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
     glm::vec3 currentPos = glm::vec3(student.world[3]);
 
     // Check for the nearest player within a range of 5 units
-    glm::vec3 nearestPlayerPos = glm::vec3(0.0);
     float minDistance = std::numeric_limits<float>::max();
     bool playerInRange = false;
 
@@ -46,7 +45,7 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
             // printf("positions: <%f, %f, %f>\n", playerPos.x, playerPos.y, playerPos.z);
             // printf("positions: <%f, %f, %f>\n\n", currentPos.x, currentPos.y, currentPos.z);
             minDistance = distance;
-            nearestPlayerPos = playerPos;
+            student.nearestPlayerPos = playerPos;
             playerInRange = true;
             student.chasingPlayer = true;
         }
@@ -54,17 +53,16 @@ void GameState::moveStudent(StudentState &student, std::vector<PlayerState> &pla
 
     if (student.chasingPlayer)
     {
-        printf("positions: <%f, %f, %f>\n", nearestPlayerPos.x, nearestPlayerPos.y, nearestPlayerPos.z);
         //std::cout << "The number is: " << student.chaseDuration << std::endl;
-        glm::vec3 directionToPlayer = nearestPlayerPos - currentPos;
+        glm::vec3 directionToPlayer = student.nearestPlayerPos - currentPos;
         if (student.chaseDuration == 0)
         {
             // Check if player is still in range
-            if (glm::length(directionToPlayer) > 20.0f)
+            if (glm::length(directionToPlayer) > 20.0f  || glm::length(directionToPlayer) < 0.6f)
             {
                 student.chasingPlayer = false;
             }
-            student.chaseDuration = 20.0f;
+            student.chaseDuration = 10.0f;
         }
         else
         {

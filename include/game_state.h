@@ -47,6 +47,7 @@ struct StudentState
     bool chasingPlayer;
     float chaseDuration;
     bool hasCaughtPlayer;
+    glm::vec3 nearestPlayerPos;
     GameObject* physicalObject;
 
     StudentState() : timeSinceLastUpdate(0.0f), distanceMoved(0.0f), rotating(0.0f), chasingPlayer(false), chaseDuration(20.0f), hasCaughtPlayer(false)
