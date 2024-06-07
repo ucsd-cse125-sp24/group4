@@ -62,6 +62,7 @@ class PlayerObject : public GameObject {
         glm::mat4 playerWorld;
         int ready = 0;
         int score = 0;
+        int on_table = 0;
 
     public:
 
@@ -86,4 +87,10 @@ class PlayerObject : public GameObject {
             return score;
         }
         int getPlayerScore(){ return score;}
+        void on() {
+            on_table = 1;
+        }
+        void off() {
+            on_table = 0;
+        }
 };

@@ -113,11 +113,11 @@ void ServerCore::initialize_npcs()
         // Make sure npc is not around players when starting the game
         do {
             randomX = getRandomFloat(-100.0f, 100.0f);
-        } while(randomX > -10.0f && randomX < 10.0f);
+        } while(randomX > -20.0f && randomX < 20.0f);
 
         do {
             randomZ = getRandomFloat(-100.0f, 100.0f);
-        } while(randomZ > -10.0f && randomZ < 10.0f);
+        } while(randomZ > -20.0f && randomZ < 20.0f);
 
         randomY = 0.0f; // same level so Y=0 for now
 
@@ -246,9 +246,7 @@ void ServerCore::process_input(InputPacket packet, short id)
         case JUMP:
         {
             jumping = true;
-            if (client_player->getPosition().y < 5 || client_player->getVelocity().y == 0)
-                client_player->jump();
-            // client_player->jump();
+            client_player->jump();
             break;
         }
         case INTERACT:

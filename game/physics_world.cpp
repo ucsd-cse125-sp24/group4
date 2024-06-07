@@ -208,8 +208,10 @@ void PhysicsWorld::handleCollisions()
                     glm::vec3 maxExt = objectCollider.maxExtents;
                     p_objects[i]->setPosition(glm::vec3(p_objects[i]->getPosition().x, maxExt.y, p_objects[i]->getPosition().z));
                     p_objects[i]->setForce(glm::vec3(0.0));
+                    p_objects[i]->on();
                     continue;
                 }
+                p_objects[i]->off();
 
                 p_objects[i]->setVelocity(-collision_dir * 20.0f);
                 // glm::vec3 tempVel = p_objects[i]->getVelocity();
