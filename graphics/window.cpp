@@ -13,6 +13,8 @@ Shader *Window::shader_anim_program = nullptr;
 Shader *Window::shader_image_program = nullptr;
 Input *Window::input = nullptr;
 
+int Window::score = 0;
+
 // Mouse
 float Window::lastX = 400, Window::lastY = 300; // TODO: change if resolution changes
 float Window::lastFrameTime = 0.0f;
@@ -95,6 +97,7 @@ GLFWwindow *Window::create_window(int width, int height)
 	GLFWwindow *window = glfwCreateWindow(mode->width, mode->height, window_title, primary, NULL);
 
 	glfwGetWindowSize(window, &Window::width, &Window::height);
+	std::cout << "Window size: " << Window::width << ", " << Window::height << std::endl;
 
 	// Check if the window could not be created
 	if (!window)
@@ -280,7 +283,17 @@ void Window::setup_scene()
 	loseScreen = new Image("art/2D/losing_screen.png", -1, -1, 1, 1);
 
 	// TODO set up all 10 progress bars, then somehow figure out which one to render based on the game state
-	progress.push_back(new Image("art/2D/losing_screen.png", -0.75, 0.90, 0.75, 1));
+	//progress.push_back(new Image("art/2D/battery_0.png", -0.5, 0.90, 0.5, 1));
+	progress.push_back(new Image("art/2D/battery_1.png", -0.5, 0.90, 0.5, 1));
+	progress.push_back(new Image("art/2D/battery_2.png", -0.5, 0.90, 0.5, 1));
+	progress.push_back(new Image("art/2D/battery_3.png", -0.5, 0.90, 0.5, 1));
+	progress.push_back(new Image("art/2D/battery_4.png", -0.5, 0.90, 0.5, 1));
+	progress.push_back(new Image("art/2D/battery_5.png", -0.5, 0.90, 0.5, 1));
+	progress.push_back(new Image("art/2D/battery_6.png", -0.5, 0.90, 0.5, 1));
+	progress.push_back(new Image("art/2D/battery_7.png", -0.5, 0.90, 0.5, 1));
+	progress.push_back(new Image("art/2D/battery_8.png", -0.5, 0.90, 0.5, 1));
+	progress.push_back(new Image("art/2D/battery_9.png", -0.5, 0.90, 0.5, 1));
+	progress.push_back(new Image("art/2D/battery_10.png", -0.5, 0.90, 0.5, 1));
 }
 
 AnimationState Window::getAnimationState(Input *input)
@@ -416,7 +429,7 @@ void Window::display_callback(GLFWwindow *window)
 	//map->debug_draw(cam->get_view_project_mtx(), shader_program);
 
 	// Progress bar - TODO - render progress[0-9] based on game state
-	progress[0]->draw(shader_image_program);
+	progress[score]->draw(shader_image_program);
 
 	// Gets events, including input such as keyboard and mouse or window resizing
 	glfwPollEvents();
@@ -502,6 +515,9 @@ void Window::update_state(GameState &state)
 
 		// std::cout << "result: " << state.students[i].world[3][0] << ", " << state.students[i].world[3][1] << ", " << state.students[i].world[3][2] << std::endl;
 	}
+
+	// Score
+	score = state.score;
 }
 
 void Window::draw_lose(GLFWwindow* window) {

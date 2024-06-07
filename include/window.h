@@ -47,6 +47,7 @@ public:
 	static Image* winScreen;
 	static Image* loseScreen;
 	static std::vector<Image*> progress;
+	static int score;
 
 	// Camera
 	static Camera* cam;
