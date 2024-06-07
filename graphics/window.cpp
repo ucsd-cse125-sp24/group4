@@ -137,16 +137,16 @@ void Window::setup_callbacks(GLFWwindow *window)
 
 void Window::setup_scene()
 {
-	std::string alienGreen = "art/models/character/green_alien_wbones.fbx";
-	std::string alienMint = "art/models/animation/walking/mint_alien_walking.fbx";
-	std::string alienPink = "art/models/animation/walking/pink_alien_walking.fbx";
-	std::string alienPurple = "art/models/animation/walking/purple_alien_walking.fbx";
+	std::string alienGreen = "art/models/character/green_alien.fbx";
+	std::string alienMint = "art/models/character/mint_alien.fbx";
+	std::string alienPink = "art/models/character/pink_alien.fbx";
+	std::string alienPurple = "art/models/character/purple_alien.fbx";
 
 	std::string boyPath = "art/models/character/boy_standing.fbx";
 	std::string girlPath = "art/models/character/girl_standing.fbx";
 
 	std::map<AnimationState, std::string> alienAnim = {
-		{AnimationState::Idle, "art/models/character/green_alien_wbones.fbx"},
+		{AnimationState::Idle, "art/models/character/green_alien.fbx"},
 		{AnimationState::Walking, "art/models/animation/walking/green_alien_walking.fbx"}};
 
 	std::map<AnimationState, std::string> boyAnim = {
