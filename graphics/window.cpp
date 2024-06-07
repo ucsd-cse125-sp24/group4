@@ -59,8 +59,6 @@ void writeBoundingBoxToTextFile(const glm::vec3 &minVec, const glm::vec3 &maxVec
 		file << maxVec.x << ", " << maxVec.y << ", " << maxVec.z << "." << std::endl;
 		file.close();
 	}
-	
-
 }
 
 GLFWwindow *Window::create_window(int width, int height)
@@ -367,7 +365,7 @@ void Window::display_callback(GLFWwindow *window)
 				Window::currAudio = ALERT_CHASE;
 			}
 			else if (Window::currAudio != INTENSE && Window::audio_finish_time < time(0)) {
-				PlaySound((LPCSTR)"../audio/peaches.wav", GetModuleHandle(NULL), SND_ASYNC | SND_FILENAME);
+				PlaySound((LPCSTR)"../audio/running.wav", GetModuleHandle(NULL), SND_LOOP | SND_ASYNC | SND_FILENAME);
 				Window::currAudio = INTENSE;
 				Window::audio_finish_time = 0;
 			}
