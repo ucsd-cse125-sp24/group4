@@ -481,12 +481,13 @@ void Window::display_callback(GLFWwindow *window)
 		Model *model = dynamic_cast<Model *>(students[i]);
 		if (studentsChasing[i])
 		{
-			if (Window::currAudio != ALERT_CHASE && Window::currAudio != INTENSE && !Window::audio_finish_time) {
+			if (Window::currAudio != ALERT_CHASE && Window::currAudio != INTENSE && 
+				!Window::audio_finish_time && Window::currAudio != END) {
 				Window::audio_finish_time = time(0) + 2;
 				PlaySound((LPCSTR)"../audio/alert.wav", GetModuleHandle(NULL), SND_ASYNC | SND_FILENAME);
 				Window::currAudio = ALERT_CHASE;
 			}
-			else if (Window::currAudio != INTENSE && Window::audio_finish_time < time(0)) {
+			else if (Window::currAudio != INTENSE && Window::audio_finish_time < time(0) && Window::currAudio != END) {
 				PlaySound((LPCSTR)"../audio/running.wav", GetModuleHandle(NULL), SND_LOOP | SND_ASYNC | SND_FILENAME);
 				Window::currAudio = INTENSE;
 				Window::audio_finish_time = 0;
@@ -499,7 +500,7 @@ void Window::display_callback(GLFWwindow *window)
 			model->updateAnimations(deltaTime, AnimationState::Walking);
 		}
 	}
-	if (Window::currAudio != SNEAKY_BACKGROUND && !some_chasing) {
+	if (Window::currAudio != SNEAKY_BACKGROUND && !some_chasing && Window::currAudio != END) {
 			PlaySound((LPCSTR)"../audio/sneaky_background.wav", GetModuleHandle(NULL), SND_LOOP | SND_ASYNC | SND_FILENAME);
 			Window::currAudio = SNEAKY_BACKGROUND;
 		}
@@ -620,6 +621,8 @@ void Window::update_state(GameState &state)
 }
 
 void Window::draw_lose(GLFWwindow* window) {
+	PlaySound((LPCSTR)"../audio/losing.wav", GetModuleHandle(NULL), SND_LOOP | SND_ASYNC | SND_FILENAME);
+	Window::currAudio = END;
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	loseScreen->draw(shader_image_program);
@@ -632,6 +635,9 @@ void Window::draw_lose(GLFWwindow* window) {
 
 void Window::draw_win(GLFWwindow* window) {
 
+	PlaySound((LPCSTR)"../audio/winning_happy.wav", GetModuleHandle(NULL), SND_LOOP | SND_ASYNC | SND_FILENAME);
+	Window::currAudio = END;
+	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	winScreen->draw(shader_image_program);
 	// Gets events, including input such as keyboard and mouse or window resizing

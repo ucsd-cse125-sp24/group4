@@ -15,7 +15,8 @@ enum CurrentAudio {
 	LOADING,
 	SNEAKY_BACKGROUND,
 	ALERT_CHASE,
-	INTENSE
+	INTENSE,
+	END
 };
 
 /*
