@@ -641,3 +641,13 @@ void Window::draw_win(GLFWwindow* window) {
 	glfwSwapBuffers(window);
 
 }
+
+void Window::draw_loading_screen(GLFWwindow* window) {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	Image loading = Image("art/2D/game_cover_ui.png", -1, -1, 1, 1);
+	loading.draw(shader_image_program);
+
+	glfwPollEvents();
+	glfwSwapBuffers(window);
+}

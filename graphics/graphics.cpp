@@ -28,6 +28,9 @@ GLFWwindow* Graphics::set_up_window(int id) {
 
 	Window::setup_callbacks(window);
 
+	// Draw loading screen
+	Window::draw_loading_screen(window);
+
 	// Set up objects to draw
 	Window::setup_scene();
 

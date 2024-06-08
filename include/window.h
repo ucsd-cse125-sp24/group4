@@ -90,4 +90,5 @@ public:
 
 	static void draw_lose(GLFWwindow* window);
 	static void draw_win(GLFWwindow* window);
+	static void draw_loading_screen(GLFWwindow* window);
 };
